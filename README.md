@@ -1,2 +1,2 @@
 # Game Cloud
-# Ist eine cloud System für Minecraft Netzwerke
+# Ist ein cloud System für Minecraft Netzwerke
