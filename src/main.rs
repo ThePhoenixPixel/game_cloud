@@ -1,35 +1,18 @@
 use std::fs;
 use std::env;
-use std::io;
-use std::fs::File;
-
-use std::io::Write;
-
-use std::path::Path;
-
-use reqwest;
-use reqwest::blocking::get;
-
-use serde_yaml;
-use serde::Deserialize;
-
-/*use std::f32::consts::E;
-
-use bib::dir::Dir;
-use data::group;
-
-use data::service;
-
-*/
-
-use data::task;
-
 use crate::data::task::Task;
 
+/*
+use std::f32::consts::E;
+use reqwest;
+use reqwest::blocking::get;
+use bib::dir::Dir;
+use data::group;
+use data::service;
 mod bib{
     pub mod dir;
 }
-
+*/
 mod data{
     pub mod task;
     pub mod service;
@@ -52,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
         fs::create_dir(&task_path).expect("Fehler beim Erstellen des Task-Ordners");
     }
 
-    let task = Task::get_task("Lobby").expect("jou error bei get task");
+    let task = Task::get_task("Proxy").expect("jou error bei get task");
     
     println!("Name: {}", task.get_name());
     println!("Min Service Count: {}", task.get_minservicecount());
@@ -64,34 +47,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>>{
 
 
     //end
-    let mut test = String::new();
-    io::stdin().read_line(&mut test);
     println!("BB");
     Ok(())
-
 }
 
 
-
-
-fn find_yaml_files(folder_path: &str) -> Vec<String> {
-    let mut yaml_files = Vec::new();
-
-    if let Ok(entries) = fs::read_dir(folder_path) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let file_path = entry.path();
-                if file_path.is_file() && file_path.extension().and_then(|ext| ext.to_str()) == Some("yml") {
-                    if let Some(file_name) = file_path.file_name().and_then(|name| name.to_str()) {
-                        yaml_files.push(file_name.to_owned());
-                    }
-                }
-            }
-        }
-    }
-
-    return yaml_files;
-}
 
 /*if !cloud_file_config_path.exists() {
         let url = "http://dev.phoenixcraft.eu/cloud/config.yml";

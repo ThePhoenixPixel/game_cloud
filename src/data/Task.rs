@@ -1,20 +1,8 @@
 use std::fs;
 use std::env;
 use std::process::Command;
-use std::io;
-use std::fs::File;
-
-use std::io::Write;
-
-use std::path::Path;
-use std::path::PathBuf;
-use std::task;
-
-use reqwest;
-use reqwest::blocking::get;
-
+use std::path::{Path, PathBuf};
 use serde_yaml;
-use serde::Deserialize;
 use fs_extra::dir::{copy, CopyOptions};
 pub struct Task {
     // Task Struktur
@@ -71,7 +59,7 @@ impl Task {
                 .expect("Error beim Deserialisieren der config datei");
             //
             
-            let task_name = config["name"].as_str();
+            let _task_name = config["name"].as_str();
 
             if let (Some(task_name), Some(minservicecount), Some(maxram), Some(template)) = (
                 config["name"].as_str(),
@@ -128,15 +116,14 @@ impl Task {
         service_path.pop();
         service_path.push("service");
         service_path.push("temp");
-
+    
         println!("{:?}", service_path);
-
-
+    
         if service_path.exists() && service_path.is_dir(){
             fs::remove_dir_all(&service_path).expect("Error beim löschen des temp ordners");
+            fs::create_dir_all(&service_path).expect("Error beim erstellen des temp ordners");
         }
-
-
+    
         let mut options = CopyOptions::new();
         options.overwrite = true;
     
@@ -144,27 +131,27 @@ impl Task {
             Ok(_) => println!("Ordner erfolgreich kopiert"),
             Err(e) => println!("Fehler beim Kopieren des Ordners: {}", e),
         };
-
-        //start mc server
-
+    
+        // Starte den MC-Server
+        
+        let service_path_proxy = service_path.join("Proxy");
+        let jar_path = service_path_proxy.join("velo.jar");
+        let jar_path_str = jar_path.to_string_lossy().to_string();
+    
         let output = Command::new("java")
             .arg("-Xmx1G")
-            .arg("velo.jar")
+            .arg("-jar")
+            .arg(&jar_path_str)
             .output()
-            .expect("Error beim starten des servers");
-        
-        if output.status.success(){
-            println!("Server gestartet");
-        }else {
-            println!("Eooro beim starten des servers if");
+            .expect("Fehler beim Starten des Servers");
+    
+        if output.status.success() {
+            println!("Server erfolgreich gestartet");
+        } else {
+            let error_message = String::from_utf8_lossy(&output.stderr);
+            println!("Fehler beim Starten des Servers: {}", error_message);
         }
-
-
-
-
-
-        
-
     }
+    
     
 }
