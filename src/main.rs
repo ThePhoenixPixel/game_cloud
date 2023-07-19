@@ -9,7 +9,6 @@ mod data{
 }
 
 fn main(){
-
     println!("Start Game Cloud");
 
     //read file and dirs
