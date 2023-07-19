@@ -2,24 +2,11 @@ use std::fs;
 use std::io;
 use std::env;
 use std::path::{PathBuf};
-use std::thread::available_parallelism;
-use crate::data::Service::Service;
 use crate::data::Task::Task;
-/*
-use std::f32::consts::E;
-use reqwest;
-use reqwest::blocking::get;
-use bib::dir::Dir;
-use data::group;
-use data::service;
 
-*/
 mod data{
     pub mod Task;
-    pub mod Service;
-    pub mod group;
 }
-
 
 fn main(){
 
