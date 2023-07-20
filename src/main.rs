@@ -10,23 +10,32 @@ mod data{
 
 fn main(){
     println!("Start Game Cloud");
-
+    let dev_mode = true;
     //read file and dirs
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
     exe_path.pop();
     check_dir(exe_path);
 
+    //task abfrage und initaliesirung der
+    let task_all = Task::get_task_all();
+
+    println!("{:?}", task_all);
+
+    for i in task_all {
+        let mut task = Task::get_task(i.as_str()).expect("jou error bei get task");
 
 
-    let mut task = Task::get_task("server").expect("jou error bei get task");
+        if dev_mode {
+            println!("-------------------------------------------");
+            println!("Name: {}", task.get_name());
+            println!("Min Service Count: {}", task.get_minservicecount());
+            println!("Max Ram: {}", task.get_maxram());
+            println!("Template: {}", task.get_template());
+            println!("-------------------------------------------");
+        }
 
-    println!("Name: {}", task.get_name());
-    println!("Min Service Count: {}", task.get_minservicecount());
-    println!("Max Ram: {}", task.get_maxram());
-    println!("Template: {}", task.get_template());
 
-
-    //task.start_as_service();
+    }
 
     // cmd
     loop{
@@ -130,8 +139,8 @@ fn user_input(args: &[&str]) -> bool{
                     match sub0 {
                         &"start" => {
                             if let Some(sub1) = args.get(2){
-                                let service = Service::new(sub1);
-                                service.start();
+                                //let service = Service::new(sub1);
+                                //service.start();
                             }else {
                                 println!("bitte gebe ein task name ein");
                                 println!("damit dieser als service starten kann");

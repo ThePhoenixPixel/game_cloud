@@ -90,6 +90,34 @@ impl Task {
         None // Wenn kein passender Task gefunden wurde
     }
 
+    //get all task
+    pub fn get_task_all() -> Vec<String> {
+        let exe_path = env::current_exe()
+            .expect("Ausführungs path konnte nicht gefunden werden");
+
+        let mut task_path = exe_path.clone();
+        task_path.pop();
+        task_path.push("task");
+
+        let mut task_names = Vec::new();
+
+        if task_path.exists() && task_path.is_dir() {
+            if let Ok(entries) = fs::read_dir(task_path) {
+                for entry in entries {
+                    if let Ok(entry) = entry {
+                        if let Some(file_name) = entry.file_name().to_str() {
+                            if let Some(name) = file_name.strip_suffix(".yml") {
+                                task_names.push(name.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        task_names
+    }
+
     //get name
     pub fn get_name(&self) -> &str{
         &self.name
@@ -134,7 +162,7 @@ impl Task {
             let file_content = fs::read_to_string(&file_path)
                 .expect("for schliefe yml task");
 
-            let config: serde_yaml::Value = serde_yaml::from_str(&file_content)
+            let mut config: serde_yaml::Value = serde_yaml::from_str(&file_content)
                 .expect("Error beim Deserialisieren der task datei");
 
             config["maxram"] = serde_yaml::Value::Number(serde_yaml::Number::from(self.maxram));
@@ -175,7 +203,7 @@ impl Task {
             let file_content = fs::read_to_string(&file_path)
                 .expect("for schliefe yml task");
 
-            let config: serde_yaml::Value = serde_yaml::from_str(&file_content)
+            let mut config: serde_yaml::Value = serde_yaml::from_str(&file_content)
                 .expect("Error beim Deserialisieren der task datei");
 
             config["template"] = serde_yaml::Value::String(self.template.clone());
