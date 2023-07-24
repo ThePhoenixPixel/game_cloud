@@ -1,5 +1,6 @@
 use std::fs;
 use std::env;
+use std::fmt::format;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Child;
@@ -10,6 +11,7 @@ use std::process::Command;
 use reqwest::blocking::Client;
 use serde_yaml;
 use fs_extra::dir::{copy, CopyOptions};
+use fs_extra::dir::DirEntryAttr::Path;
 use serde_yaml::Value;
 
 pub struct Task {
@@ -267,7 +269,7 @@ impl Task {
         }
         return true;
     }
-    pub fn start_as_service(&mut self) {
+    pub fn start_as_service(self) {
         println!("start_as_serice");
 
         let exe_path = env::current_exe()
@@ -307,6 +309,20 @@ impl Task {
             Err(e) => println!("Fehler beim Kopieren des Ordners: {}", e),
         };
 
+        let mut server_dir_name = format!("{}-1", &self.name);
+        let mut i = 1;
+
+        while Path::new(&server_dir_name).exists() {
+            i += 1;
+            server_dir_name = format!("{}-{}", &self.name, i);
+        }
+
+        //rename the folder
+        match fs::rename(&template_path, new_folder_name) {
+            Ok(_) => println!("Ordner erfolgreich umbenannt."),
+            Err(e) => println!("Fehler beim Umbenennen des Ordners: {}", e),
+        }
+
         thread::sleep(Duration::from_secs(5));
 
         //--------------------------------------
@@ -327,7 +343,7 @@ impl Task {
 
         //start the server
         let server = Command::new("java")
-            .args(&["-Xmx1G", "-jar", &service_path_string_jar])
+            .args(&[format!("-Xmx{}G", &self.maxram), "-jar", &service_path_string_jar])
             .current_dir(&service_path_string)
             .spawn()
             .expect("Fehler beim Starten des Servers");

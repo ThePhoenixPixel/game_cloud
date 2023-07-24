@@ -34,6 +34,12 @@ fn main(){
             println!("-------------------------------------------");
         }
 
+        if task.get_minservicecount() > 0 {
+            for i in task.get_minservicecount() {
+                task.start_as_service();
+            }
+
+        }
 
     }
 
