@@ -10,38 +10,39 @@ mod data{
 
 fn main(){
     println!("Start Game Cloud");
-    let dev_mode = true;
+    let dev_mode = false;
     //read file and dirs
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
     exe_path.pop();
     check_dir(exe_path);
+
+
 
     //task abfrage und initaliesirung der
     let task_all = Task::get_task_all();
 
     println!("{:?}", task_all);
 
-    for i in task_all {
-        let mut task = Task::get_task(i.as_str()).expect("jou error bei get task");
-
+    for task_name in task_all {
+        let task = Task::get_task(task_name.as_str()).expect("Fehler beim Abrufen der Aufgabe");
 
         if dev_mode {
             println!("-------------------------------------------");
             println!("Name: {}", task.get_name());
-            println!("Min Service Count: {}", task.get_minservicecount());
-            println!("Max Ram: {}", task.get_maxram());
-            println!("Template: {}", task.get_template());
+            println!("Mindestanzahl Dienste: {}", task.get_minservicecount());
+            println!("Maximaler RAM: {}", task.get_maxram());
+            println!("Vorlage: {}", task.get_template());
             println!("-------------------------------------------");
         }
 
         if task.get_minservicecount() > 0 {
-            for i in task.get_minservicecount() {
+            for _ in 0..task.get_minservicecount() {
+                println!("Dienst starten {}", &task.name);
                 task.start_as_service();
             }
-
         }
-
     }
+
 
     // cmd
     loop{
@@ -180,8 +181,8 @@ fn shutdown(){
 
 fn check_dir(exe_path: PathBuf){
 
+    //task
     {
-        //task dir
         let mut task_path = exe_path.clone();
         task_path.push("task");
         if !task_path.exists() {
@@ -189,8 +190,9 @@ fn check_dir(exe_path: PathBuf){
             fs::create_dir(&task_path).expect("Fehler beim Erstellen des Task-Ordners");
         }
     }
+
+    //template
     {
-        //teplate dir
         let mut template_path = exe_path.clone();
         template_path.push("template");
         if !template_path.exists(){
@@ -198,6 +200,30 @@ fn check_dir(exe_path: PathBuf){
                 .expect("Error beim erstellen des Template Ordners");
         }
 
+    }
+
+    //service
+    {
+        let mut service_path = exe_path.clone();
+        service_path.push("service");
+        if !service_path.exists() {
+            fs::create_dir(&service_path).expect("Error beim erstellen des service folders");
+        }
+        //service/temp
+        {
+            service_path.push("temp");
+            if !service_path.exists(){
+                fs::create_dir(&service_path).expect("Error beim erstellen des temp folders");
+            }
+        }
+        //service/static
+        {
+            service_path.pop();
+            service_path.push("static");
+            if !service_path.exists() {
+                fs::create_dir(&service_path).expect("Error beim erstellen des static folders");
+            }
+        }
     }
 
 

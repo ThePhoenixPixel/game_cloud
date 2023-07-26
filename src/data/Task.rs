@@ -1,17 +1,16 @@
 use std::fs;
 use std::env;
-use std::fmt::format;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Child;
 use std::thread;
 use std::time::Duration;
 use std::process::Command;
-
+use std::path::Path;
 use reqwest::blocking::Client;
 use serde_yaml;
 use fs_extra::dir::{copy, CopyOptions};
-use fs_extra::dir::DirEntryAttr::Path;
+
 use serde_yaml::Value;
 
 pub struct Task {
@@ -164,10 +163,10 @@ impl Task {
             let file_content = fs::read_to_string(&file_path)
                 .expect("for schliefe yml task");
 
-            let mut config: serde_yaml::Value = serde_yaml::from_str(&file_content)
+            let mut config: Value = serde_yaml::from_str(&file_content)
                 .expect("Error beim Deserialisieren der task datei");
 
-            config["maxram"] = serde_yaml::Value::Number(serde_yaml::Number::from(self.maxram));
+            config["maxram"] = Value::Number(serde_yaml::Number::from(self.maxram));
         }
     }
 
@@ -205,10 +204,10 @@ impl Task {
             let file_content = fs::read_to_string(&file_path)
                 .expect("for schliefe yml task");
 
-            let mut config: serde_yaml::Value = serde_yaml::from_str(&file_content)
+            let mut config: Value = serde_yaml::from_str(&file_content)
                 .expect("Error beim Deserialisieren der task datei");
 
-            config["template"] = serde_yaml::Value::String(self.template.clone());
+            config["template"] = Value::String(self.template.clone());
         }
     }
 
@@ -241,10 +240,8 @@ impl Task {
         };
 
         // Werte ersetzen
-        new_content["name"] = serde_yaml::Value::String(self.name.clone());
-        //new_content["minservicecount"] = serde_yaml::Value::Number(serde_yaml::Number::from(self.minservicecount));
-        //new_content["maxram"] = serde_yaml::Value::Number(serde_yaml::Number::from(self.maxram));
-        new_content["template"] = serde_yaml::Value::String(self.template.clone());
+        new_content["name"] = Value::String(self.name.clone());
+        new_content["template"] = Value::String(self.template.clone());
 
         let mut file = match fs::File::create(task_path) {
             Ok(file) => file,
@@ -269,11 +266,10 @@ impl Task {
         }
         return true;
     }
-    pub fn start_as_service(self) {
+    pub fn start_as_service(&self) {
         println!("start_as_serice");
 
-        let exe_path = env::current_exe()
-            .expect("Error beim lesen des exe path");
+        let exe_path = env::current_exe().expect("Error beim lesen des exe path");
 
         let mut template_path = exe_path.clone();
         template_path.pop();
@@ -296,34 +292,40 @@ impl Task {
         //-----------------------
 
 
-        if service_path.exists() && service_path.is_dir(){
-            fs::remove_dir_all(&service_path).expect("Error beim löschen des temp ordners");
-            fs::create_dir_all(&service_path).expect("Error beim erstellen des temp ordners");
+        // Zielordner erstellen
+        let mut server_dir_name = service_path.clone();
+        server_dir_name.push(format!("{}-1", &self.name));
+        let mut i = 1;
+
+        while server_dir_name.exists() {
+            i += 1;
+            server_dir_name.pop();
+            server_dir_name.push(format!("{}-{}", &self.name, i));
+
         }
 
         let mut options = CopyOptions::new();
         options.overwrite = true;
 
+        println!("{:?}", service_path);
+
+        //copy the dir
         match copy(&template_path, &service_path, &options) {
             Ok(_) => println!("Ordner erfolgreich kopiert"),
             Err(e) => println!("Fehler beim Kopieren des Ordners: {}", e),
-        };
-
-        let mut server_dir_name = format!("{}-1", &self.name);
-        let mut i = 1;
-
-        while Path::new(&server_dir_name).exists() {
-            i += 1;
-            server_dir_name = format!("{}-{}", &self.name, i);
         }
 
-        //rename the folder
-        match fs::rename(&template_path, new_folder_name) {
+        let mut old_dir_name = service_path.clone();
+        old_dir_name.push(&self.template);
+        println!("{:?}", service_path);
+        println!("{:?}", server_dir_name);
+
+        match fs::rename(&old_dir_name, &server_dir_name) {
             Ok(_) => println!("Ordner erfolgreich umbenannt."),
             Err(e) => println!("Fehler beim Umbenennen des Ordners: {}", e),
         }
 
-        thread::sleep(Duration::from_secs(5));
+        thread::sleep(Duration::from_secs(3));
 
         //--------------------------------------
 
@@ -332,21 +334,28 @@ impl Task {
         //vllt noch hier den gloabl importieren
 
         //---------------------------------------
-
-        service_path.push("server");
+        service_path.push(format!("{}-{}", self.name, i));
 
         let mut service_path_jar = service_path.clone();
-        service_path_jar.push("paper.jar");
+        service_path_jar.push("velo.jar");
 
         let service_path_string_jar = service_path_jar.to_str().expect("Fehler beim Konvertieren des Jar-Pfads").to_string();
         let service_path_string = service_path.to_str().expect("Fehler beim Konvertieren des Pfads").to_string();
 
+
+    println!("{}", service_path_string_jar);
+
         //start the server
         let server = Command::new("java")
-            .args(&[format!("-Xmx{}G", &self.maxram), "-jar", &service_path_string_jar])
+            .args(&[format!("-Xmx{}M", &self.maxram), "-jar".to_string(), service_path_string_jar])
             .current_dir(&service_path_string)
             .spawn()
             .expect("Fehler beim Starten des Servers");
+
+
+
+
+
 
 
         //webhook anfrage an den proxy
