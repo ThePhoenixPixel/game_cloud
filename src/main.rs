@@ -1,12 +1,30 @@
 use std::fs;
 use std::io;
 use std::env;
-use std::path::{PathBuf};
-use crate::data::Task::Task;
+use std::fs::File;
+use std::io::{Read, Write};
+use std::path::PathBuf;
+use colored::Colorize;
+use reqwest::blocking::get;
+use serde_json;
+use serde_json::Value;
+use crate::config::Config;
+use crate::data::task::Task;
+use crate::lib::bx::Bx;
 
-mod data{
-    pub mod Task;
+pub mod lib{
+    pub mod bx;
 }
+pub mod data{
+    pub mod task;
+    pub mod template;
+    //pub mod group;
+    //pub mod node;
+    pub mod software;
+    pub mod service;
+}
+
+mod config;
 
 fn main(){
     println!("Start Game Cloud");
@@ -14,8 +32,7 @@ fn main(){
     //read file and dirs
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
     exe_path.pop();
-    check_dir(exe_path);
-
+    check_path(exe_path);
 
 
     //task abfrage und initaliesirung der
@@ -24,21 +41,13 @@ fn main(){
     println!("{:?}", task_all);
 
     for task_name in task_all {
-        let task = Task::get_task(task_name.as_str()).expect("Fehler beim Abrufen der Aufgabe");
+        let task = Task::get_task(task_name.to_string()).expect("Fehler beim Abrufen der Aufgabe");
+        println!("{}", &task.get_name());
+        if task.get_min_service_count() > 0 {
+            for _ in 0..task.get_min_service_count() {
+                println!("Dienst starten {}", &task.get_name());
+                task.prepared_to_services();
 
-        if dev_mode {
-            println!("-------------------------------------------");
-            println!("Name: {}", task.get_name());
-            println!("Mindestanzahl Dienste: {}", task.get_minservicecount());
-            println!("Maximaler RAM: {}", task.get_maxram());
-            println!("Vorlage: {}", task.get_template());
-            println!("-------------------------------------------");
-        }
-
-        if task.get_minservicecount() > 0 {
-            for _ in 0..task.get_minservicecount() {
-                println!("Dienst starten {}", &task.name);
-                task.start_as_service();
             }
         }
     }
@@ -52,15 +61,107 @@ fn main(){
             .read_line(&mut input)
             .expect("Error beim lesen der eingabe");
 
-
         if !user_input(&input.trim().split_whitespace().collect::<Vec<&str>>()) {
             break;
         }
     }
 
-
     //end
     println!("BB");
+}
+
+
+fn shutdown(){
+    let mut exe_path = env::current_exe().expect("Error beim lesen des exe path");
+    exe_path.pop();
+    exe_path.push("service");
+    exe_path.push("temp");
+    fs::remove_dir_all(exe_path).expect("Error beim remove dir all");
+}
+
+fn check_path(exe_path: PathBuf) {
+    //config.yml
+    let mut config_file_path = exe_path.clone();
+    config_file_path.push("config.json");
+    {
+        if !config_file_path.exists() {
+            let url = "http://thephoenixpixel.de/cloud/game_cloud/config.json";
+            let response = get(url).expect("Error can't get url").text();
+            let mut file = File::create(&config_file_path);
+            file.expect("Error beim write all config.json").write_all(response.expect("Error eim response ").as_bytes()).expect("Error beim schreiben der datei");
+            println!("Datei erstellt von {}", url);
+        }
+    }
+    //config.json dereralisseiren
+    let config_content = fs::read_to_string(&config_file_path).expect("Error beim lesen des config content");
+    let mut config: Value = serde_json::from_str(&config_content).expect("Error beim dereraliesiren des config inhalts");
+    let cmd_präfix = Config::get_prefix();
+
+    //task dir
+    {
+        let mut task_path = exe_path.clone();
+        task_path.push(config["path"]["task"].as_str().expect("Error beim Lesen des path der config datei"));
+        Bx::create_path(&task_path);
+        println!("{} Task ordner erfolgreich erstellt {:?}", cmd_präfix, task_path);
+    }
+    //template dir
+    {
+        let mut template_path = exe_path.clone();
+        template_path.push(config["path"]["template"].as_str().expect("Error beim Lesen des path der config datei"));
+        Bx::create_path(&template_path);
+        println!("{} {:?} erfolgreich erstellt",cmd_präfix ,template_path);
+    }
+    //service temp dir
+    {
+        let mut service_temp_path = exe_path.clone();
+        service_temp_path.push(config["path"]["service"]["temp"].as_str().expect("Error beim Lesen des path der config datei"));
+        Bx::create_path(&service_temp_path);
+        println!("{} {:?} erfolgreich erstellt",cmd_präfix ,service_temp_path);
+    }
+    //service static dir
+    {
+        let mut service_static_path = exe_path.clone();
+        service_static_path.push(config["path"]["service"]["static"].as_str().expect("Error beim Lesen des path der config datei"));
+        Bx::create_path(&service_static_path);
+        println!("{} {:?} erfolgreich erstellt",cmd_präfix ,service_static_path);
+    }
+    //config links
+    {
+        let mut config_links_path = exe_path.clone();
+        config_links_path.push(config["path"]["config"]["links"].as_str().expect("Error beim Lesen des path der config datei"));
+        Bx::create_path(&config_links_path);
+        println!("{} {:?} erfolgreich erstellt",cmd_präfix ,config_links_path);
+        config_links_path.push("links.json");
+        if !config_links_path.exists() {
+            let url = "http://thephoenixpixel.de/cloud/game_cloud/config/links.json";
+            let response = get(url).expect("Error can't get url").text();
+
+            let mut file = File::create(&config_links_path);
+            file.expect("Erro beim ersetllend er File").write_all(response.expect("Error beim lesen des response").as_bytes()).expect("Error beim schreiben der File");
+
+            println!("{} Datei erstellt von {}",cmd_präfix ,url);
+        }
+
+    }
+    //config default_task
+    {
+        let mut config_task_path = exe_path.clone();
+        config_task_path.push(config["path"]["config"]["links"].as_str().expect("Error beim Lesen des path der config datei"));
+        Bx::create_path(&config_task_path);
+        println!("{} {:?} erfolgreich erstellt",cmd_präfix ,config_task_path);
+        config_task_path.push("task.json");
+        if !config_task_path.exists() {
+            let url = "http://thephoenixpixel.de/cloud/game_cloud/config/task.json";
+            let response = get(url).expect("Error can't get url").text();
+
+            let mut file = File::create(&config_task_path);
+            file.expect("Erro beim ersetllend er File").write_all(response.expect("Error beim lesen des response").as_bytes()).expect("Error beim schreiben der File");
+
+            println!("{} Datei erstellt von {}",cmd_präfix ,url);
+        }
+
+    }
+
 }
 
 fn user_input(args: &[&str]) -> bool{
@@ -69,7 +170,7 @@ fn user_input(args: &[&str]) -> bool{
             &"stop" => {
                 println!("stop");
 
-
+                shutdown();
 
                 return false;
             }
@@ -83,22 +184,22 @@ fn user_input(args: &[&str]) -> bool{
                                 println!("task create {}", sub1);
                                 if let Some(sub2) = args.get(3) {
                                     match sub2 {
-                                        &"proxy" => {
+                                        &"Proxy" => {
                                             println!("task create {} proxy", sub1);
                                             println!("task erfolgreich erstellt (proxy)");
 
-                                            let task = Task::new(sub1, 0, 1028, sub1);
-
-                                            task.create();
+                                            let mut task = Task::new();
+                                            task.set_name(sub2.to_string());
+                                            task.save_to_file();
 
                                         }
-                                        &"server" => {
+                                        &"Server" => {
                                             println!("task create {} server", sub1);
                                             println!("task erfolgreich erstellt (Servertask )");
 
-                                            let task = Task::new(sub1, 0, 1028, sub1);
-
-                                            task.create();
+                                            let mut task = Task::new();
+                                            task.set_name(sub1.to_string());
+                                            task.save_to_file();
 
                                         }
                                         _ => {
@@ -113,11 +214,28 @@ fn user_input(args: &[&str]) -> bool{
                                 println!("task create <name> <server/Proxy>");
                             }
                         }
+                        &"setup" => {
+                            println!("{} ", Config::get_prefix())
+                        }
+
                         &"delete" => {
                             println!("task delete");
                             if let Some(sub1) = args.get(2) {
 
                             } else{
+                                println!("Bitte gebe einen namen der Task ein den sie deleten wollen");
+                                println!("task delete <name>");
+                            }
+                        }
+                        &"setup" => {
+                            println!("task setup");
+                            if let Some(sub1) = args.get(2) {
+                                match sub1 {
+                                    _ => {
+                                        println!("flascher ")
+                                    }
+                                }
+                            }else {
                                 println!("Bitte gebe einen namen der Task ein den sie deleten wollen");
                                 println!("task delete <name>");
                             }
@@ -175,11 +293,68 @@ fn user_input(args: &[&str]) -> bool{
     return true;
 }
 
-fn shutdown(){
 
-}
 
-fn check_dir(exe_path: PathBuf){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+    //config dir
+    {
+
+        let mut config_path = Path::new(config["path"]["config"]["links"].as_str().expect("Error beim "));
+        config_path.push("config");
+        if !config_path.exists() {
+            // Ordner erstellen, falls nicht vorhanden
+            fs::create_dir(&config_path).expect("Fehler beim Erstellen des config-Ordners");
+        }
+
+        //task.yml
+        {
+            let mut task_default_path = config_path.clone();
+            task_default_path.push("task.yml");
+    
+            if !task_default_path.exists() {
+                let url = "http://thephoenixpixel.de/cloud/game_cloud/config/task.yml";
+                let response = get(url).expect("Error can't get url").text();
+    
+                let mut file = File::create(&task_default_path);
+                file.expect("Erro beim ersetllend er File").write_all(response.expect("Error beim lesen des response").as_bytes()).expect("Error beim schreiben der File");
+    
+                println!("Datei erstellt von {}", url);
+            }
+        }
+        //links.yml
+        {
+            let mut links_default_path = config_path.clone();
+            links_default_path.push("links.yml");
+
+            if !links_default_path.exists() {
+                let url = "http://thephoenixpixel.de/cloud/game_cloud/config/links.yml";
+                let response = get(url).expect("Error can't get url").text();
+
+                let mut file = File::create(&links_default_path);
+                file.expect("Erro beim ersetllend er File").write_all(response.expect("Error beim lesen des response").as_bytes()).expect("Error beim schreiben der File");
+
+                println!("Datei erstellt von {}", url);
+            }
+        }
+    }
 
     //task
     {
@@ -211,6 +386,9 @@ fn check_dir(exe_path: PathBuf){
         }
         //service/temp
         {
+            let service_temp_path_str = config["path"]["service"]["temp"].as_str().expect("Error beim lesen des Service temp path");
+            let service_temp_path = Path::new(service_temp_path_str);
+
             service_path.push("temp");
             if !service_path.exists(){
                 fs::create_dir(&service_path).expect("Error beim erstellen des temp folders");
@@ -228,7 +406,7 @@ fn check_dir(exe_path: PathBuf){
 
 
 }
-/*if !cloud_file_config_path.exists() {
+if !cloud_file_config_path.exists() {
         let url = "http://dev.phoenixcraft.eu/cloud/config.yml";
         let response = get(url)?.text()?;
 
@@ -236,4 +414,9 @@ fn check_dir(exe_path: PathBuf){
         file.write_all(response.as_bytes())?;
 
         println!("Datei erstellt von {}", url);
-    }*/
+    }
+
+
+
+
+*/

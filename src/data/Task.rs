@@ -1,56 +1,153 @@
 use std::fs;
-use std::env;
 use std::io::Write;
 use std::path::PathBuf;
-use std::process::Child;
-use std::thread;
-use std::time::Duration;
-use std::process::Command;
-use std::path::Path;
-use reqwest::blocking::Client;
-use serde_yaml;
-use fs_extra::dir::{copy, CopyOptions};
+use rand::Rng;
+use serde::Serialize;
+use serde_json::from_str;
+use crate::config::Config;
+use crate::data::software::Software;
+use crate::data::template::Template;
+use crate::lib::bx::Bx;
 
-use serde_yaml::Value;
-
+#[derive(Serialize)]
 pub struct Task {
     // Task Struktur
-    pub name: String,
-    pub minservicecount: u32,
-    pub maxram: u32,
-    pub template: String,
+    name: String,
+    delete_on_stop: bool,
+    static_service: bool,
+    nodes: Vec<String>,
+    software: Software,
+    start_port: u32,
+    min_service_count: u32,
+    groups: Vec<String>,
+    templates: Vec<Template>,
 }
 
-pub struct ServerProcess {
-    pub name: String,
-    pub process: Option<Child>,
-}
+impl Task{
+    pub fn new() -> Task {
+        let default_task_path = Config::get_config_default_task_path();
 
-impl Task {
-    // methoden
-    pub fn new(name: &str, minservicecount: u32, maxram: u32, template: &str) -> Task {
-        let task = Task {
-            name: name.to_string(),
-            minservicecount,
-            maxram,
-            template: template.to_string(),
-        };
-        task
+        let default_task_content = fs::read_to_string(&default_task_path).unwrap_or_else(|_| "".to_string());
+        let default_task_config: serde_json::Value = serde_json::from_str(&default_task_content).unwrap_or_else(|_| serde_json::Value::Null);
+
+        let name = default_task_config["name"].as_str().unwrap_or("taskname").to_string();
+        let delete_on_stop = default_task_config["delete_on_stop"].as_bool().unwrap_or(true);
+        let static_service = default_task_config["static_service"].as_bool().unwrap_or(false);
+        let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
+        let min_service_count = default_task_config["min_service_count"].as_u64().unwrap_or(0) as u32;
+
+        let mut groups = Vec::new();
+        let software = Software::new();
+        let templates = vec![Template::new()];
+
+        Task {
+            name,
+            delete_on_stop,
+            static_service,
+            nodes: Vec::new(),
+            software,
+            start_port,
+            min_service_count,
+            groups,
+            templates,
+        }
     }
 
-    //get task
-    pub fn get_task(name: &str) -> Option<Task> {
-        let exe_path = env::current_exe()
-            .expect("Ausführungs path konnte nicht gefunden werden");
+    // Getter and Setter for name
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
 
-        let mut task_path = exe_path.clone();
-        task_path.pop();
-        task_path.push("task");
+    pub fn set_name(&mut self, name: String) {
+        self.name = name;
+    }
 
+    // Getter and Setter for delete_on_stop
+    pub fn get_delete_on_stop(&self) -> bool {
+        self.delete_on_stop
+    }
 
+    pub fn set_delete_on_stop(&mut self, delete_on_stop: bool) {
+        self.delete_on_stop = delete_on_stop;
+    }
+
+    // Getter and Setter for static_service
+    pub fn get_static_service(&self) -> bool {
+        self.static_service
+    }
+
+    pub fn set_static_service(&mut self, static_service: bool) {
+        self.static_service = static_service;
+    }
+
+    // Getter and Setter for nodes
+    pub fn get_nodes(&self) -> &Vec<String> {
+        &self.nodes
+    }
+
+    pub fn add_node(&mut self, node: String) {
+        self.nodes.push(node);
+    }
+
+    pub fn remove_node(&mut self, node: &String) {
+        if let Some(index) = self.nodes.iter().position(|n| n == node) {
+            self.nodes.remove(index);
+        }
+    }
+
+    // Getter and Setter for software
+    pub fn get_software(&self) -> &Software {
+        &self.software
+    }
+
+    pub fn set_software(&mut self, software: Software) {
+        self.software = software;
+    }
+
+    // Getter and Setter for start_port
+    pub fn get_start_port(&self) -> u32 {
+        self.start_port
+    }
+
+    pub fn set_start_port(&mut self, start_port: u32) {
+        self.start_port = start_port;
+    }
+
+    // Getter and Setter for min_service_count
+    pub fn get_min_service_count(&self) -> u32 {
+        self.min_service_count
+    }
+
+    pub fn set_min_service_count(&mut self, min_service_count: u32) {
+        self.min_service_count = min_service_count;
+    }
+
+    // Getter and Setter for groups
+    pub fn get_groups(&self) -> &Vec<String> {
+        &self.groups
+    }
+
+    pub fn set_groups(&mut self, groups: Vec<String>) {
+        self.groups = groups;
+    }
+
+    // Templatte/s
+    /*pub fn get_template(&self) -> String{
+
+    }
+    pub fn get_templates(&self) -> &Vec<Template> {
+        &self.templates
+    }
+
+    pub fn set_templates(&mut self, templates: Template) {
+        self.templates = templates;
+    }*/
+
+    pub fn get_task(name: String) -> Option<Task> {
+        let task_path = Config::get_task_path();
 
         // YAML-Dateien lesen
-        let yaml_files = fs::read_dir(task_path)
+        let json_files = fs::read_dir(&task_path)
             .expect("Fehler beim Lesen des Task-Ordners")
             .filter_map(|entry| {
                 let entry = entry.expect("Fehler beim Lesen des Verzeichniseintrags");
@@ -63,42 +160,57 @@ impl Task {
             });
 
         // Nach dem Task mit dem angegebenen Namen suchen
-        for file_path in yaml_files {
-
-            //read content
+        for file_path in json_files {
+            // Dateiinhalt lesen
             let file_content = fs::read_to_string(&file_path)
-                .expect("for schliefe yml task");
+                .expect("Fehler beim Lesen der YAML-Datei");
 
-            let config: serde_yaml::Value = serde_yaml::from_str(&file_content)
-                .expect("Error beim Deserialisieren der config datei");
-            //
+            let config: serde_json::Value = serde_json::from_str(&file_content)
+                .expect("Fehler beim Deserialisieren der JSON-Datei");
 
-            let _task_name = config["name"].as_str();
+            let task_name = config["name"].as_str();
 
-            if let (Some(task_name), Some(minservicecount), Some(maxram), Some(template)) = (
-                config["name"].as_str(),
-                config["minservicecount"].as_u64(),
-                config["maxram"].as_u64(),
-                config["template"].as_str(),
-            ) {
-                if task_name == name {
-                    let task = Task::new(task_name, minservicecount as u32, maxram as u32, template);
+            if let Some(task_name_str) = task_name {
+                if task_name_str == name {
+                    let mut task = Task::new();
+
+                    // Setup-Methode aufrufen und die korrekten Parameter übergeben
+                    task.setup(
+                        name.to_string(),
+                        config["delete_on_stop"].as_bool().unwrap_or(true),
+                        config["static_service"].as_bool().unwrap_or(false),
+                        Vec::new(), // Hier können die Nodes aus der Config hinzugefügt werden
+                        Software {
+                            software_type: config["software"]["software_type"].as_str().unwrap_or("server").to_string(),
+                            name: config["software"]["name"].as_str().unwrap_or("paper").to_string(),
+                            max_ram: config["software"]["max_ram"].as_u64().unwrap_or(1024) as u32,
+                        },
+                        config["start_port"].as_u64().unwrap_or(40000) as u32,
+                        config["min_service_count"].as_u64().unwrap_or(0) as u32,
+                        Vec::new(), // Hier können die Groups aus der Config hinzugefügt werden
+                        config["templates"]
+                            .as_array()
+                            .unwrap_or(&vec![]) // Hier werden die Templates aus der Config als Vektor von JSON-Objekten behandelt
+                            .iter()
+                            .map(|template| Template {
+                                // Hier wird jedes JSON-Objekt in ein Template-Objekt umgewandelt
+                                template: template["template"].as_str().unwrap_or("taskname").to_string(),
+                                name: template["name"].as_str().unwrap_or("default").to_string(),
+                                priority: template["priority"].as_u64().unwrap_or(1) as u32,
+                            })
+                            .collect::<Vec<Template>>(),
+                    );
+
                     return Some(task);
                 }
             }
-        }
 
+        }
         None // Wenn kein passender Task gefunden wurde
     }
 
-    //get all task
     pub fn get_task_all() -> Vec<String> {
-        let exe_path = env::current_exe()
-            .expect("Ausführungs path konnte nicht gefunden werden");
-
-        let mut task_path = exe_path.clone();
-        task_path.pop();
-        task_path.push("task");
+        let task_path = Config::get_task_path();
 
         let mut task_names = Vec::new();
 
@@ -107,7 +219,7 @@ impl Task {
                 for entry in entries {
                     if let Ok(entry) = entry {
                         if let Some(file_name) = entry.file_name().to_str() {
-                            if let Some(name) = file_name.strip_suffix(".yml") {
+                            if let Some(name) = file_name.strip_suffix(".json") {
                                 task_names.push(name.to_string());
                             }
                         }
@@ -119,274 +231,83 @@ impl Task {
         task_names
     }
 
-    //get name
-    pub fn get_name(&self) -> &str{
-        &self.name
+    pub fn setup(&mut self, name: String,
+                 delete_on_stop: bool,
+                 static_service: bool,
+                 nodes: Vec<String>,
+                 software: Software,
+                 start_port: u32,
+                 min_service_count: u32,
+                 groups: Vec<String>,
+                 templates: Vec<Template>,)
+    {
+        self.name = name;
+        self.delete_on_stop = delete_on_stop;
+        self.static_service = static_service;
+        self.nodes = nodes;
+        self.software = software;
+        self.start_port = start_port;
+        self.min_service_count = min_service_count;
+        self.groups = groups;
+        self.templates = templates;
     }
 
-    //get minservicecount
-    pub fn get_minservicecount(&self) -> u32{
-        self.minservicecount
+    pub fn save_to_file(&self) {
+        let serialized_task = serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
+        let task_path = Config::get_task_path().join(format!("{}.json", self.name));
+
+        let mut file = fs::File::create(&task_path).expect("Error beim Erstellen der Task-Datei");
+        file.write_all(serialized_task.as_bytes()).expect("Error beim Schreiben in die Task-Datei");
     }
 
-    //get maxram
-    pub fn get_maxram(&self) -> u32{
-        self.maxram
-    }
+    pub fn prepared_to_services(&self) {
+        let templates = &self.templates;
+        let mut select_template= select_template_with_priority(&templates);
 
-    //set ram
-    pub fn set_maxram(&self){
-        let exe_path = env::current_exe()
-            .expect("Ausführungs path konnte nicht gefunden werden");
+        //check ob es template gibt
+        if let Some(template) = select_template {
 
-        let mut task_path = exe_path.clone();
-        task_path.pop();
-        task_path.push("task");
-
-        // YAML-Dateien lesen
-        let yaml_files = fs::read_dir(task_path)
-            .expect("Fehler beim Lesen des Task-Ordners")
-            .filter_map(|entry| {
-                let entry = entry.expect("Fehler beim Lesen des Verzeichniseintrags");
-                let file_path = entry.path();
-                if file_path.is_file() {
-                    Some(file_path)
-                } else {
-                    None
-                }
-            });
-
-        // Nach dem Task mit dem angegebenen Namen suchen
-        for file_path in yaml_files {
-
-            //read content
-            let file_content = fs::read_to_string(&file_path)
-                .expect("for schliefe yml task");
-
-            let mut config: Value = serde_yaml::from_str(&file_content)
-                .expect("Error beim Deserialisieren der task datei");
-
-            config["maxram"] = Value::Number(serde_yaml::Number::from(self.maxram));
+        } else {
+            println!("{} Kein Template gefunden für Task: {}", Config::get_prefix(), &self.get_name());
+            return;
         }
-    }
+        //make option template to template
+        let template = select_template.unwrap();
 
-    //get template
-    pub fn get_template(&self) -> &str{
-        &self.template
-    }
+        //hier temp oder static
+        {   //temp service
+            let mut target_folder_name = format!("{}-1", &template.template);
+            let mut target_path = Config::get_service_temp_path().join(&target_folder_name);
 
-    //set template
-    pub fn set_template(&self){
-        let exe_path = env::current_exe()
-            .expect("Ausführungs path konnte nicht gefunden werden");
-
-        let mut task_path = exe_path.clone();
-        task_path.pop();
-        task_path.push("task");
-
-        // YAML-Dateien lesen
-        let yaml_files = fs::read_dir(task_path)
-            .expect("Fehler beim Lesen des Task-Ordners")
-            .filter_map(|entry| {
-                let entry = entry.expect("Fehler beim Lesen des Verzeichniseintrags");
-                let file_path = entry.path();
-                if file_path.is_file() {
-                    Some(file_path)
-                } else {
-                    None
-                }
-            });
-
-        // Nach dem Task mit dem angegebenen Namen suchen
-        for file_path in yaml_files {
-
-            //read content
-            let file_content = fs::read_to_string(&file_path)
-                .expect("for schliefe yml task");
-
-            let mut config: Value = serde_yaml::from_str(&file_content)
-                .expect("Error beim Deserialisieren der task datei");
-
-            config["template"] = Value::String(self.template.clone());
-        }
-    }
-
-    pub fn create(&self) -> bool{
-        let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
-        exe_path.pop();
-        let mut task_path = exe_path.clone();
-        task_path.push("task");
-        task_path.push(format!("{}.yml", &self.name));
-        task_path.to_str().expect("Error beim confertiren des task_path in einen String").to_string();
-
-        let mut config_task_path = exe_path.clone();
-        config_task_path.push("config");
-        config_task_path.push("task.yml");
-        config_task_path.to_str().expect("Error beim confertiren des config_task_path in einen String").to_string();
-
-        //lesen des inhalts der deault task datei
-        let default_file_content = fs::read_to_string(config_task_path);
-
-        // YAML-Wert aus dem Inhalt erstellen
-        let binding = default_file_content.expect("Error beim default_file_content_str");
-        let default_file_content_str: &str = &binding.as_str();
-
-        let mut new_content: Value = match serde_yaml::from_str(default_file_content_str) {
-            Ok(value) => value,
-            Err(error) => {
-                println!("Fehler beim Konvertieren des Inhalts in einen YAML-Wert: {}", error);
-                return false;
+            // Überprüfen, ob der Zielordner bereits existiert, und erhöhen Sie die Nummer, falls erforderlich
+            let mut folder_number = 1;
+            while target_path.exists() {
+                folder_number += 1;
+                target_folder_name = format!("{}-{}", &template.template, folder_number);
+                target_path = Config::get_service_temp_path().join(&target_folder_name);
             }
-        };
 
-        // Werte ersetzen
-        new_content["name"] = Value::String(self.name.clone());
-        new_content["template"] = Value::String(self.template.clone());
+            // Hier wird der Zielordner erstellt, wenn er nicht existiert
+            fs::create_dir_all(&target_path).expect("Fehler beim Erstellen des Zielordners");
 
-        let mut file = match fs::File::create(task_path) {
-            Ok(file) => file,
-            Err(error) => {
-                println!("Fehler beim Erstellen der neuen Task-Datei: {}", error);
-                return false;
-            }
-        };
+            // Jetzt kannst du den Inhalt aus dem Template-Pfad in den Zielordner kopieren
+            Bx::copy_folder_contents(&template.get_path(), &target_path).expect("Fehler beim Kopieren des Templates");
 
-        // Neue YAML-Datei erstellen
-        let yaml_string = match serde_yaml::to_string(&new_content) {
-            Ok(string) => string,
-            Err(error) => {
-                println!("Fehler beim Konvertieren des YAML-Werts in einen String: {}", error);
-                return false;
-            }
-        };
-
-        if let Err(error) = file.write_all(yaml_string.as_bytes()) {
-            println!("Fehler beim Schreiben in die Task-Datei: {}", error);
-            return false;
+            println!("{} Template wurde in Zielordner kopiert: {:?}", Config::get_prefix(), &target_path);
         }
-        return true;
+
     }
-    pub fn start_as_service(&self) {
-        println!("start_as_serice");
-
-        let exe_path = env::current_exe().expect("Error beim lesen des exe path");
-
-        let mut template_path = exe_path.clone();
-        template_path.pop();
-        template_path.push("template");
-        template_path.push(&self.template);
-
-        println!("{:?}", template_path);
-
-        let mut service_path = exe_path.clone();
-        service_path.pop();
-        service_path.push("service");
-        service_path.push("temp");
-
-        println!("{:?}", service_path);
-
-        //-----------------------
-
-        //gloabel hier??
-
-        //-----------------------
-
-
-        // Zielordner erstellen
-        let mut server_dir_name = service_path.clone();
-        server_dir_name.push(format!("{}-1", &self.name));
-        let mut i = 1;
-
-        while server_dir_name.exists() {
-            i += 1;
-            server_dir_name.pop();
-            server_dir_name.push(format!("{}-{}", &self.name, i));
-
-        }
-
-        let mut options = CopyOptions::new();
-        options.overwrite = true;
-
-        println!("{:?}", service_path);
-
-        //copy the dir
-        match copy(&template_path, &service_path, &options) {
-            Ok(_) => println!("Ordner erfolgreich kopiert"),
-            Err(e) => println!("Fehler beim Kopieren des Ordners: {}", e),
-        }
-
-        let mut old_dir_name = service_path.clone();
-        old_dir_name.push(&self.template);
-        println!("{:?}", service_path);
-        println!("{:?}", server_dir_name);
-
-        match fs::rename(&old_dir_name, &server_dir_name) {
-            Ok(_) => println!("Ordner erfolgreich umbenannt."),
-            Err(e) => println!("Fehler beim Umbenennen des Ordners: {}", e),
-        }
-
-        thread::sleep(Duration::from_secs(3));
-
-        //--------------------------------------
-
-        //umbennen des server ordners
-        // bearbeitung der configs
-        //vllt noch hier den gloabl importieren
-
-        //---------------------------------------
-        service_path.push(format!("{}-{}", self.name, i));
-
-        let mut service_path_jar = service_path.clone();
-        service_path_jar.push("velo.jar");
-
-        let service_path_string_jar = service_path_jar.to_str().expect("Fehler beim Konvertieren des Jar-Pfads").to_string();
-        let service_path_string = service_path.to_str().expect("Fehler beim Konvertieren des Pfads").to_string();
-
-
-    println!("{}", service_path_string_jar);
-
-        //start the server
-        let server = Command::new("java")
-            .args(&[format!("-Xmx{}M", &self.maxram), "-jar".to_string(), service_path_string_jar])
-            .current_dir(&service_path_string)
-            .spawn()
-            .expect("Fehler beim Starten des Servers");
-
-
-
-
-
-
-
-        //webhook anfrage an den proxy
-        let webhook_url = "http://localhost:8000/webhook"; // Passe die URL entsprechend an
-
-        // Erstelle eine reqwest-Clientinstanz
-        let client = Client::new();
-
-        // Definiere die Daten, die du an das Java-Plugin senden möchtest
-        let data = [
-            ("name", &self.name),
-            ("host", &"127.0.0.1".to_string()),
-            ("port", &"25555".to_string()),
-        ];
-
-        // Führe die HTTP-POST-Anfrage durch
-        match client.post(webhook_url).form(&data).send() {
-            Ok(response) => {
-                if response.status().is_success() {
-                    println!("Webhook-Anfrage erfolgreich gesendet.");
-                    // Hier kannst du die Antwort des Java-Plugins verarbeiten, falls gewünscht.
-                } else {
-                    println!("Fehler beim Senden der Webhook-Anfrage: {:?}", response.status());
-                }
-            }
-            Err(e) => {
-                println!("Fehler beim Senden der Webhook-Anfrage: {:?}", e);
-            }
-        }
-    }
-
-
 }
+fn select_template_with_priority(templates: &[Template]) -> Option<&Template> {
+    let mut rng = rand::thread_rng();
+    let total_priority: u32 = templates.iter().map(|t| t.priority).sum();
+    let mut rand_value = rng.gen_range(1..=total_priority);
 
+    for template in templates {
+        if rand_value <= template.priority {
+            return Some(template);
+        }
+        rand_value -= template.priority;
+    }
+    None
+}
