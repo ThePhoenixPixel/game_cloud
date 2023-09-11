@@ -8,12 +8,25 @@ use colored::Colorize;
 use reqwest::blocking::get;
 use serde_json;
 use serde_json::Value;
+use crate::cmd::cmd::Cmd;
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
 
 pub mod lib{
     pub mod bx;
+}
+
+pub mod cmd{
+    pub mod cmd;
+    pub mod command{
+        //pub mod cmd_group;
+        //pub mod cmd_node;
+        //pub mod cmd_software;
+        pub mod cmd_stop;
+        pub mod cmd_task;
+        //pub mod cmd_template;
+    }
 }
 pub mod data{
     pub mod task;
@@ -54,30 +67,16 @@ fn main(){
 
 
     // cmd
-    loop{
-        let mut input = String::new();
+    let cmd = Cmd::new();
 
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Error beim lesen der eingabe");
-
-        if !user_input(&input.trim().split_whitespace().collect::<Vec<&str>>()) {
-            break;
-        }
-    }
+    cmd.start();
 
     //end
     println!("BB");
 }
 
 
-fn shutdown(){
-    let mut exe_path = env::current_exe().expect("Error beim lesen des exe path");
-    exe_path.pop();
-    exe_path.push("service");
-    exe_path.push("temp");
-    fs::remove_dir_all(exe_path).expect("Error beim remove dir all");
-}
+
 
 fn check_path(exe_path: PathBuf) {
     //config.yml
@@ -170,7 +169,7 @@ fn user_input(args: &[&str]) -> bool{
             &"stop" => {
                 println!("stop");
 
-                shutdown();
+
 
                 return false;
             }
