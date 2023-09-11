@@ -2,7 +2,7 @@ use std::env::args;
 use std::io;
 use std::io::Write;
 use crate::cmd::command::cmd_stop::execute_stop;
-use crate::cmd::command::cmd_task::{CmdTask, execute_task};
+use crate::cmd::command::cmd_task::CmdTask;
 use crate::config::Config;
 
 
@@ -13,13 +13,15 @@ pub struct Cmd {
 
 impl Cmd {
     pub fn new() -> Cmd {
+        let command = String::new();
+        let args:Vec<String> = Vec::new();
         Cmd {
             command,
             args
         }
     }
 
-    pub fn start(&self){
+    pub fn start(&mut self){
         loop {
 
             print!("{} ", Config::get_prefix());
@@ -30,22 +32,36 @@ impl Cmd {
                 .read_line(&mut input)
                 .expect("Fehler beim Lesen der Eingabe");
 
-            // Verarbeite die Eingabe
-            let command = input.trim();
-            let args: Vec<&str> = input.split_whitespace().collect();
+            // Teile die Eingabe in Teile auf
+            let mut all_args: Vec<&str> = input.trim().split_whitespace().collect();
+
+            if let Some(command) = all_args.first() {
+                self.command = command.to_string();
+                all_args.remove(0);
+            } else {
+                self.command.clear(); // Falls keine Teile vorhanden sind, leere den Befehl.
+            }
+
+            // Der Rest sind die Argumente
+            self.args = all_args.iter().map(|s| s.to_string()).collect();
+
             if input.trim() == "exit" {
                 break;
             } else {
                 println!("Du hast eingegeben: {}", input);
+
+                &self.process();
             }
 
         }
     }
 
     pub fn process(&self) {
+        println!("{}", &self.command);
+        println!("{:?}", &self.args);
         match self.command.as_str() {
-            "stop" => CmdTask::execute(&self.args),
-            "task" => execute_stop(&self.args),
+            "task" => CmdTask::execute(&self.args),
+            "stop" => execute_stop(&self.args),
             _ => {
                 println!("Unbekannter Befehl: {}", self.command);
 
