@@ -2,7 +2,7 @@ use std::env::args;
 use std::io;
 use std::io::Write;
 use crate::cmd::command::cmd_stop::execute_stop;
-use crate::cmd::command::cmd_task::execute_task;
+use crate::cmd::command::cmd_task::{CmdTask, execute_task};
 use crate::config::Config;
 
 
@@ -44,7 +44,7 @@ impl Cmd {
 
     pub fn process(&self) {
         match self.command.as_str() {
-            "stop" => execute_task(&self.args),
+            "stop" => CmdTask::execute(&self.args),
             "task" => execute_stop(&self.args),
             _ => {
                 println!("Unbekannter Befehl: {}", self.command);
