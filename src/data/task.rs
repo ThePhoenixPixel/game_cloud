@@ -269,7 +269,8 @@ impl Task{
 
     pub fn delete_as_file(&self){
         let mut task_path = Config::get_task_path();
-        task_path.push(&self.name);
+        task_path.push(format!("{}.json", &self.name));
+
         fs::remove_file(task_path).expect("Error bei  removen der task datei");
     }
 

@@ -48,8 +48,6 @@ impl Cmd {
             if input.trim() == "exit" {
                 break;
             } else {
-                println!("Du hast eingegeben: {}", input);
-
                 &self.process();
             }
 
@@ -57,13 +55,11 @@ impl Cmd {
     }
 
     pub fn process(&self) {
-        println!("{}", &self.command);
-        println!("{:?}", &self.args);
         match self.command.as_str() {
             "task" => CmdTask::execute(&self.args),
             "stop" => execute_stop(&self.args),
             _ => {
-                println!("Unbekannter Befehl: {}", self.command);
+                println!("{} Unbekannter Befehl: {}", Config::get_prefix(), self.command);
 
             }
         }

@@ -1,4 +1,3 @@
-use fs_extra::dir::create;
 use crate::config::Config;
 use crate::data::software::Software;
 use crate::data::task::Task;
@@ -19,9 +18,9 @@ impl CmdTask{
                 "info" => {
                     CmdTask::info(args);
                 }
-
+                //web config ändern
                 "delete" => {
-
+                    CmdTask::delete(args);
                 }
 
                 "setup" => {
@@ -70,6 +69,20 @@ impl CmdTask{
     }
 
     fn delete(args: &Vec<String>){
+
+        if let  Some(task_name) = args.get(1) {
+            if let Some(task) = Task::get_task(task_name.to_string()) {
+
+                task.delete_as_file();
+                println!("{} Sucessful delete the task {}", Config::get_prefix(), task_name);
+
+            } else {
+                println!("{} Task does not exist", Config::get_prefix());
+            }
+
+        } else {
+            println!("{} Please give a task name", Config::get_prefix())
+        }
 
     }
 
