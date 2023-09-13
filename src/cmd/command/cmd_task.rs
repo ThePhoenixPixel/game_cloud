@@ -39,46 +39,56 @@ impl CmdTask{
 
     fn setup(args: &Vec<String>){
         if let Some(task_name) = args.get(1) {
-            if let Some(atribut) = args.get(2) {
-                match atribut.as_str() {
-                    "name" => {
+            if  let Some(mut task) = Task::get_task(task_name.to_string()){
+                if let Some(atribut) = args.get(2) {
+                    match atribut.as_str() {
+                        "name" => {
+                            task.set_name(task_name.to_string());
+                        }
 
-                    }
+                        "delete_on_stop" => {
+                            if let Some(wert_new) = args.get(3) {
+                                task.set_delete_on_stop(wert_new);
+                            }
+                        }
 
-                    "delete_on_stop" => {
+                        "static_service" => {
+                            if let Some(wert_new) = args.get(3) {
+                                task.set_static_service(wert_new);
+                            }
+                        }
 
-                    }
+                        "nodes" => {
 
-                    "static_service" => {
+                        }
 
-                    }
+                        "software" => {
 
-                    "nodes" => {
+                        }
 
-                    }
+                        "start_port" => {
+                            if let Some(wert_new) = args.get(3) {
+                                task.set_start_port(wert_new);
+                            }
+                        }
 
-                    "software" => {
+                        "min_service_count" => {
+                            if let Some(wert_new) = args.get(3) {
+                                task.set_min_service_count(wert_new);
+                            }
+                        }
 
-                    }
+                        "groups" => {
 
-                    "start_port" => {
+                        }
 
-                    }
+                        "templates" => {
 
-                    "min_service_count" => {
+                        }
 
-                    }
-
-                    "groups" => {
-
-                    }
-
-                    "templates" => {
-
-                    }
-
-                    _ => {
-                        println!("{} Kein passendes Argument", Config::get_prefix());
+                        _ => {
+                            println!("{} Kein passendes Argument", Config::get_prefix());
+                        }
                     }
                 }
             }
