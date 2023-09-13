@@ -54,7 +54,7 @@ fn main(){
     println!("{:?}", task_all);
 
     for task_name in task_all {
-        let task = Task::get_task(task_name.to_string()).expect("Fehler beim Abrufen der Aufgabe");
+        let task = Task::get_task(task_name.to_string()).expect("Fehler beim Abrufen der task");
         println!("{}", &task.get_name());
         if task.get_min_service_count() > 0 {
             for _ in 0..task.get_min_service_count() {
@@ -72,7 +72,7 @@ fn main(){
     cmd.start();
 
     //end
-    println!("BB");
+    println!("{} BB", Config::get_prefix());
 }
 
 
@@ -179,10 +179,16 @@ fn user_input(args: &[&str]) -> bool{
                     match sub0 {
                         &"create" => {
                             println!("task create");
+
                             if let Some(sub1) = args.get(2) {
+
+
                                 println!("task create {}", sub1);
+
                                 if let Some(sub2) = args.get(3) {
+
                                     match sub2 {
+
                                         &"Proxy" => {
                                             println!("task create {} proxy", sub1);
                                             println!("task erfolgreich erstellt (proxy)");

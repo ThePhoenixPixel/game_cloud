@@ -99,7 +99,9 @@ impl Config{
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        config["prefix"].to_string().bright_blue()
+        let prefix = config["prefix"].as_str().unwrap_or("[Game Cloud]"); // Wenn kein Prefix gefunden wird, verwende "[Game Cloud]"
+        prefix.bright_blue()
     }
+
 
 }
