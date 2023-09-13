@@ -37,6 +37,58 @@ impl CmdTask{
         }
     }
 
+    fn setup(args: &Vec<String>){
+        if let Some(task_name) = args.get(1) {
+            if let Some(atribut) = args.get(2) {
+                match atribut.as_str() {
+                    "name" => {
+
+                    }
+
+                    "delete_on_stop" => {
+
+                    }
+
+                    "static_service" => {
+
+                    }
+
+                    "nodes" => {
+
+                    }
+
+                    "software" => {
+
+                    }
+
+                    "start_port" => {
+
+                    }
+
+                    "min_service_count" => {
+
+                    }
+
+                    "groups" => {
+
+                    }
+
+                    "templates" => {
+
+                    }
+
+                    _ => {
+                        println!("{} Kein passendes Argument", Config::get_prefix());
+                    }
+                }
+            }
+
+
+        } else {
+            println!("{} Please give a task name to change this", Config::get_prefix())
+        }
+    }
+
     fn create(args: &Vec<String>){
         //check task name is set
         if let Some(task_name) = args.get(1) {

@@ -60,7 +60,7 @@ impl Cmd {
             "stop" => execute_stop(&self.args),
             _ => {
                 println!("{} Unbekannter Befehl: {}", Config::get_prefix(), self.command);
-
+                println!("{} Benutze task / stop / help", Config::get_prefix());
             }
         }
     }
