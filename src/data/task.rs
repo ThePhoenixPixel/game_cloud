@@ -1,9 +1,7 @@
 use std::fs;
 use std::io::Write;
-use std::path::PathBuf;
 use rand::Rng;
 use serde::Serialize;
-use serde_json::from_str;
 use crate::config::Config;
 use crate::data::software::Software;
 use crate::data::template::Template;

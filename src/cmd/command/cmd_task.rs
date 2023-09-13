@@ -1,4 +1,6 @@
+use fs_extra::dir::create;
 use crate::config::Config;
+use crate::data::software::Software;
 use crate::data::task::Task;
 
 pub struct CmdTask;
@@ -11,15 +13,18 @@ impl CmdTask{
             match arg0.as_str() {
 
                 "create" => {
-
+                    CmdTask::create(args);
                 }
 
                 "info" => {
-
                     CmdTask::info(args);
                 }
 
                 "delete" => {
+
+                }
+
+                "setup" => {
 
                 }
 
@@ -34,7 +39,34 @@ impl CmdTask{
     }
 
     fn create(args: &Vec<String>){
-        if let Some(args2) = args.get(1) {  }
+        //check task name is set
+        if let Some(task_name) = args.get(1) {
+
+            //check ob task exits
+            if Task::is_exist(task_name.to_string()) {
+                println!("{} task {} allready exist", Config::get_prefix().to_string(), task_name);
+                return;
+            }
+
+            if let Some(software_type) = args.get(2) {
+
+               if let  Some(software_name) = args.get(3) {
+
+                   create_task(task_name.to_string(), software_type.to_string(), software_name.to_string());
+
+               } else {
+                   //hannes hat die Zeile geschrieben
+                   println!("{} bitte gebe ein software name ein", Config::get_prefix());
+               }
+                
+            } else { 
+                println!("{} Bitte gebe ein Software Type ein", Config::get_prefix());
+            }
+            
+        } else {
+            println!("{} Bitte gebe ein namen an", Config::get_prefix());
+            println!("{} task create <name> <Server_Type> <Software>", Config::get_prefix());
+        }
     }
 
     fn info(args: &Vec<String>) {
@@ -63,10 +95,25 @@ impl CmdTask{
                 //task not exsits
                 println!("{} Task does not exsists", Config::get_prefix());
             }
-
-
-
         }
     }
+}
 
+
+//create fn for default task objekt
+fn create_task(name: String, software_type: String, software_name: String){
+    //cerate task and software objekkts
+    let mut task = Task::new();
+    let mut software = Software::new();
+
+    //setup software with parameters
+    software.set_software_type(software_type);
+    software.set_name(software_name);
+    
+    //setup the task objekt
+    task.set_software(software);
+    task.set_name(name);
+    
+    //save the new task to a file
+    task.save_to_file();
 }
