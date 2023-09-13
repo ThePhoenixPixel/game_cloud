@@ -143,6 +143,14 @@ impl Task{
         self.templates = templates;
     }*/
 
+    pub fn is_exits(name: String) -> bool{
+        if let Some(task) = Task::get_task(name) {
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn get_task(name: String) -> Option<Task> {
         let task_path = Config::get_task_path();
 
