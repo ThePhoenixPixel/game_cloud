@@ -7,8 +7,8 @@ pub struct CmdTask;
 impl CmdTask{
     pub fn execute(args: &Vec<String>){
 
-        if let Some(arg1) = args.get(0) {
-            match arg1.as_str() {
+        if let Some(arg0) = args.get(0) {
+            match arg0.as_str() {
 
                 "create" => {
 
@@ -24,7 +24,7 @@ impl CmdTask{
                 }
 
                 _ => {
-                    println!("{}", arg1);
+                    println!("{}", arg0);
                     eprintln!("{} Kein gueltiges Argument", Config::get_prefix());
                 }
             }
@@ -33,9 +33,13 @@ impl CmdTask{
         }
     }
 
+    fn create(args: &Vec<String>){
+        if let Some(args2) = args.get(1) {  }
+    }
+
     fn info(args: &Vec<String>) {
-        if let  Some(arg2) = args.get(1) {
-            if let Some(task) = Task::get_task(arg2.to_string()){
+        if let  Some(arg1) = args.get(1) {
+            if let Some(task) = Task::get_task(arg1.to_string()){
                 //print task
                 println!("{} | Type             | Wert", Config::get_prefix());
                 println!("{} | ----------------------------------------------", Config::get_prefix());
