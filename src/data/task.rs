@@ -143,7 +143,7 @@ impl Task{
         self.templates = templates;
     }*/
 
-    pub fn is_exits(name: String) -> bool{
+    pub fn is_exist(name: String) -> bool{
         if let Some(task) = Task::get_task(name) {
             true
         } else {
