@@ -69,6 +69,10 @@ impl CmdTask{
         }
     }
 
+    fn delete(args: &Vec<String>){
+
+    }
+
     fn info(args: &Vec<String>) {
         if let  Some(arg1) = args.get(1) {
             if let Some(task) = Task::get_task(arg1.to_string()){
