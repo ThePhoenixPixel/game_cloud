@@ -67,9 +67,7 @@ fn main(){
 
 
     // cmd
-    let cmd = Cmd::new();
-
-    cmd.start();
+    let mut cmd = Cmd::new().start();
 
     //end
     println!("BB");
