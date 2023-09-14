@@ -1,9 +1,8 @@
+use std::env::current_exe;
 use std::fs;
 use std::io::Write;
-use std::path::PathBuf;
 use rand::Rng;
 use serde::Serialize;
-use serde_json::from_str;
 use crate::config::Config;
 use crate::data::software::Software;
 use crate::data::template::Template;
@@ -143,6 +142,14 @@ impl Task{
         self.templates = templates;
     }*/
 
+    pub fn is_exist(name: String) -> bool {
+        if let Some(task) = Task::get_task(name) {
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn get_task(name: String) -> Option<Task> {
         let task_path = Config::get_task_path();
 
@@ -259,6 +266,14 @@ impl Task{
         let mut file = fs::File::create(&task_path).expect("Error beim Erstellen der Task-Datei");
         file.write_all(serialized_task.as_bytes()).expect("Error beim Schreiben in die Task-Datei");
     }
+
+    pub fn delete_as_file(&self){
+        let mut task_path = Config::get_task_path();
+        task_path.push(format!("{}.json", &self.name));
+
+        fs::remove_file(task_path).expect("Error bei  removen der task datei");
+    }
+
 
     pub fn prepared_to_services(&self) {
         let templates = &self.templates;

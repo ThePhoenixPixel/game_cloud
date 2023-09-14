@@ -13,6 +13,8 @@ use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
 
+
+pub mod language;
 pub mod lib{
     pub mod bx;
 }
@@ -54,15 +56,20 @@ fn main(){
     println!("{:?}", task_all);
 
     for task_name in task_all {
-        let task = Task::get_task(task_name.to_string()).expect("Fehler beim Abrufen der Aufgabe");
-        println!("{}", &task.get_name());
-        if task.get_min_service_count() > 0 {
-            for _ in 0..task.get_min_service_count() {
-                println!("Dienst starten {}", &task.get_name());
-                task.prepared_to_services();
+        if let Some(task) = Task::get_task(task_name) {
+            println!("{}", &task.get_name());
+            if task.get_min_service_count() > 0 {
+                for _ in 0..task.get_min_service_count() {
+                    println!("Dienst starten {}", &task.get_name());
+                    //task.prepared_to_services();
 
+                }
             }
+        } else {
+            println!("{} task error", Config::get_prefix());
         }
+
+
     }
 
 
@@ -70,7 +77,7 @@ fn main(){
     let mut cmd = Cmd::new().start();
 
     //end
-    println!("BB");
+    println!("{} BB", Config::get_prefix());
 }
 
 
@@ -177,10 +184,16 @@ fn user_input(args: &[&str]) -> bool{
                     match sub0 {
                         &"create" => {
                             println!("task create");
+
                             if let Some(sub1) = args.get(2) {
+
+
                                 println!("task create {}", sub1);
+
                                 if let Some(sub2) = args.get(3) {
+
                                     match sub2 {
+
                                         &"Proxy" => {
                                             println!("task create {} proxy", sub1);
                                             println!("task erfolgreich erstellt (proxy)");
