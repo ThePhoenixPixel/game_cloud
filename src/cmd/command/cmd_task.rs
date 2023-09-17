@@ -9,6 +9,7 @@ impl CmdTask{
     pub fn execute(args: &Vec<String>){
 
         if let Some(arg0) = args.get(0) {
+
             match arg0.as_str() {
 
                 "create" => {
@@ -18,13 +19,13 @@ impl CmdTask{
                 "info" => {
                     CmdTask::info(args);
                 }
-                //web config ändern
+
                 "delete" => {
                     CmdTask::delete(args);
                 }
 
                 "setup" => {
-
+                    CmdTask::setup(args);
                 }
 
                 _ => {
@@ -39,25 +40,68 @@ impl CmdTask{
 
     fn setup(args: &Vec<String>){
         if let Some(task_name) = args.get(1) {
-            if let Some(atribut) = args.get(2) {
-                match atribut.as_str() {
-                    "name" => {
+            if let  Some(arg) = args.get(2) {
+                match arg.to_lowercase().as_str() {
+                    "add" => {
+                        CmdTask::setup_add(args);
+                    }
 
+                    "set" => {
+                        CmdTask::setup_set(args);
+                    }
+
+                    "remove" => {
+
+                    }
+
+                    "clear" => {
+
+                    }
+
+                    &_ => {
+                        println!("{} Kein Gültiges Argument", Config::get_prefix());
+                    }
+                }
+            } else {
+                println!("{} Please give set/add/remove/clear", Config::get_prefix());
+            }
+        } else {
+            println!("{} Please give a task name to change this", Config::get_prefix())
+        }
+    }
+
+    //task setup <name> set <attribut> <new wert>
+    fn setup_set(args: &Vec<String>){
+        if let Some(attribut) = args.get(3) {
+            if let Some(new_wert) = args.get(4).unwrap().to_string(){
+
+                let mut task = (Task::get_task(args.get(1).unwrap().to_string())).unwrap();
+
+                match attribut.to_lowercase().as_str() {
+
+                    "name" => {
+                        task.set_name(new_wert);
+                        println!("{} Set Task Name to {}", Config::get_prefix(), new_wert);
                     }
 
                     "delete_on_stop" => {
-
+                        task.set_delete_on_stop(new_wert);
+                        println!("{} Set deleteOnStop to {}", Config::get_prefix(), new_wert);
                     }
 
                     "static_service" => {
-
-                    }
-
-                    "nodes" => {
-
+                        task.set_static_service(new_wert);
+                        println!("{} Set Static Service to {}", Config::get_prefix(), new_wert);
                     }
 
                     "software" => {
+                        if let Some(software_name) = args.get(5) {
+                            let mut software = Software::new();
+                            software.set_name(software_name.to_string());
+                            task.set_software(software);
+                            println!("{} Set Software to {} {}", Config::get_prefix(), new_wert, software_name);
+                        }
+
 
                     }
 
@@ -69,25 +113,52 @@ impl CmdTask{
 
                     }
 
-                    "groups" => {
-
-                    }
-
-                    "templates" => {
-
-                    }
-
-                    _ => {
-                        println!("{} Kein passendes Argument", Config::get_prefix());
+                    &_ => {
+                        println!("{} Pleas give name/delete_on_stop/static_service/", Config::get_prefix());
                     }
                 }
+            } else {
+                println!("{} Pleas give a ", Config::get_prefix());
             }
-
-
         } else {
-            println!("{} Please give a task name to change this", Config::get_prefix())
+            println!("{} Please give a attribut to chang this", Config::get_prefix());
         }
     }
+
+    //task setup <name> add <attribut> <new wert>
+    fn setup_add(args: &Vec<String>){
+        if let Some(attribut) = args.get(3) {
+            if let Some(new_wert) = args.get(4).unwrap().to_string() {
+
+                let mut task = (Task::get_task(args.get(1).unwrap().to_string()).unwrap());
+
+                match attribut.to_lowercase().as_str() {
+                    "group" => {
+                        task.add_group(new_wert);
+                        println!("{} Add node {} to the Task", Config::get_prefix(), new_wert)
+                    }
+
+                    "node" => {
+                        task.add_node(new_wert);
+                        println!("{} Add node {} to the task", Config::get_prefix(), new_wert);
+                    }
+
+                    "template" => {
+                        println!("Dies geht noch nicht");
+                    }
+
+                    &_ => {
+                        println!("{} Plaase give group/node/template", Config::get_prefix());
+                    }
+                }
+            } else {
+                println!("{} Pleas give a ", Config::get_prefix());
+            }
+        } else {
+            println!("{} Please give a attribut to chang this", Config::get_prefix());
+        }
+    }
+
 
     fn create(args: &Vec<String>){
         //check task name is set

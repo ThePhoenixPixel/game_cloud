@@ -91,6 +91,20 @@ impl Config{
         config_default_task_path
     }
 
+    pub fn get_software_path() -> PathBuf {
+        let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
+        exe_path.pop();
+        let config_path = exe_path.join("config.json");
+
+        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
+        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+
+        let config_default_task_relative_path = config["path"]["config"]["software"].as_str().expect("Pfad zur Aufgabe nicht gefunden");
+        let mut software_path = exe_path.join(config_default_task_relative_path);
+        software_path.push("software.json");
+        software_path
+    }
+
     pub fn get_prefix() -> ColoredString {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();

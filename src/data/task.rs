@@ -1,4 +1,3 @@
-use std::env::current_exe;
 use std::fs;
 use std::io::Write;
 use rand::Rng;
@@ -126,8 +125,8 @@ impl Task{
         &self.groups
     }
 
-    pub fn set_groups(&mut self, groups: Vec<String>) {
-        self.groups = groups;
+    pub fn add_group(&mut self, group: String) {
+        self.groups.push(group);
     }
 
     // Templatte/s
