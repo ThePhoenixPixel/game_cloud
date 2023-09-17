@@ -58,6 +58,7 @@ impl Task{
 
     pub fn set_name(&mut self, name: String) {
         self.name = name;
+        //self.save_to_file();
     }
 
     // Getter and Setter for delete_on_stop
@@ -67,6 +68,7 @@ impl Task{
 
     pub fn set_delete_on_stop(&mut self, delete_on_stop: bool) {
         self.delete_on_stop = delete_on_stop;
+        self.save_to_file();
     }
 
     // Getter and Setter for static_service
@@ -76,6 +78,7 @@ impl Task{
 
     pub fn set_static_service(&mut self, static_service: bool) {
         self.static_service = static_service;
+        self.save_to_file();
     }
 
     // Getter and Setter for nodes
@@ -85,12 +88,14 @@ impl Task{
 
     pub fn add_node(&mut self, node: String) {
         self.nodes.push(node);
+        self.save_to_file();
     }
 
     pub fn remove_node(&mut self, node: &String) {
         if let Some(index) = self.nodes.iter().position(|n| n == node) {
             self.nodes.remove(index);
         }
+        self.save_to_file();
     }
 
     // Getter and Setter for software
@@ -100,6 +105,7 @@ impl Task{
 
     pub fn set_software(&mut self, software: Software) {
         self.software = software;
+        self.save_to_file();
     }
 
     // Getter and Setter for start_port
@@ -109,6 +115,7 @@ impl Task{
 
     pub fn set_start_port(&mut self, start_port: u32) {
         self.start_port = start_port;
+        self.save_to_file();
     }
 
     // Getter and Setter for min_service_count
@@ -118,6 +125,7 @@ impl Task{
 
     pub fn set_min_service_count(&mut self, min_service_count: u32) {
         self.min_service_count = min_service_count;
+        self.save_to_file();
     }
 
     // Getter and Setter for groups
@@ -127,7 +135,10 @@ impl Task{
 
     pub fn add_group(&mut self, group: String) {
         self.groups.push(group);
+        self.save_to_file();
     }
+
+
 
     // Templatte/s
     /*pub fn get_template(&self) -> String{
@@ -256,6 +267,7 @@ impl Task{
         self.min_service_count = min_service_count;
         self.groups = groups;
         self.templates = templates;
+        self.save_to_file();
     }
 
     pub fn save_to_file(&self) {

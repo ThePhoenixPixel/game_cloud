@@ -16,7 +16,7 @@ impl Starting {
         config_file_path.push("config.json");
         {
             if !config_file_path.exists() {
-                let url = "https://github.com/ThePhoenixPixel/game_cloud/blob/main/default_file/config.json";
+                let url = "http://thephoenixpixel.de/cloud/game_cloud/config.json";
                 let response = get(url).expect("Error can't get url").text();
                 let mut file = File::create(&config_file_path);
                 file.expect("Error beim write all config.json").write_all(response.expect("Error eim response ").as_bytes()).expect("Error beim schreiben der datei");
@@ -27,6 +27,7 @@ impl Starting {
         let config_content = fs::read_to_string(&config_file_path).expect("Error beim lesen des config content");
         let mut config: Value = serde_json::from_str(&config_content).expect("Error beim dereraliesiren des config inhalts");
         let cmd_präfix = Config::get_prefix();
+
 
         //task dir
         {
@@ -59,12 +60,12 @@ impl Starting {
         //config links
         {
             let mut config_software_path = exe_path.clone();
-            config_software_path.push(config["path"]["config"]["links"].as_str().expect("Error beim Lesen des path der config datei"));
+            config_software_path.push(config["path"]["config"]["software"].as_str().expect("Error beim Lesen des path der config datei"));
             Bx::create_path(&config_software_path);
             println!("{} {:?} erfolgreich erstellt",cmd_präfix ,config_software_path);
             config_software_path.push("links.json");
             if !config_software_path.exists() {
-                let url = "https://github.com/ThePhoenixPixel/game_cloud/blob/main/default_file/config/software.json";
+                let url = "http://thephoenixpixel.de/cloud/game_cloud/config/software.json";
                 let response = get(url).expect("Error can't get url").text();
 
                 let mut file = File::create(&config_software_path);
@@ -77,12 +78,12 @@ impl Starting {
         //config default_task
         {
             let mut config_task_path = exe_path.clone();
-            config_task_path.push(config["path"]["config"]["links"].as_str().expect("Error beim Lesen des path der config datei"));
+            config_task_path.push(config["path"]["config"]["default_task"].as_str().expect("Error beim Lesen des path der config datei"));
             Bx::create_path(&config_task_path);
             println!("{} {:?} erfolgreich erstellt",cmd_präfix ,config_task_path);
             config_task_path.push("task.json");
             if !config_task_path.exists() {
-                let url = "https://github.com/ThePhoenixPixel/game_cloud/blob/main/default_file/config/task.json";
+                let url = "http://thephoenixpixel.de/cloud/game_cloud/config/task.json";
                 let response = get(url).expect("Error can't get url").text();
 
                 let mut file = File::create(&config_task_path);

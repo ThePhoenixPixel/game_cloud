@@ -78,7 +78,7 @@ impl CmdTask{
         }
 
         let task_name = args.get(1).unwrap();
-        let attribut = args.get(3).to_lowercase();
+        let attribut = args.get(3).unwrap().to_lowercase();
         let new_wert = args.get(4);
 
         let mut task = match Task::get_task(task_name.clone()) {
@@ -191,38 +191,39 @@ impl CmdTask{
 
 
     //task setup <name> add <attribut> <new wert>
-    fn setup_add(args: &Vec<String>){
+    fn setup_add(args: &Vec<String>) {
         if let Some(attribut) = args.get(3) {
-            if let Some(new_wert) = args.get(4).unwrap().to_string() {
+            if let Some(new_wert) = args.get(4) {
 
-                let mut task = (Task::get_task(args.get(1).unwrap().to_string()).unwrap());
+                let mut task = Task::get_task(args.get(1).unwrap().to_string()).unwrap();
 
                 match attribut.to_lowercase().as_str() {
                     "group" => {
-                        task.add_group(new_wert);
-                        println!("{} Add node {} to the Task", Config::get_prefix(), new_wert)
+                        task.add_group(new_wert.to_string());
+                        println!("{} Added group {} to the Task", Config::get_prefix(), new_wert);
                     }
 
                     "node" => {
-                        task.add_node(new_wert);
-                        println!("{} Add node {} to the task", Config::get_prefix(), new_wert);
+                        task.add_node(new_wert.to_string());
+                        println!("{} Added node {} to the task", Config::get_prefix(), new_wert);
                     }
 
                     "template" => {
-                        println!("Dies geht noch nicht");
+                        println!("This feature is not implemented yet.");
                     }
 
-                    &_ => {
-                        println!("{} Plaase give group/node/template", Config::get_prefix());
+                    _ => {
+                        println!("{} Please specify 'group', 'node', or 'template'", Config::get_prefix());
                     }
                 }
             } else {
-                println!("{} Pleas give a ", Config::get_prefix());
+                println!("{} Please provide a value to add", Config::get_prefix());
             }
         } else {
-            println!("{} Please give a attribut to chang this", Config::get_prefix());
+            println!("{} Please specify an attribute to change", Config::get_prefix());
         }
     }
+
 
 
     fn create(args: &Vec<String>){
