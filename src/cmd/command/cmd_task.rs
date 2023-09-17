@@ -71,59 +71,124 @@ impl CmdTask{
     }
 
     //task setup <name> set <attribut> <new wert>
-    fn setup_set(args: &Vec<String>){
-        if let Some(attribut) = args.get(3) {
-            if let Some(new_wert) = args.get(4).unwrap().to_string(){
+    fn setup_set(args: &Vec<String>) {
+        if args.len() < 5 {
+            println!("{} Bitte geben Sie mindestens 5 Argumente an.", Config::get_prefix());
+            return;
+        }
 
-                let mut task = (Task::get_task(args.get(1).unwrap().to_string())).unwrap();
+        let task_name = args.get(1).unwrap();
+        let attribut = args.get(3).to_lowercase();
+        let new_wert = args.get(4);
 
-                match attribut.to_lowercase().as_str() {
-
-                    "name" => {
-                        task.set_name(new_wert);
-                        println!("{} Set Task Name to {}", Config::get_prefix(), new_wert);
-                    }
-
-                    "delete_on_stop" => {
-                        task.set_delete_on_stop(new_wert);
-                        println!("{} Set deleteOnStop to {}", Config::get_prefix(), new_wert);
-                    }
-
-                    "static_service" => {
-                        task.set_static_service(new_wert);
-                        println!("{} Set Static Service to {}", Config::get_prefix(), new_wert);
-                    }
-
-                    "software" => {
-                        if let Some(software_name) = args.get(5) {
-                            let mut software = Software::new();
-                            software.set_name(software_name.to_string());
-                            task.set_software(software);
-                            println!("{} Set Software to {} {}", Config::get_prefix(), new_wert, software_name);
-                        }
-
-
-                    }
-
-                    "start_port" => {
-
-                    }
-
-                    "min_service_count" => {
-
-                    }
-
-                    &_ => {
-                        println!("{} Pleas give name/delete_on_stop/static_service/", Config::get_prefix());
-                    }
-                }
-            } else {
-                println!("{} Pleas give a ", Config::get_prefix());
+        let mut task = match Task::get_task(task_name.clone()) {
+            Some(t) => t,
+            None => {
+                println!("{} Task '{}' nicht gefunden.", Config::get_prefix(), task_name);
+                return;
             }
-        } else {
-            println!("{} Please give a attribut to chang this", Config::get_prefix());
+        };
+
+        match attribut.as_str() {
+            "name" => {
+                if let Some(new_name) = new_wert {
+                    task.set_name(new_name.clone());
+                    println!("{} Setze den Task-Namen auf '{}'.", Config::get_prefix(), new_name);
+                } else {
+                    println!("{} Bitte geben Sie einen neuen Namen an.", Config::get_prefix());
+                }
+            }
+
+            "delete_on_stop" => {
+                if let Some(new_value) = new_wert {
+                    match new_value.to_lowercase().as_str() {
+                        "true" => task.set_delete_on_stop(true),
+                        "false" => task.set_delete_on_stop(false),
+                        _ => {
+                            println!("{} Ungültiger Wert für '{}': {}. Verwenden Sie 'true' oder 'false'.", Config::get_prefix(), attribut, new_value);
+                            return;
+                        }
+                    }
+
+                    println!("{} Setze '{}' auf '{}'.", Config::get_prefix(), attribut, new_value);
+                } else {
+                    println!("{} Bitte geben Sie einen neuen Wert für '{}' an.", Config::get_prefix(), attribut);
+                }
+            }
+
+            "static_service" => {
+                if let Some(new_value) = new_wert {
+                    match new_value.to_lowercase().as_str() {
+                        "true" => task.set_static_service(true),
+                        "false" => task.set_static_service(false),
+                        _ => {
+                            println!("{} Ungültiger Wert für '{}': {}. Verwenden Sie 'true' oder 'false'.", Config::get_prefix(), attribut, new_value);
+                            return;
+                        }
+                    }
+
+                    println!("{} Setze '{}' auf '{}'.", Config::get_prefix(), attribut, new_value);
+                } else {
+                    println!("{} Bitte geben Sie einen neuen Wert für '{}' an.", Config::get_prefix(), attribut);
+                }
+            }
+
+            "software" => {
+                if args.len() < 6 {
+                    println!("{} Bitte geben Sie den Typ und den Namen der Software an.", Config::get_prefix());
+                    return;
+                }
+
+                let software_type = args.get(5).unwrap();
+                if let Some(software_name) = new_wert {
+                    let mut software = Software::new();
+                    software.set_software_type(software_type.clone());
+                    software.set_name(software_name.clone());
+                    task.set_software(software);
+                    println!("{} Setze 'Software' auf '{} {}'", Config::get_prefix(), software_type, software_name);
+                } else {
+                    println!("{} Bitte geben Sie den Namen der Software an.", Config::get_prefix());
+                }
+            }
+
+            "start_port" => {
+                if let Some(start_port_str) = new_wert {
+                    match start_port_str.parse::<u32>() {
+                        Ok(start_port) => {
+                            task.set_start_port(start_port);
+                            println!("{} Setze den Start-Port auf {}.", Config::get_prefix(), start_port);
+                        }
+                        Err(_) => {
+                            println!("{} Ungültiger Wert für den Start-Port: {}", Config::get_prefix(), start_port_str);
+                        }
+                    }
+                } else {
+                    println!("{} Bitte geben Sie einen Wert für den Start-Port an.", Config::get_prefix());
+                }
+            }
+
+            "min_service_count" => {
+                if let Some(min_service_count_str) = new_wert {
+                    match min_service_count_str.parse::<u32>() {
+                        Ok(min_service_count) => {
+                            task.set_min_service_count(min_service_count);
+                            println!("{} Setze 'Min Service Count' auf {}.", Config::get_prefix(), min_service_count);
+                        }
+                        Err(_) => {
+                            println!("{} Ungültiger Wert für 'Min Service Count': {}", Config::get_prefix(), min_service_count_str);
+                        }
+                    }
+                } else {
+                    println!("{} Bitte geben Sie einen Wert für 'Min Service Count' an.", Config::get_prefix());
+                }
+            }
+
+            _ => {
+                println!("{} Ungültiges Attribut. Bitte geben Sie 'name', 'delete_on_stop', 'static_service', 'software', 'start_port' oder 'min_service_count' an.", Config::get_prefix());
+            }
         }
     }
+
 
     //task setup <name> add <attribut> <new wert>
     fn setup_add(args: &Vec<String>){
