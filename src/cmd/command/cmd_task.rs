@@ -70,6 +70,24 @@ impl CmdTask{
         }
     }
 
+    fn setup_remove(args: &Vec<String>){
+
+        let task_name = args.get(1).unwrap().to_string();
+        let attribut = args.get(3).unwrap().to_lowercase();
+        let new_wert = args.get(4);
+
+        let mut task = match Task::get_task(task_name.clone()){
+            Some(t) => t,
+            None => {
+                println!("{} Task '{}' nicht gefunden.", Config::get_prefix(), task_name);
+                return;
+            }
+        };
+
+
+
+    }
+
     //task setup <name> set <attribut> <new wert>
     fn setup_set(args: &Vec<String>) {
         if args.len() < 5 {
