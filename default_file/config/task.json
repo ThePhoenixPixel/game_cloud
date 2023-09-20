@@ -1,0 +1,21 @@
+{
+  "name": "task",
+  "delete_on_stop": true,
+  "static_service": false,
+  "nodes": [],
+  "software": {
+    "software_type": "server",
+    "name": "paper",
+    "max_ram": 1024
+  },
+  "start_port": 40000,
+  "min_service_count": 0,
+  "groups": [],
+  "templates": [
+    {
+      "template": "task",
+      "name": "default",
+      "priority": 1
+    }
+  ]
+}

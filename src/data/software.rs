@@ -1,4 +1,5 @@
 use serde::Serialize;
+use crate::config::Config;
 
 #[derive(Serialize)]
 pub struct Software{
@@ -14,6 +15,9 @@ impl Software{
             max_ram: 1024,
         }
     }
+    //get Software
+
+
     //software type
     pub fn get_software_type(&self) -> &String {
         &self.software_type

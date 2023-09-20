@@ -9,6 +9,7 @@ impl CmdTask{
     pub fn execute(args: &Vec<String>){
 
         if let Some(arg0) = args.get(0) {
+
             match arg0.as_str() {
 
                 "create" => {
@@ -18,13 +19,13 @@ impl CmdTask{
                 "info" => {
                     CmdTask::info(args);
                 }
-                //web config ändern
+
                 "delete" => {
                     CmdTask::delete(args);
                 }
 
                 "setup" => {
-
+                    CmdTask::setup(args);
                 }
 
                 _ => {
@@ -39,12 +40,20 @@ impl CmdTask{
 
     fn setup(args: &Vec<String>){
         if let Some(task_name) = args.get(1) {
-            if  let Some(mut task) = Task::get_task(task_name.to_string()){
-                if let Some(atribut) = args.get(2) {
-                    match atribut.as_str() {
-                        "name" => {
-                            task.set_name(task_name.to_string());
-                        }
+
+=======
+            if let  Some(arg) = args.get(2) {
+                match arg.to_lowercase().as_str() {
+                    "add" => {
+                        CmdTask::setup_add(args);
+                    }
+
+                    "set" => {
+                        CmdTask::setup_set(args);
+                    }
+
+                    "remove" => {
+>>>>>>> 229d7c0cad38d052f2faa646db9ead88f59696e3
 
                         "delete_on_stop" => {
                             if let Some(wert_new) = args.get(3) {
@@ -52,14 +61,19 @@ impl CmdTask{
                             }
                         }
 
+<<<<<<< HEAD
                         "static_service" => {
                             if let Some(wert_new) = args.get(3) {
                                 task.set_static_service(wert_new);
                             }
                         }
+=======
+                    "clear" => {
+>>>>>>> 229d7c0cad38d052f2faa646db9ead88f59696e3
 
                         "nodes" => {
 
+<<<<<<< HEAD
                         }
 
                         "software" => {
@@ -89,15 +103,193 @@ impl CmdTask{
                         _ => {
                             println!("{} Kein passendes Argument", Config::get_prefix());
                         }
+=======
+                    &_ => {
+                        println!("{} Kein Gültiges Argument", Config::get_prefix());
+>>>>>>> 229d7c0cad38d052f2faa646db9ead88f59696e3
                     }
                 }
+            } else {
+                println!("{} Please give set/add/remove/clear", Config::get_prefix());
             }
-
-
         } else {
             println!("{} Please give a task name to change this", Config::get_prefix())
         }
     }
+
+    fn setup_remove(args: &Vec<String>){
+
+        let task_name = args.get(1).unwrap().to_string();
+        let attribut = args.get(3).unwrap().to_lowercase();
+        let new_wert = args.get(4);
+
+        let mut task = match Task::get_task(task_name.clone()){
+            Some(t) => t,
+            None => {
+                println!("{} Task '{}' nicht gefunden.", Config::get_prefix(), task_name);
+                return;
+            }
+        };
+
+
+
+    }
+
+    //task setup <name> set <attribut> <new wert>
+    fn setup_set(args: &Vec<String>) {
+        if args.len() < 5 {
+            println!("{} Bitte geben Sie mindestens 5 Argumente an.", Config::get_prefix());
+            return;
+        }
+
+        let task_name = args.get(1).unwrap();
+        let attribut = args.get(3).unwrap().to_lowercase();
+        let new_wert = args.get(4);
+
+        let mut task = match Task::get_task(task_name.clone()) {
+            Some(t) => t,
+            None => {
+                println!("{} Task '{}' nicht gefunden.", Config::get_prefix(), task_name);
+                return;
+            }
+        };
+
+        match attribut.as_str() {
+            "name" => {
+                if let Some(new_name) = new_wert {
+                    task.set_name(new_name.clone());
+                    println!("{} Setze den Task-Namen auf '{}'.", Config::get_prefix(), new_name);
+                } else {
+                    println!("{} Bitte geben Sie einen neuen Namen an.", Config::get_prefix());
+                }
+            }
+
+            "delete_on_stop" => {
+                if let Some(new_value) = new_wert {
+                    match new_value.to_lowercase().as_str() {
+                        "true" => task.set_delete_on_stop(true),
+                        "false" => task.set_delete_on_stop(false),
+                        _ => {
+                            println!("{} Ungültiger Wert für '{}': {}. Verwenden Sie 'true' oder 'false'.", Config::get_prefix(), attribut, new_value);
+                            return;
+                        }
+                    }
+
+                    println!("{} Setze '{}' auf '{}'.", Config::get_prefix(), attribut, new_value);
+                } else {
+                    println!("{} Bitte geben Sie einen neuen Wert für '{}' an.", Config::get_prefix(), attribut);
+                }
+            }
+
+            "static_service" => {
+                if let Some(new_value) = new_wert {
+                    match new_value.to_lowercase().as_str() {
+                        "true" => task.set_static_service(true),
+                        "false" => task.set_static_service(false),
+                        _ => {
+                            println!("{} Ungültiger Wert für '{}': {}. Verwenden Sie 'true' oder 'false'.", Config::get_prefix(), attribut, new_value);
+                            return;
+                        }
+                    }
+
+                    println!("{} Setze '{}' auf '{}'.", Config::get_prefix(), attribut, new_value);
+                } else {
+                    println!("{} Bitte geben Sie einen neuen Wert für '{}' an.", Config::get_prefix(), attribut);
+                }
+            }
+
+            "software" => {
+                if args.len() < 6 {
+                    println!("{} Bitte geben Sie den Typ und den Namen der Software an.", Config::get_prefix());
+                    return;
+                }
+
+                let software_type = args.get(5).unwrap();
+                if let Some(software_name) = new_wert {
+                    let mut software = Software::new();
+                    software.set_software_type(software_type.clone());
+                    software.set_name(software_name.clone());
+                    task.set_software(software);
+                    println!("{} Setze 'Software' auf '{} {}'", Config::get_prefix(), software_type, software_name);
+                } else {
+                    println!("{} Bitte geben Sie den Namen der Software an.", Config::get_prefix());
+                }
+            }
+
+            "start_port" => {
+                if let Some(start_port_str) = new_wert {
+                    match start_port_str.parse::<u32>() {
+                        Ok(start_port) => {
+                            task.set_start_port(start_port);
+                            println!("{} Setze den Start-Port auf {}.", Config::get_prefix(), start_port);
+                        }
+                        Err(_) => {
+                            println!("{} Ungültiger Wert für den Start-Port: {}", Config::get_prefix(), start_port_str);
+                        }
+                    }
+                } else {
+                    println!("{} Bitte geben Sie einen Wert für den Start-Port an.", Config::get_prefix());
+                }
+            }
+
+            "min_service_count" => {
+                if let Some(min_service_count_str) = new_wert {
+                    match min_service_count_str.parse::<u32>() {
+                        Ok(min_service_count) => {
+                            task.set_min_service_count(min_service_count);
+                            println!("{} Setze 'Min Service Count' auf {}.", Config::get_prefix(), min_service_count);
+                        }
+                        Err(_) => {
+                            println!("{} Ungültiger Wert für 'Min Service Count': {}", Config::get_prefix(), min_service_count_str);
+                        }
+                    }
+                } else {
+                    println!("{} Bitte geben Sie einen Wert für 'Min Service Count' an.", Config::get_prefix());
+                }
+            }
+
+            _ => {
+                println!("{} Ungültiges Attribut. Bitte geben Sie 'name', 'delete_on_stop', 'static_service', 'software', 'start_port' oder 'min_service_count' an.", Config::get_prefix());
+            }
+        }
+    }
+
+
+    //task setup <name> add <attribut> <new wert>
+    fn setup_add(args: &Vec<String>) {
+        if let Some(attribut) = args.get(3) {
+            if let Some(new_wert) = args.get(4) {
+
+                let mut task = Task::get_task(args.get(1).unwrap().to_string()).unwrap();
+
+                match attribut.to_lowercase().as_str() {
+                    "group" => {
+                        task.add_group(new_wert.to_string());
+                        println!("{} Added group {} to the Task", Config::get_prefix(), new_wert);
+                    }
+
+                    "node" => {
+                        task.add_node(new_wert.to_string());
+                        println!("{} Added node {} to the task", Config::get_prefix(), new_wert);
+                    }
+
+                    "template" => {
+                        println!("This feature is not implemented yet.");
+                    }
+
+                    _ => {
+                        println!("{} Please specify 'group', 'node', or 'template'", Config::get_prefix());
+                    }
+                }
+            } else {
+                println!("{} Please provide a value to add", Config::get_prefix());
+            }
+        } else {
+            println!("{} Please specify an attribute to change", Config::get_prefix());
+        }
+    }
+
+
 
     fn create(args: &Vec<String>){
         //check task name is set
