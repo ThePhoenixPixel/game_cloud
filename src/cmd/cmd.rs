@@ -1,7 +1,6 @@
-use std::env::args;
 use std::io;
 use std::io::Write;
-use colored::ColoredString;
+use colored::{ColoredString, Colorize};
 use crate::cmd::command::cmd_stop::execute_stop;
 use crate::cmd::command::cmd_task::CmdTask;
 use crate::config::Config;
@@ -10,14 +9,14 @@ use crate::config::Config;
 pub struct Cmd {
     pub command: String,
     pub args: Vec<String>,
-    pub prefix: String,
+    pub prefix: ColoredString,
 }
 
 impl Cmd {
     pub fn new() -> Cmd {
         let command = String::new();
         let args:Vec<String> = Vec::new();
-        let prefix: String = String::new();
+        let prefix: ColoredString = ColoredString::default();
         Cmd {
             command,
             args,
@@ -25,7 +24,7 @@ impl Cmd {
         }
     }
 
-    pub fn set_prefix(&mut self, prefix: String){
+    pub fn set_prefix(&mut self, prefix: ColoredString){
         self.prefix = prefix;
     }
 
