@@ -22,10 +22,12 @@ impl CmdTask{
 
                 "delete" => {
                     CmdTask::delete(args);
+
                 }
 
                 "setup" => {
                     CmdTask::setup(args);
+
                 }
 
                 _ => {
@@ -256,19 +258,19 @@ impl CmdTask{
 
             if let Some(software_type) = args.get(2) {
 
-               if let  Some(software_name) = args.get(3) {
+                if let  Some(software_name) = args.get(3) {
 
-                   create_task(task_name.to_string(), software_type.to_string(), software_name.to_string());
+                    create_task(task_name.to_string(), software_type.to_string(), software_name.to_string());
 
-               } else {
-                   //hannes hat die Zeile geschrieben
-                   println!("{} bitte gebe ein software name ein", Config::get_prefix());
-               }
-                
-            } else { 
+                } else {
+                    //hannes hat die Zeile geschrieben
+                    println!("{} bitte gebe ein software name ein", Config::get_prefix());
+                }
+
+            } else {
                 println!("{} Bitte gebe ein Software Type ein", Config::get_prefix());
             }
-            
+
         } else {
             println!("{} Bitte gebe ein namen an", Config::get_prefix());
             println!("{} task create <name> <Server_Type> <Software>", Config::get_prefix());
@@ -333,11 +335,11 @@ fn create_task(name: String, software_type: String, software_name: String){
     //setup software with parameters
     software.set_software_type(software_type);
     software.set_name(software_name);
-    
+
     //setup the task objekt
     task.set_software(software);
     task.set_name(name);
-    
+
     //save the new task to a file
     task.save_to_file();
 }

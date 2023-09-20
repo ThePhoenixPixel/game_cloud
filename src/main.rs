@@ -38,6 +38,7 @@ mod config;
 
 fn main(){
     println!("Start Game Cloud");
+    Starting::print_icon();
     let dev_mode = false;
     //read file and dirs
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
