@@ -37,37 +37,20 @@ pub mod data{
 mod config;
 
 fn main(){
-    println!("Start Game Cloud");
-    Starting::print_icon();
-    let dev_mode = false;
-    //read file and dirs
+
+    println!("Start Game Cloud...");
+
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
     exe_path.pop();
 
-    Starting::check_path(exe_path);
 
-    //task abfrage und initaliesirung der
-    let task_all = Task::get_task_all();
+    //start the cloud
+    if Starting::start(exe_path){
 
-    println!("{:?}", task_all);
-
-    for task_name in task_all {
-        if let Some(task) = Task::get_task(task_name) {
-            println!("{}", &task.get_name());
-            if task.get_min_service_count() > 0 {
-                for _ in 0..task.get_min_service_count() {
-                    println!("Dienst starten {}", &task.get_name());
-                    //task.prepared_to_services();
-
-                }
-            }
-        } else {
-            println!("{} task error", Config::get_prefix());
-        }
+        let mut cmd = Cmd::new();
+        cmd.set_prefix(Config::get_prefix());
+        cmd.start();
     }
-
-    // cmd
-    let mut cmd = Cmd::new().start();
 
     //end
     println!("{} BB", Config::get_prefix());
