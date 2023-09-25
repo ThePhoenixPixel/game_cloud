@@ -56,7 +56,7 @@ impl Task{
         &self.name
     }
 
-    pub fn set_name(&mut self, name: String) {
+    pub fn change_name(&mut self, name: String) {
         self.name = name;
         //self.save_to_file();
     }
