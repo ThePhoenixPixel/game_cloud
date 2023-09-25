@@ -12,21 +12,23 @@ use crate::lib::bx::Bx;
 pub struct Starting;
 
 impl Starting {
-    pub fn start(exe_path: PathBuf) -> bool{
+    pub fn start(exe_path: PathBuf) -> bool {
         Starting::print_icon();
 
+<<<<<<< HEAD
         if let Some(config) = Starting::check_config(&exe_path){
 
+=======
+        if let Some(config) = Starting::check_config(&exe_path) {
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
             let cmd_prefix = Config::get_prefix();
             Starting::check_folder(&exe_path, &config, &cmd_prefix);
 
-            if Starting::check_link(&exe_path, &config, &cmd_prefix){
+            if Starting::check_link(&exe_path, &config, &cmd_prefix) {
                 Starting::check_task();
-
             } else {
                 return false;
             }
-
         } else {
             return false;
         }
@@ -68,36 +70,51 @@ impl Starting {
         println!("");
     }
 
+<<<<<<< HEAD
     fn check_config(exe_path: &PathBuf) -> Option<Value>{
 
         //config.yml
+=======
+    fn check_config(exe_path: &PathBuf) -> Option<Value> {
+        // config.json
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
         let mut config_file_path = exe_path.clone();
         config_file_path.push("config.json");
 
         if !config_file_path.exists() {
             let url = "http://thephoenixpixel.de/cloud/game_cloud/config.json";
-            if let Some(response) = get(url).ok() {
+            if let Ok(response) = get(url) {
                 let mut file = File::create(&config_file_path);
                 file.expect("Error beim write all config.json")
+<<<<<<< HEAD
                     .write_all(&*response.bytes().expect("dwdw"))
+=======
+                    .write_all(&response.bytes().expect("Error beim Lesen des response"))
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
                     .expect("Error beim schreiben der datei");
 
+                println!("Datei erstellt von {}", url);
             } else {
                 eprintln!("Cloud kann nicht starten");
+<<<<<<< HEAD
                 eprintln!("Das System kann die url {} nicht abrufen", url);
+=======
+                eprintln!("Das System kann die URL {} nicht abrufen", url);
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
                 return None;
             }
-
-             println!("Datei erstellt von {}", url);
         }
 
-        //config.json dereralisseiren
+        // config.json deserialisieren
         let config_content = fs::read_to_string(&config_file_path).expect("Error beim lesen des config content");
 
-        Some(serde_json::from_str(&config_content).expect("Error beim dereraliesiren des config inhalts"))
-
+        Some(serde_json::from_str(&config_content).expect("Error beim deserialisieren des config Inhalts"))
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
     fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString){
 
         //task folder
@@ -143,20 +160,27 @@ impl Starting {
     }
 
     fn check_link(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString) -> bool {
-        //software.json link
+        // software.json link
         {
             let mut config_software_path = exe_path.clone();
             config_software_path.push(config["path"]["config"]["software"].as_str().expect("Error beim Lesen des path der config datei"));
             Bx::create_path(&config_software_path);
-            println!("{} {:?} erfolgreich erstellt",cmd_prefix ,config_software_path);
+            println!("{} {:?} erfolgreich erstellt", cmd_prefix, config_software_path);
             config_software_path.push("links.json");
             if !config_software_path.exists() {
                 let url = "http://thephoenixpixel.de/cloud/game_cloud/config/software.json";
+<<<<<<< HEAD
                 if let Some(response) = get(url).ok() {
                     let mut file = File::create(&config_software_path);
                     file.expect("Erro beim ersetllend er File").write_all(&*response.bytes().expect("Error beim schreiben der File"));
                     println!("{} Datei erstellt von {}",cmd_prefix ,url);
 
+=======
+                if let Ok(response) = get(url) {
+                    let mut file = File::create(&config_software_path);
+                    file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    println!("{} Datei erstellt von {}", cmd_prefix, url);
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
                 } else {
                     eprintln!("Software file kann nicht heruntergeladen werden");
                     eprintln!("Bitte stellen sie sicher das sie zugriff auf {} haben", url);
@@ -164,20 +188,27 @@ impl Starting {
                 }
             }
         }
-        //task.json link
+        // task.json link
         {
             let mut config_task_path = exe_path.clone();
             config_task_path.push(config["path"]["config"]["default_task"].as_str().expect("Error beim Lesen des path der config datei"));
             Bx::create_path(&config_task_path);
-            println!("{} {:?} erfolgreich erstellt",cmd_prefix ,config_task_path);
+            println!("{} {:?} erfolgreich erstellt", cmd_prefix, config_task_path);
             config_task_path.push("task.json");
             if !config_task_path.exists() {
                 let url = "http://thephoenixpixel.de/cloud/game_cloud/config/task.json";
+<<<<<<< HEAD
                 if let Some(response) = get(url).ok() {
                     let mut file = File::create(&config_task_path);
                     file.expect("Erro beim ersetllend er File").write_all(&*response.bytes().expect("Error beim schreiben der File"));
                     println!("{} Datei erstellt von {}",cmd_prefix ,url);
 
+=======
+                if let Ok(response) = get(url) {
+                    let mut file = File::create(&config_task_path);
+                    file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    println!("{} Datei erstellt von {}", cmd_prefix, url);
+>>>>>>> 51730967ed4757241f08bd51a1c0d5750f42d461
                 } else {
                     eprintln!("task default file kann nicht heruntergeladen werden");
                     eprintln!("Bitte stellen sie sicher das sie zugriff auf {} haben", url);
