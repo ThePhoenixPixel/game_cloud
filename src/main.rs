@@ -50,8 +50,9 @@ fn main(){
         let mut cmd = Cmd::new();
         cmd.set_prefix(Config::get_prefix());
         cmd.start();
+        //end
+        println!("{} BB", Config::get_prefix());
     }
+    println!("Game Cloud Stop");
 
-    //end
-    println!("{} BB", Config::get_prefix());
 }

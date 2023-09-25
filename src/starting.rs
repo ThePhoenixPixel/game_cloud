@@ -1,6 +1,6 @@
 use std::fs;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::PathBuf;
 use colored::*;
 use reqwest::blocking::get;
@@ -15,10 +15,10 @@ impl Starting {
     pub fn start(exe_path: PathBuf) -> bool{
         Starting::print_icon();
 
-        if let Some(config) = Starting::check_config(exe_path){
+        if let Some(config) = Starting::check_config(&exe_path){
 
             let cmd_prefix = Config::get_prefix();
-            Starting::check_folder(&exe_path, config, cmd_prefix);
+            Starting::check_folder(&exe_path, &config, &cmd_prefix);
 
             if Starting::check_link(&exe_path, &config, &cmd_prefix){
                 Starting::check_task();
@@ -68,7 +68,7 @@ impl Starting {
         println!("");
     }
 
-    fn check_config(exe_path: PathBuf) -> Option<Value>{
+    fn check_config(exe_path: &PathBuf) -> Option<Value>{
 
         //config.yml
         let mut config_file_path = exe_path.clone();
@@ -79,14 +79,13 @@ impl Starting {
             if let Some(response) = get(url).ok() {
                 let mut file = File::create(&config_file_path);
                 file.expect("Error beim write all config.json")
-                    .write_all(response
-                        .as_bytes())
+                    .write_all(&*response.bytes().expect("dwdw"))
                     .expect("Error beim schreiben der datei");
 
             } else {
                 eprintln!("Cloud kann nicht starten");
                 eprintln!("Das System kann die url {} nicht abrufen", url);
-                None
+                return None;
             }
 
              println!("Datei erstellt von {}", url);
@@ -99,7 +98,7 @@ impl Starting {
 
     }
 
-    fn check_folder(exe_path: &PathBuf, config: Value, cmd_prefix: ColoredString){
+    fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString){
 
         //task folder
         {
@@ -153,9 +152,9 @@ impl Starting {
             config_software_path.push("links.json");
             if !config_software_path.exists() {
                 let url = "http://thephoenixpixel.de/cloud/game_cloud/config/software.json";
-                if let Some(response) = get(url) {
+                if let Some(response) = get(url).ok() {
                     let mut file = File::create(&config_software_path);
-                    file.expect("Erro beim ersetllend er File").write_all(response.expect("Error beim lesen des response").as_bytes()).expect("Error beim schreiben der File");
+                    file.expect("Erro beim ersetllend er File").write_all(&*response.bytes().expect("Error beim schreiben der File"));
                     println!("{} Datei erstellt von {}",cmd_prefix ,url);
 
                 } else {
@@ -174,9 +173,9 @@ impl Starting {
             config_task_path.push("task.json");
             if !config_task_path.exists() {
                 let url = "http://thephoenixpixel.de/cloud/game_cloud/config/task.json";
-                if let Some(response) = get(url) {
+                if let Some(response) = get(url).ok() {
                     let mut file = File::create(&config_task_path);
-                    file.expect("Erro beim ersetllend er File").write_all(response.expect("Error beim lesen des response").as_bytes()).expect("Error beim schreiben der File");
+                    file.expect("Erro beim ersetllend er File").write_all(&*response.bytes().expect("Error beim schreiben der File"));
                     println!("{} Datei erstellt von {}",cmd_prefix ,url);
 
                 } else {
