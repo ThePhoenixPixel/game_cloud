@@ -5,7 +5,6 @@ use colored::Colorize;
 use serde_json;
 use crate::cmd::cmd::Cmd;
 use crate::config::Config;
-use crate::data::task::Task;
 use crate::starting::Starting;
 
 pub mod language;
