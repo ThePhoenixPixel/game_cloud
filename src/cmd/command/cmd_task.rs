@@ -112,7 +112,7 @@ impl CmdTask{
         match attribut.as_str() {
             "name" => {
                 if let Some(new_name) = new_wert {
-                    task.set_name(new_name.clone());
+                    task.change_name(new_name.clone());
                     println!("{} Setze den Task-Namen auf '{}'.", Config::get_prefix(), new_name);
                 } else {
                     println!("{} Bitte geben Sie einen neuen Namen an.", Config::get_prefix());
@@ -338,7 +338,7 @@ fn create_task(name: String, software_type: String, software_name: String){
 
     //setup the task objekt
     task.set_software(software);
-    task.set_name(name);
+    task.change_name(name);
 
     //save the new task to a file
     task.save_to_file();

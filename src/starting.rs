@@ -56,7 +56,7 @@ impl Starting {
         config_file_path.push("config.json");
 
         if !config_file_path.exists() {
-            let url = "http://thephoenixpixel.de/cloud/game_cloud/config.json";
+            let url = "http://37.114.62.121/cloud/default_file/config.json";
             if let Ok(response) = get(url) {
                 let mut file = File::create(&config_file_path);
                 file.expect("Error beim write all config.json")
@@ -127,11 +127,13 @@ impl Starting {
         {
             let mut config_software_path = exe_path.clone();
             config_software_path.push(config["path"]["config"]["software"].as_str().expect("Error beim Lesen des path der config datei"));
-            Bx::create_path(&config_software_path);
-            println!("{} {:?} erfolgreich erstellt", cmd_prefix, config_software_path);
+            if !config_software_path.exists() {
+                Bx::create_path(&config_software_path);
+                println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, config_software_path);
+            }
             config_software_path.push("links.json");
             if !config_software_path.exists() {
-                let url = "http://thephoenixpixel.de/cloud/game_cloud/config/software.json";
+                let url = "http://37.114.62.121/cloud/default_file/config/software.json";
                 if let Ok(response) = get(url) {
                     let mut file = File::create(&config_software_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
@@ -147,11 +149,13 @@ impl Starting {
         {
             let mut config_task_path = exe_path.clone();
             config_task_path.push(config["path"]["config"]["default_task"].as_str().expect("Error beim Lesen des path der config datei"));
-            Bx::create_path(&config_task_path);
-            println!("{} {:?} erfolgreich erstellt", cmd_prefix, config_task_path);
+            if !config_task_path.exists() {
+                Bx::create_path(&config_task_path);
+                println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, &config_task_path);
+            }
             config_task_path.push("task.json");
             if !config_task_path.exists() {
-                let url = "http://thephoenixpixel.de/cloud/game_cloud/config/task.json";
+                let url = "http://37.114.62.121/cloud/default_file/config/task.json";
                 if let Ok(response) = get(url) {
                     let mut file = File::create(&config_task_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
