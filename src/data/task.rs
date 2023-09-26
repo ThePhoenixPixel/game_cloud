@@ -285,6 +285,27 @@ impl Task{
         fs::remove_file(task_path).expect("Error bei  removen der task datei");
     }
 
+    pub fn reload(){
+
+        let task_all = Task::get_task_all();
+
+        println!("{:?}", task_all);
+
+        for task_name in task_all {
+            if let Some(task) = Task::get_task(task_name) {
+                println!("{}", &task.get_name());
+                if task.get_min_service_count() > 0 {
+                    for _ in 0..task.get_min_service_count() {
+                        println!("Dienst starten {}", &task.get_name());
+                        //task.prepared_to_services();
+                    }
+                }
+            } else {
+                println!("{} task error", Config::get_prefix());
+            }
+        }
+
+    }
 
     pub fn prepared_to_services(&self) {
         let templates = &self.templates;

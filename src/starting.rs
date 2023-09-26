@@ -1,7 +1,9 @@
-use std::fs;
+use std::{fs, thread};
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+use std::thread::JoinHandle;
+use std::time::Duration;
 use colored::*;
 use reqwest::blocking::get;
 use serde_json::Value;
@@ -30,25 +32,8 @@ impl Starting {
         return true;
     }
 
-    fn check_task(){
-        let task_all = Task::get_task_all();
-
-        println!("{:?}", task_all);
-
-        for task_name in task_all {
-            if let Some(task) = Task::get_task(task_name) {
-                println!("{}", &task.get_name());
-                if task.get_min_service_count() > 0 {
-                    for _ in 0..task.get_min_service_count() {
-                        println!("Dienst starten {}", &task.get_name());
-                        //task.prepared_to_services();
-                    }
-                }
-            } else {
-                println!("{} task error", Config::get_prefix());
-            }
-        }
-
+    fn check_task() {
+        Task::reload();
     }
 
     fn print_icon() {

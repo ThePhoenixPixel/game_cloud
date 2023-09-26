@@ -52,6 +52,7 @@ fn main(){
         cmd.start();
     }
 
+
     //end
     println!("{} BB", Config::get_prefix());
 }
