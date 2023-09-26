@@ -5,7 +5,6 @@ use colored::Colorize;
 use serde_json;
 use crate::cmd::cmd::Cmd;
 use crate::config::Config;
-use crate::data::task::Task;
 use crate::starting::Starting;
 
 pub mod language;
@@ -50,9 +49,10 @@ fn main(){
         let mut cmd = Cmd::new();
         cmd.set_prefix(Config::get_prefix());
         cmd.start();
+        //end
+        println!("{} BB", Config::get_prefix());
     }
+    println!("Game Cloud Stop");
 
 
-    //end
-    println!("{} BB", Config::get_prefix());
 }
