@@ -274,6 +274,12 @@ impl Task{
         let serialized_task = serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
         let task_path = Config::get_task_path().join(format!("{}.json", self.name));
 
+        if !task_path.exists() {
+
+            Template::create(&self);
+
+        }
+
         let mut file = fs::File::create(&task_path).expect("Error beim Erstellen der Task-Datei");
         file.write_all(serialized_task.as_bytes()).expect("Error beim Schreiben in die Task-Datei");
     }

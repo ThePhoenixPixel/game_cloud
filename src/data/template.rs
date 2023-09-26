@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use serde::Serialize;
 use crate::config::Config;
+use crate::data::task::Task;
+use crate::lib::bx::Bx;
 
 #[derive(Serialize, Debug)]
 pub struct Template {
@@ -46,9 +48,23 @@ impl Template {
     }
 
     pub fn get_path(&self) -> PathBuf{
-        //PathBuf::from(format!("{}{}{}", Config::get_template_path().to_string_lossy().to_owned(),self.template, self.name))
         PathBuf::from(&Config::get_template_path())
             .join(&self.template)
             .join(&self.name)
+    }
+    pub fn create(task: &Task){
+        let mut template_path = Config::get_template_path();
+        template_path.push(task.get_name());
+        template_path.push("default");
+
+        if !template_path.exists() {
+            Bx::create_path(&template_path);
+        }
+
+
+
+
+
+
     }
 }
