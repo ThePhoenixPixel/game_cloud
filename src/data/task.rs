@@ -276,7 +276,7 @@ impl Task{
 
         if !task_path.exists() {
 
-            Template::create(&self);
+            Template::create_by_task(&self);
 
         }
 

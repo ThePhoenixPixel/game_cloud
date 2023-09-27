@@ -44,7 +44,7 @@ impl CmdTask{
         }
     }
 
-    fn setup(args: &Vec<String>){
+    fn setup(args: &Vec<String>) {
         if let Some(task_name) = args.get(1) {
             if let  Some(arg) = args.get(2) {
                 match arg.to_lowercase().as_str() {

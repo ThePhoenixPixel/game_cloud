@@ -50,13 +50,13 @@ impl Template {
         self.priority = priority.clone();
     }
 
-    pub fn get_path(&self) -> PathBuf{
+    pub fn get_path(&self) -> PathBuf {
         PathBuf::from(&Config::get_template_path())
             .join(&self.template)
             .join(&self.name)
     }
 
-    pub fn create(task: &Task){
+    pub fn create_by_task(task: &Task){
         let mut template_path = Config::get_template_path();
         template_path.push(task.get_name());
         template_path.push("default");
@@ -93,6 +93,12 @@ impl Template {
         } else {
             println!("{} Die software in der der Task ist ungültig", Config::get_prefix());
         }
+    }
+
+    pub fn create_by_self(&self) {
+
+        Bx::create_path(&self.get_path());
+
     }
 }
 

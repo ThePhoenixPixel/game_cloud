@@ -21,7 +21,7 @@ pub mod cmd{
         //pub mod cmd_software;
         pub mod cmd_stop;
         pub mod cmd_task;
-        //pub mod cmd_template;
+        pub mod cmd_template;
     }
 }
 pub mod data{

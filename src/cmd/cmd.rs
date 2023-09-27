@@ -3,6 +3,7 @@ use std::io::Write;
 use colored::{ColoredString, Colorize};
 use crate::cmd::command::cmd_stop::execute_stop;
 use crate::cmd::command::cmd_task::CmdTask;
+use crate::cmd::command::cmd_template::CmdTemplate;
 use crate::config::Config;
 
 
@@ -64,7 +65,11 @@ impl Cmd {
     pub fn process(&self) {
         match self.command.as_str() {
             "task" => CmdTask::execute(&self.args),
+
+            "template" => CmdTemplate::execute(&self.args),
+
             "stop" => execute_stop(&self.args),
+
             _ => {
                 println!("{} Unbekannter Befehl: {}", Config::get_prefix(), self.command);
                 println!("{} Benutze task / stop / help", Config::get_prefix());
