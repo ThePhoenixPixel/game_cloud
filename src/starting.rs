@@ -131,7 +131,7 @@ impl Starting {
                 Bx::create_path(&config_software_path);
                 println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, config_software_path);
             }
-            config_software_path.push("links.json");
+            config_software_path.push("software.json");
             if !config_software_path.exists() {
                 let url = "http://37.114.62.121/cloud/default_file/config/software.json";
                 if let Ok(response) = get(url) {

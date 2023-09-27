@@ -303,7 +303,7 @@ impl Task{
                 if task.get_min_service_count() > 0 {
                     for _ in 0..task.get_min_service_count() {
                         println!("Dienst starten {}", &task.get_name());
-                        //task.prepared_to_services();
+                        task.prepared_to_services();
                     }
                 }
             } else {

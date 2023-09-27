@@ -30,6 +30,10 @@ impl CmdTask{
 
                 }
 
+                "reload" => {
+                    Task::reload();
+                }
+
                 _ => {
                     println!("{}", arg0);
                     eprintln!("{} Kein gueltiges Argument", Config::get_prefix());
@@ -328,6 +332,15 @@ impl CmdTask{
 
 //create fn for default task objekt
 fn create_task(name: String, software_type: String, software_name: String){
+
+    if let Some(url) = Software::get_software_url(&software_type.as_str(), &software_name.as_str()){
+
+    } else {
+        println!("{} Software nicht gefunden oder ungültig", Config::get_prefix());
+        println!("{} Bitte geben sie eine forhandene Software an oder fügen sie eine hinzu", Config::get_prefix());
+        return;
+    }
+
     //cerate task and software objekkts
     let mut task = Task::new();
     let mut software = Software::new();
