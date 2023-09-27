@@ -18,6 +18,7 @@ pub struct Task {
     start_port: u32,
     min_service_count: u32,
     groups: Vec<String>,
+    installer: String,
     templates: Vec<Template>,
 }
 
@@ -33,6 +34,7 @@ impl Task{
         let static_service = default_task_config["static_service"].as_bool().unwrap_or(false);
         let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
         let min_service_count = default_task_config["min_service_count"].as_u64().unwrap_or(0) as u32;
+        let installer = default_task_config["installer"].to_string();
 
         let mut groups = Vec::new();
         let software = Software::new();
@@ -47,13 +49,14 @@ impl Task{
             start_port,
             min_service_count,
             groups,
+            installer,
             templates,
         }
     }
 
     // Getter and Setter for name
-    pub fn get_name(&self) -> &String {
-        &self.name
+    pub fn get_name(&self) -> String {
+        self.name.parse().unwrap()
     }
 
     pub fn change_name(&mut self, name: String) {
@@ -82,8 +85,8 @@ impl Task{
     }
 
     // Getter and Setter for nodes
-    pub fn get_nodes(&self) -> &Vec<String> {
-        &self.nodes
+    pub fn get_nodes(&self) -> Vec<String> {
+        self.nodes.clone()
     }
 
     pub fn add_node(&mut self, node: String) {
@@ -138,7 +141,13 @@ impl Task{
         self.save_to_file();
     }
 
+    pub fn get_installer(&self) -> String{
+        self.installer.parse().unwrap()
+    }
 
+    pub fn set_installer(&mut self, installer: String) {
+        self.installer = installer
+    }
 
     // Templatte/s
     /*pub fn get_template(&self) -> String{
