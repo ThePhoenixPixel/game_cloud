@@ -28,8 +28,8 @@ impl Template {
         &self.template
     }
 
-    pub fn set_template(&mut self, template: String){
-        self.template = template;
+    pub fn set_template(&mut self, template: &String){
+        self.template = template.clone();
     }
 
     //name
@@ -37,8 +37,8 @@ impl Template {
         &self.name
     }
 
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
+    pub fn set_name(&mut self, name: &String) {
+        self.name = name.clone();
     }
 
     //priority
@@ -46,8 +46,8 @@ impl Template {
         &self.priority
     }
 
-    pub fn set_priority(&mut self, priority: u32) {
-        self.priority = priority;
+    pub fn set_priority(&mut self, priority: &u32) {
+        self.priority = priority.clone();
     }
 
     pub fn get_path(&self) -> PathBuf{
