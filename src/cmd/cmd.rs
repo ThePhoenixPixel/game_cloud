@@ -1,7 +1,8 @@
 use std::io;
 use std::io::Write;
+use std::ops::BitAnd;
 use colored::{ColoredString, Colorize};
-use crate::cmd::command::cmd_stop::execute_stop;
+use crate::cmd::command::cmd_stop::CmdStop;
 use crate::cmd::command::cmd_task::CmdTask;
 use crate::cmd::command::cmd_template::CmdTemplate;
 use crate::config::Config;
@@ -56,24 +57,27 @@ impl Cmd {
             if input.trim() == "exit" {
                 break;
             } else {
-                &self.process();
+                if self.process() {
+                    break;
+                }
             }
 
         }
     }
 
-    pub fn process(&self) {
+    pub fn process(&self) -> bool{
         match self.command.as_str() {
             "task" => CmdTask::execute(&self.args),
 
             "template" => CmdTemplate::execute(&self.args),
 
-            "stop" => execute_stop(&self.args),
+            "stop" => return CmdStop::execute(&self.args),
 
             _ => {
                 println!("{} Unbekannter Befehl: {}", Config::get_prefix(), self.command);
-                println!("{} Benutze task / stop / help", Config::get_prefix());
+                println!("{} Benutze task / stop / template", Config::get_prefix());
             }
         }
+        return false;
     }
 }

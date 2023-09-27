@@ -53,6 +53,6 @@ fn main(){
         println!("{} BB", Config::get_prefix());
     }
     println!("Game Cloud Stop");
-
+    println!("Good Bye");
 
 }
