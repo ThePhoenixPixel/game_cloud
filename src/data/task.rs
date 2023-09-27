@@ -136,8 +136,8 @@ impl Task{
         &self.groups
     }
 
-    pub fn add_group(&mut self, group: String) {
-        self.groups.push(group);
+    pub fn add_group(&mut self, group: &String) {
+        self.groups.push(group.clone());
         self.save_to_file();
     }
 
@@ -145,21 +145,25 @@ impl Task{
         self.installer.parse().unwrap()
     }
 
-    pub fn set_installer(&mut self, installer: String) {
-        self.installer = installer
+    pub fn set_installer(&mut self, installer: &String) {
+        &self.installer = installer
     }
 
-    // Templatte/s
-    /*pub fn get_template(&self) -> String{
-
-    }
-    pub fn get_templates(&self) -> &Vec<Template> {
-        &self.templates
+    pub fn get_templates(&self) -> Vec<Template> {
+        self.templates.clone()
     }
 
-    pub fn set_templates(&mut self, templates: Template) {
-        self.templates = templates;
-    }*/
+    pub fn add_template(&mut self, template: Template) {
+        self.templates.push(template)
+    }
+
+    pub fn remove_template(&mut self, template: Template) {
+        if let Some(index) = self.nodes.iter().position(|n| n == template) {
+            self.templates.remove(index);
+        }
+    }
+
+    //get_template(??????)
 
     pub fn is_exist(name: String) -> bool {
         if let Some(task) = Task::get_task(name) {
