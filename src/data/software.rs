@@ -59,11 +59,12 @@ impl Software{
             _ => return None, // Ungültiger Typ
         };
 
-        if let Some(download_url) = software_map.get(&self.get_name()) {
+        if let Some(download_url) = software_map.get(self.get_name().as_str()) {
             if let Some(url) = download_url.as_str() {
                 return Some(url.to_string());
             }
         }
+
 
         None // Software nicht gefunden
     }

@@ -166,8 +166,8 @@ impl CmdTask{
                 let software_type = args.get(5).unwrap();
                 if let Some(software_name) = new_wert {
                     let mut software = Software::new();
-                    software.set_software_type(software_type.clone());
-                    software.set_name(software_name.clone());
+                    software.set_software_type(&software_type);
+                    software.set_name(&software_name);
                     task.set_software(software);
                     println!("{} Setze 'Software' auf '{} {}'", Config::get_prefix(), software_type, software_name);
                 } else {
@@ -332,8 +332,11 @@ impl CmdTask{
 
 //create fn for default task objekt
 fn create_task(name: String, software_type: String, software_name: String){
+    let mut software = Software::new();
+    software.set_software_type(&software_type);
+    software.set_name(&software_name);
 
-    if let Some(url) = Software::get_software_url(&software_type.as_str(), &software_name.as_str()){
+    if let Some(url) = Software::get_software_url(&software){
 
     } else {
         println!("{} Software nicht gefunden oder ungültig", Config::get_prefix());
@@ -346,8 +349,8 @@ fn create_task(name: String, software_type: String, software_name: String){
     let mut software = Software::new();
 
     //setup software with parameters
-    software.set_software_type(software_type);
-    software.set_name(software_name);
+    software.set_software_type(&software_type);
+    software.set_name(&software_name);
 
     //setup the task objekt
     task.set_software(software);
