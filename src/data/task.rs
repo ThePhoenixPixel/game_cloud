@@ -3,6 +3,7 @@ use std::io::Write;
 use rand::Rng;
 use serde::Serialize;
 use crate::config::Config;
+use crate::data::service::Service;
 use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;

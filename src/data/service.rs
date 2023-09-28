@@ -1,8 +1,14 @@
 use crate::data::task::Task;
 
+enum Status {
+    Start,
+    Prepare,
+    Stop,
+}
+
 pub struct Service{
     name: String,
-    status: String,
+    status: Status,
     online_players: u32,
     max_players: u32,
     max_ram: u32,
