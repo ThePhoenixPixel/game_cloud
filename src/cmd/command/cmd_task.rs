@@ -45,7 +45,7 @@ impl CmdTask{
     }
 
     fn setup(args: &Vec<String>) {
-        if let Some(task_name) = args.get(1) {
+        if args.get(1).is_some() {
             if let  Some(arg) = args.get(2) {
                 match arg.to_lowercase().as_str() {
                     "add" => {
@@ -79,10 +79,10 @@ impl CmdTask{
     fn setup_remove(args: &Vec<String>){
 
         let task_name = args.get(1).unwrap().to_string();
-        let attribut = args.get(3).unwrap().to_lowercase();
-        let new_wert = args.get(4);
+        //let attribut = args.get(3).unwrap().to_lowercase();
+        //let new_wert = args.get(4);
 
-        let mut task = match Task::get_task(task_name.clone()){
+        match Task::get_task(task_name.clone()){
             Some(t) => t,
             None => {
                 println!("{} Task '{}' nicht gefunden.", Config::get_prefix(), task_name);
@@ -223,7 +223,7 @@ impl CmdTask{
 
                 match attribut.to_lowercase().as_str() {
                     "group" => {
-                        task.add_group(new_wert.to_string());
+                        task.add_group(&new_wert.to_string());
                         println!("{} Added group {} to the Task", Config::get_prefix(), new_wert);
                     }
 
@@ -336,7 +336,7 @@ fn create_task(name: String, software_type: String, software_name: String){
     software.set_software_type(&software_type);
     software.set_name(&software_name);
 
-    if let Some(url) = Software::get_software_url(&software){
+    if Software::get_software_url(&software).is_some() {
 
     } else {
         println!("{} Software nicht gefunden oder ungültig", Config::get_prefix());

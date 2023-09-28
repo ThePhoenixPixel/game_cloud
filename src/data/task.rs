@@ -7,7 +7,7 @@ use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Task {
     // Task Struktur
     name: String,
@@ -146,7 +146,7 @@ impl Task{
     }
 
     pub fn set_installer(&mut self, installer: &String) {
-        &self.installer = installer
+        self.installer = installer.to_string()
     }
 
     pub fn get_templates(&self) -> Vec<Template> {
@@ -158,7 +158,7 @@ impl Task{
     }
 
     pub fn remove_template(&mut self, template: Template) {
-        if let Some(index) = self.nodes.iter().position(|n| n == template) {
+        if let Some(index) = self.templates.iter().position(|t| t == &template) {
             self.templates.remove(index);
         }
     }
@@ -166,7 +166,7 @@ impl Task{
     //get_template(??????)
 
     pub fn is_exist(name: String) -> bool {
-        if let Some(task) = Task::get_task(name) {
+        if Task::get_task(name).is_some() {
             true
         } else {
             false
@@ -331,7 +331,7 @@ impl Task{
         let mut select_template= select_template_with_priority(&templates);
 
         //check ob es template gibt
-        if let Some(template) = select_template {
+        if select_template.is_some() {
 
         } else {
             println!("{} Kein Template gefunden für Task: {}", Config::get_prefix(), &self.get_name());
@@ -355,6 +355,9 @@ impl Task{
 
             // Hier wird der Zielordner erstellt, wenn er nicht existiert
             fs::create_dir_all(&target_path).expect("Fehler beim Erstellen des Zielordners");
+
+            println!("{:?}", &template.get_path());
+            println!("{:?}", &target_path);
 
             // Jetzt kannst du den Inhalt aus dem Template-Pfad in den Zielordner kopieren
             Bx::copy_folder_contents(&template.get_path(), &target_path).expect("Fehler beim Kopieren des Templates");

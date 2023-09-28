@@ -7,7 +7,7 @@ use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct Template {
     pub template: String,
     pub name: String,

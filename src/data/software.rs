@@ -3,7 +3,7 @@ use serde::Serialize;
 use serde_json::Value;
 use crate::config::Config;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Software{
     pub software_type: String,
     pub name: String,
@@ -51,7 +51,7 @@ impl Software{
         let software_path = Config::get_software_path();
 
         let config_content = fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
-        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+        let config: Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
 
         let software_map = match config.get(&self.get_software_type()) {

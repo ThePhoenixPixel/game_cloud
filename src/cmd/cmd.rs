@@ -1,6 +1,5 @@
 use std::io;
 use std::io::Write;
-use std::ops::BitAnd;
 use colored::{ColoredString, Colorize};
 use crate::cmd::command::cmd_stop::CmdStop;
 use crate::cmd::command::cmd_task::CmdTask;
