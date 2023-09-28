@@ -31,6 +31,7 @@ pub mod data{
     //pub mod node;
     pub mod software;
     pub mod service;
+    pub mod installer;
 }
 
 mod config;

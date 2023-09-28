@@ -3,10 +3,12 @@ use std::io::Write;
 use rand::Rng;
 use serde::Serialize;
 use crate::config::Config;
-use crate::data::service::Service;
+use crate::data::installer::Installer;
 use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;
+
+
 
 #[derive(Serialize, Clone)]
 pub struct Task {
@@ -19,7 +21,7 @@ pub struct Task {
     start_port: u32,
     min_service_count: u32,
     groups: Vec<String>,
-    installer: String,
+    installer: Installer,
     templates: Vec<Template>,
 }
 
@@ -35,11 +37,13 @@ impl Task{
         let static_service = default_task_config["static_service"].as_bool().unwrap_or(false);
         let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
         let min_service_count = default_task_config["min_service_count"].as_u64().unwrap_or(0) as u32;
-        let installer = default_task_config["installer"].to_string();
+       // let installer = default_task_config["installer"].to_string();
 
+        let installer = Installer::InstallAll;
         let mut groups = Vec::new();
         let software = Software::new();
         let templates = vec![Template::new()];
+
 
         Task {
             name,
@@ -142,12 +146,23 @@ impl Task{
         self.save_to_file();
     }
 
-    pub fn get_installer(&self) -> String{
-        self.installer.parse().unwrap()
+    // Getter für installer
+    pub fn get_installer(&self) -> &Installer {
+        &self.installer
     }
 
+    // Setter für installer
     pub fn set_installer(&mut self, installer: &String) {
-        self.installer = installer.to_string()
+        self.installer = match installer.as_str() {
+            "InstallAll" => Installer::InstallAll,
+            "InstallRandom" => Installer::InstallRandom,
+            "InstallRandomWithPriority" => Installer::InstallRandomWithPriority,
+            _ => {
+                // Hier kannst du eine Fehlerbehandlung hinzufügen, wenn ein unbekannter Wert übergeben wird.
+                panic!("Unbekannter Installer: {}", installer)
+
+            }
+        };
     }
 
     pub fn get_templates(&self) -> Vec<Template> {
