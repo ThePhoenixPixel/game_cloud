@@ -57,7 +57,7 @@ impl Starting {
 
         // JSON-Datei mit Software-Links öffnen
         let software_path = Config::get_software_path();
-        println!("{:?}", software_path);
+
         let mut software_file = File::open(&software_path).expect("Fehler beim Öffnen der Datei");
 
         let mut json_str = String::new();

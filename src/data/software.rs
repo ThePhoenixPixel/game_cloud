@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use serde::Serialize;
 use serde_json::Value;
 use crate::config::Config;
@@ -35,6 +35,19 @@ impl Software{
         &self.name
     }
 
+    pub fn get_name_with_ext(&self) -> String {
+        let name = &self.get_name();
+        let binding = &self.get_software_url().unwrap();
+        let link = Path::new(&binding);
+        if let Some(ext) = link.extension().and_then(|ext| ext.to_str()) {
+            return format!("{}.{}", name, ext);
+        } else {
+            // Fallback, wenn keine Dateiendung gefunden wurde
+            return format!("{}", name);
+        }
+    }
+
+
     pub fn set_name(&mut self, name: &String) {
         self.name = name.clone();
     }
@@ -54,26 +67,25 @@ impl Software{
         let config_content = fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
         let config: Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-
-        let software_map = match config.get(&self.get_software_type()) {
-            Some(Value::Object(map)) => map,
-            _ => return None, // Ungültiger Typ
-        };
-
-        if let Some(download_url) = software_map.get(self.get_name().as_str()) {
-            if let Some(url) = download_url.as_str() {
-                return Some(url.to_string());
+        // Prüfe, ob "software" und "server" im JSON vorhanden sind
+        if let Some(software) = config.get("software") {
+            if let Some(server) = software.get("server") {
+                if let Some(download_url) = server.get(self.get_name().as_str()) {
+                    if let Some(url) = download_url.as_str() {
+                        return Some(url.to_string());
+                    }
+                }
             }
         }
-
 
         None // Software nicht gefunden
     }
 
+
     pub fn get_software_file_path(&self) -> PathBuf {
         let mut software_path = Config::get_software_files_path();
         software_path.push(&self.get_software_type());
-        software_path.push(&self.get_name());
+        software_path.push((format!("{}.jar", &self.get_name())));
         software_path
     }
 

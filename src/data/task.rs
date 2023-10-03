@@ -378,6 +378,12 @@ impl Task{
             // Jetzt kannst du den Inhalt aus dem Template-Pfad in den Zielordner kopieren
             Bx::copy_folder_contents(&template.get_path(), &target_path).expect("Fehler beim Kopieren des Templates");
 
+            println!("{:?}", &self.get_software().get_software_file_path());
+
+            let mut target_server_file_path = target_path.clone();
+            target_server_file_path.push(&self.get_software().get_name_with_ext());
+            fs::copy(&self.get_software().get_software_file_path(), &target_server_file_path).expect("Erro beim copy der server datei");
+
             println!("{} Template wurde in Zielordner kopiert: {:?}", Config::get_prefix(), &target_path);
         }
 

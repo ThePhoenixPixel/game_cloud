@@ -336,7 +336,7 @@ fn create_task(name: String, software_type: String, software_name: String){
     software.set_software_type(&software_type);
     software.set_name(&software_name);
 
-    if Software::get_software_url(&software).is_some() {
+    if Software::get_software_url(&software).is_none() {
 
     } else {
         println!("{} Software nicht gefunden oder ungültig", Config::get_prefix());
