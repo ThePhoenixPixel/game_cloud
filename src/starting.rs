@@ -19,9 +19,9 @@ impl Starting {
             let cmd_prefix = Config::get_prefix();
             Starting::check_folder(&exe_path, &config, &cmd_prefix);
 
-            Starting::check_software(&exe_path, &cmd_prefix);
-
             if Starting::check_link(&exe_path, &config, &cmd_prefix) {
+                Starting::check_software(&exe_path, &cmd_prefix);
+
                 Starting::check_task();
             } else {
                 return false;
@@ -57,6 +57,7 @@ impl Starting {
 
         // JSON-Datei mit Software-Links öffnen
         let software_path = Config::get_software_path();
+        println!("{:?}", software_path);
         let mut software_file = File::open(&software_path).expect("Fehler beim Öffnen der Datei");
 
         let mut json_str = String::new();
