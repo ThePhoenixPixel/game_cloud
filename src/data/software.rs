@@ -1,4 +1,5 @@
 use std::fs;
+use std::path::PathBuf;
 use serde::Serialize;
 use serde_json::Value;
 use crate::config::Config;
@@ -67,6 +68,13 @@ impl Software{
 
 
         None // Software nicht gefunden
+    }
+
+    pub fn get_software_file_path(&self) -> PathBuf {
+        let mut software_path = Config::get_software_files_path();
+        software_path.push(&self.get_software_type());
+        software_path.push(&self.get_name());
+        software_path
     }
 
 }
