@@ -67,10 +67,9 @@ impl Software{
         let config_content = fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
         let config: Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        // Prüfe, ob "software" und "server" im JSON vorhanden sind
         if let Some(software) = config.get("software") {
-            if let Some(server) = software.get("server") {
-                if let Some(download_url) = server.get(self.get_name().as_str()) {
+            for (_, software_type_value) in software.as_object().unwrap() {
+                if let Some(download_url) = software_type_value.get(self.get_name().as_str()) {
                     if let Some(url) = download_url.as_str() {
                         return Some(url.to_string());
                     }
@@ -80,6 +79,7 @@ impl Software{
 
         None // Software nicht gefunden
     }
+
 
 
     pub fn get_software_file_path(&self) -> PathBuf {

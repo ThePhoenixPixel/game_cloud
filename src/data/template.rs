@@ -65,60 +65,10 @@ impl Template {
             Bx::create_path(&template_path);
         }
 
-        if let Some(server_file_url) = task.get_software().get_software_url() {
-
-            if let Ok(response) = get(&server_file_url) {
-
-                let mut server_file_path = template_path.clone();
-
-                if let Some(server_file_endung) = extract_extension_from_url(&server_file_url){
-                    server_file_path.push(format!("{}.{}", task.get_software().get_name(), server_file_endung));
-
-                } else {
-                    eprintln!("{} Ungültige URL", Config::get_prefix());
-                }
-
-
-                let mut file = File::create(&server_file_path);
-                file.expect("Error beim write all")
-                    .write_all(&response.bytes()
-                        .expect("Error beim Lesen des response"))
-                    .expect("Error beim schreiben der datei");
-
-            } else {
-                eprintln!("{} Das System kann die URL {} nicht abrufen", Config::get_prefix() ,  server_file_url);
-                return;
-            }
-
-        } else {
-            println!("{} Die software in der der Task ist ungültig", Config::get_prefix());
-        }
     }
 
     pub fn create_by_self(&self) {
-
         Bx::create_path(&self.get_path());
 
     }
 }
-
-fn extract_filename_from_url(url: &String) -> Option<String> {
-    if let Ok(url) = reqwest::Url::parse(url) {
-        if let Some(file_name) = url.path_segments().and_then(|segments| segments.last()) {
-            return Some(file_name.to_string());
-        }
-    }
-    None
-}
-fn extract_extension_from_url(url: &String) -> Option<String> {
-    if let Ok(url) = reqwest::Url::parse(url) {
-        if let Some(file_name) = url.path_segments().and_then(|segments| segments.last()) {
-            if let Some(extension) = std::path::Path::new(file_name).extension() {
-                return Some(extension.to_string_lossy().to_string());
-            }
-        }
-    }
-    None
-}
-
-
