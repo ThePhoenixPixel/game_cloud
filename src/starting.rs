@@ -1,10 +1,10 @@
 use std::fs;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::PathBuf;
 use colored::*;
 use reqwest::blocking::get;
-use serde_json::Value;
+use serde_json::{Map, Value};
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
@@ -18,6 +18,8 @@ impl Starting {
         if let Some(config) = Starting::check_config(&exe_path) {
             let cmd_prefix = Config::get_prefix();
             Starting::check_folder(&exe_path, &config, &cmd_prefix);
+
+            Starting::check_software(&exe_path, &cmd_prefix);
 
             if Starting::check_link(&exe_path, &config, &cmd_prefix) {
                 Starting::check_task();
@@ -34,6 +36,7 @@ impl Starting {
         Task::reload();
     }
 
+
     fn print_icon() {
         println!(" ");
         println!("_____{}__________________________________________________________{}__{}________________________________________{}__", r"/\\\\\\\\\\\\".red(), r"/\\\\\\\\\".cyan(), r"/\\\\\\".cyan(), r"/\\\".cyan() );
@@ -46,6 +49,62 @@ impl Starting {
         println!("____{}__{}_{}__{}__{}__{}____{}__{}__{}___{}__{}_", r"\//\\\\\\\\\\\\/".red(), r"\//\\\\\\\\/\\".red(), r"\/\\\".red(), r"\/\\\".red(), r"\/\\\".red(), r"\//\\\\\\\\\\".red(), r"\////\\\\\\\\\".cyan(), r"/\\\\\\\\\".cyan(), r"\///\\\\\/".cyan(), r"\//\\\\\\\\\".cyan(), r"\//\\\\\\\/\\".cyan());
         println!("_____{}_____{}__{}___{}___{}____{}________{}__{}_____{}______{}____{}__", r"\////////////".red(), r"\////////\//".red(), r"\///".red(), r"\///".red(), r"\///".red(), r"\//////////".red(), r"\/////////".cyan(), r"\/////////".cyan(), r"\/////".cyan(), r"\/////////".cyan(), r"\///////\//".cyan());
         println!(" ");
+    }
+
+    fn check_software(exe_path: &PathBuf, cmd_prefix: &ColoredString) {
+        // Pfade und Verzeichnisse einrichten
+        let install_dir = Config::get_software_files_path();
+
+        // JSON-Datei mit Software-Links öffnen
+        let software_path = Config::get_software_path();
+        let mut software_file = File::open(&software_path).expect("Fehler beim Öffnen der Datei");
+
+        let mut json_str = String::new();
+        software_file
+            .read_to_string(&mut json_str)
+            .expect("Fehler beim Lesen der Datei");
+
+        // JSON-String in ein JSON-Objekt (serde_json::Value) parsen
+        let json_value: Value =
+            serde_json::from_str(&json_str).expect("Fehler beim Deserialisieren des JSON-Strings");
+
+        // Überprüfen, ob es sich um ein JSON-Objekt (eine Map) handelt
+        if let Some(software_categories) = json_value.get("software").and_then(|s| s.as_object()) {
+            // Iteriere durch die Software-Kategorien (server, proxy, self, usw.)
+            for (software_type, software_links) in software_categories {
+                // Überprüfe, ob es sich um ein JSON-Objekt (eine Map) mit Software-Links handelt
+                if let Some(links) = software_links.as_object() {
+                    // Iteriere durch die Links in dieser Kategorie (server, proxy, self, usw.)
+                    for (software_name, software_link_value) in links {
+                        // Überprüfe, ob der Link ein String ist
+                        if let Some(software_link) = software_link_value.as_str() {
+                            // Jetzt kannst du die Software installieren oder andere Aktionen durchführen
+                            let software_dir = install_dir.join(software_type);
+
+                            // Überprüfen und Verzeichnisse erstellen
+                            if !software_dir.exists() {
+                                fs::create_dir_all(&software_dir)
+                                    .expect("Fehler beim Erstellen des Verzeichnisses");
+                            }
+
+                            install_software(software_link, software_name, software_type,cmd_prefix);
+                        } else {
+                            println!(
+                                "{} Ungültiger Link für Software: {}",
+                                cmd_prefix, software_name
+                            );
+                        }
+                    }
+                } else {
+                    println!(
+                        "{} Ungültige Links für Software-Typ: {}",
+                        cmd_prefix, software_type
+                    );
+                }
+            }
+        } else {
+            println!("{} Die JSON-Datei enthält keine 'software'-Kategorie", Config::get_prefix());
+        }
     }
 
     fn check_config(exe_path: &PathBuf) -> Option<Value> {
@@ -74,7 +133,6 @@ impl Starting {
 
         Some(serde_json::from_str(&config_content).expect("Error beim deserialisieren des config Inhalts"))
     }
-
 
     fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString){
 
@@ -115,6 +173,16 @@ impl Starting {
             if !service_static_path.exists() {
                 Bx::create_path(&service_static_path);
                 println!("{} {:?} erfolgreich erstellt",cmd_prefix ,service_static_path);
+            }
+        }
+
+        //software files
+        {
+            let mut software_files_path = exe_path.clone();
+            software_files_path.push(config["path"]["config"]["software_files"].as_str().expect("Error beim lesen des path der seoftware_files foldes"));
+            if !software_files_path.exists() {
+                Bx::create_path(&software_files_path);
+                println!("{} {:?} erfolgreich erstellt", cmd_prefix, software_files_path);
             }
         }
 
@@ -168,3 +236,152 @@ impl Starting {
         return true;
     }
 }
+fn extract_and_install_links(software_type: &str, software_links: &Map<String, Value>){
+    let install_dir = Config::get_software_files_path();
+    let cmd_prefix = Config::get_prefix();
+
+    // Iteriere durch die Kategorien (self, server, proxy)
+    // Iteriere durch die Software-Links in diesem Software-Typ (Kategorie)
+    for (software_name, software_link_value) in software_links.iter() {
+        if let Some(software_link) = software_link_value.as_str() {
+            let software_dir = install_dir.join(software_type);
+            install_software(software_link, software_name, software_type, &cmd_prefix);
+
+        } else {
+            println!(
+                "{} Ungültiger Link für Software: {}",
+                cmd_prefix, software_name
+            );
+        }
+    }
+}
+
+
+fn install_software(
+    software_link: &str,
+    software_name: &str,
+    software_type: &str,
+    cmd_prefix: &ColoredString,
+) {
+    let install_dir = Config::get_software_files_path();
+    if software_link.starts_with("local:") {
+        // Die Software ist lokal verfügbar
+        let local_path = &software_link[6..]; // Entferne das "local:" Präfix
+        let local_file_path = install_dir.join(local_path);
+
+        if local_file_path.exists() {
+            println!(
+                "{} Lokale Software '{}' ist bereits installiert: {:?}",
+                cmd_prefix, software_name, local_file_path
+            );
+        } else {
+            println!(
+                "{} Installiere lokale Software '{}' von: {}",
+                cmd_prefix, software_name, local_path
+            );
+            // Führe die Installation von der lokalen Quelle durch
+            // Hier kannst du die Dateiendung aus local_path extrahieren, wenn benötigt
+        }
+    } else {
+        // Die Software soll von einem externen Link installiert werden
+        let file_extension = software_link
+            .rsplitn(2, '.')
+            .next()
+            .unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
+
+        let file_name = format!("{}.{}", software_name, file_extension);
+        let software_dir = install_dir.join(software_type);
+
+        if !software_dir.exists() {
+            fs::create_dir_all(&software_dir)
+                .expect("Fehler beim Erstellen des Verzeichnisses");
+        }
+
+        let external_file_path = software_dir.join(&file_name);
+
+        if external_file_path.exists() {
+            println!(
+                "{} Externe Software '{}' ist bereits installiert: {:?}",
+                cmd_prefix, software_name, external_file_path
+            );
+        } else {
+            println!(
+                "{} Installiere Software '{}' von externem Link: {}",
+                cmd_prefix, software_name, software_link
+            );
+
+            install_software_from_external_link(software_link, software_name, &external_file_path);
+            // Führe die Installation von der externen Quelle durch und speichere sie in external_file_path
+            // Du kannst z.B. die reqwest-Bibliothek verwenden, um den Download durchzuführen
+        }
+    }
+}
+
+fn install_software_from_external_link(software_link: &str, software_name: &str, target_path: &PathBuf) {
+    let cmd_prefix = Config::get_prefix();
+    let install_dir = Config::get_software_files_path();
+    let file_extension = software_link
+        .rsplitn(2, '.')
+        .next()
+        .unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
+
+    let file_name = format!("{}.{}", software_name, file_extension);
+    let external_file_path = install_dir.join(&file_name);
+
+    if external_file_path.exists() {
+        println!(
+            "{} Externe Software '{}' ist bereits installiert: {:?}",
+            cmd_prefix, software_name, external_file_path
+        );
+    } else {
+        println!(
+            "{} Installiere Software '{}' von externem Link: {}",
+            cmd_prefix, software_name, software_link
+        );
+
+        // Versuche, die Software von der externen URL herunterzuladen
+        match get(software_link) {
+            Ok(response) => {
+                if response.status().is_success() {
+                    // Erstelle die Datei und schreibe die heruntergeladenen Daten hinein
+                    let mut file = File::create(&target_path)
+                        .expect("Fehler beim Erstellen der Datei");
+
+                    let bytes = response.bytes().expect("Fehler beim Lesen der Antwort");
+                    file.write_all(&bytes)
+                        .expect("Fehler beim Schreiben der Datei");
+
+                    println!(
+                        "{} Erfolgreich installierte Software '{}' unter: {:?}",
+                        cmd_prefix, software_name, external_file_path
+                    );
+                } else {
+                    println!(
+                        "{} Fehler beim Herunterladen der Software '{}' von externem Link: Statuscode {}",
+                        cmd_prefix,
+                        software_name,
+                        response.status()
+                    );
+                }
+            }
+            Err(err) => {
+                println!(
+                    "{} Fehler beim Herunterladen der Software '{}' von externem Link: {}",
+                    cmd_prefix, software_name, err
+                );
+            }
+        }
+    }
+}
+
+
+/*
+fn extract_links(json_obj: &Map<String, Value>) -> Vec<String> {
+    let mut links = Vec::new();
+    for (_, value) in json_obj {
+        if let Some(url) = value.as_str() {
+            links.push(url.to_string());
+        }
+    }
+    links
+}*/
