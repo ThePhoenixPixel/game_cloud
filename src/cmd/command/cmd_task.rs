@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::data::software::Software;
 use crate::data::task::Task;
+use crate::data::template::Template;
 
 pub struct CmdTask;
 
@@ -347,6 +348,13 @@ fn create_task(name: String, software_type: String, software_name: String){
     //cerate task and software objekkts
     let mut task = Task::new();
     let mut software = Software::new();
+    let mut template = Template::new();
+
+    //steupp template
+    template.set_template(&name);
+    template.set_name(&"default".to_string());
+    let priority:u32 = 1;
+    template.set_priority(&priority);
 
     //setup software with parameters
     software.set_software_type(&software_type);
@@ -355,6 +363,8 @@ fn create_task(name: String, software_type: String, software_name: String){
     //setup the task objekt
     task.set_software(software);
     task.change_name(name);
+    task.clear_templates();
+    task.add_template(template);
 
     //save the new task to a file
     task.save_to_file();

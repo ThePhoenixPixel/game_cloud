@@ -179,6 +179,9 @@ impl Task{
         }
     }
 
+    pub fn clear_templates(&mut self) {
+        self.templates.clear()
+    }
     //get_template(??????)
 
     pub fn is_exist(name: String) -> bool {

@@ -11,11 +11,5 @@
   "start_port": 40000,
   "min_service_count": 0,
   "groups": [],
-  "templates": [
-    {
-      "template": "task",
-      "name": "default",
-      "priority": 1
-    }
-  ]
+  "templates": []
 }
