@@ -1,4 +1,3 @@
-use crate::cmd::cmd::Cmd;
 use crate::config::Config;
 use crate::data::software::Software;
 use crate::data::task::Task;
@@ -43,6 +42,9 @@ impl CmdTask{
                     }
                 }
 
+                "help" => {
+                    CmdTask::help();
+                }
                 _ => {
                     println!("{}", arg0);
                     eprintln!("{} Kein gueltiges Argument", Config::get_prefix());
@@ -306,6 +308,16 @@ impl CmdTask{
             println!("{} Please give a task name", Config::get_prefix())
         }
 
+    }
+
+    fn help() {
+        println!("{} task create <name> <Software Type> <Software Name>", Config::get_prefix());
+        println!("{} task delete <name>",Config::get_prefix());
+        println!("{} task help ",Config::get_prefix());
+        println!("{} task list",Config::get_prefix());
+        println!("{} task setup <name> add <template/group/node>",Config::get_prefix());
+        println!("{} task setup <name> set <name/delete_on_stop/static_service/software/max_ram/min_service_count/installer>",Config::get_prefix());
+        println!("{} task setup <name> remove <template/group/node>",Config::get_prefix());
     }
 
     fn info(args: &Vec<String>) {
