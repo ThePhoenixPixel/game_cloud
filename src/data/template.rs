@@ -1,7 +1,4 @@
-use std::fs::File;
-use std::io::Write;
 use std::path::PathBuf;
-use reqwest::blocking::get;
 use serde::Serialize;
 use crate::config::Config;
 use crate::data::task::Task;
