@@ -1,5 +1,8 @@
 use std::fs;
+use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
+use fs_extra::dir::create;
 use rand::Rng;
 use serde::Serialize;
 use crate::config::Config;
@@ -386,10 +389,12 @@ impl Task{
             fs::copy(&self.get_software().get_software_file_path(), &target_server_file_path).expect("Erro beim copy der server datei");
 
             println!("{} Template wurde in Zielordner kopiert: {:?}", Config::get_prefix(), &target_path);
+
         }
 
     }
 }
+
 fn select_template_with_priority(templates: &[Template]) -> Option<&Template> {
     let mut rng = rand::thread_rng();
     let total_priority: u32 = templates.iter().map(|t| t.priority).sum();
