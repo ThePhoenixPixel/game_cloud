@@ -367,7 +367,7 @@ fn create_task(name: String, software_type: String, software_name: String){
 
     } else {
         println!("{} Software nicht gefunden oder ungültig", Config::get_prefix());
-        println!("{} Bitte geben sie eine forhandene Software an oder fügen sie eine hinzu", Config::get_prefix());
+        println!("{} Bitte geben sie eine vorhandene Software an oder fügen sie eine hinzu", Config::get_prefix());
         return;
     }
 

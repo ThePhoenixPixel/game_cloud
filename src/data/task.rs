@@ -327,8 +327,6 @@ impl Task{
 
         let task_all = Task::get_task_all();
 
-        println!("{:?}", task_all);
-
         for task_name in task_all {
             if let Some(task) = Task::get_task(task_name) {
                 println!("{}", &task.get_name());
