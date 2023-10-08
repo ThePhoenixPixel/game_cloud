@@ -7,6 +7,7 @@ use rand::Rng;
 use serde::Serialize;
 use crate::config::Config;
 use crate::data::installer::Installer;
+use crate::data::service::Service;
 use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;
@@ -337,6 +338,7 @@ impl Task{
                     for _ in 0..task.get_min_service_count() {
                         println!("Dienst starten {}", &task.get_name());
                         task.prepared_to_services();
+                        Service::start(&task);
                     }
                 }
             } else {

@@ -1,6 +1,8 @@
 use std::fs;
-use std::fs::File;
+use std::fs::{File, read_to_string};
+use std::io::Write;
 use std::path::{Path, PathBuf};
+use serde_json::json;
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
@@ -30,47 +32,67 @@ impl Service{
            println!("task ist temp");
            path = Config::get_service_temp_path();
        }
-       let prefix = format!("{}-", task.get_name());
+       if let Some(path) = find_next_prepare_or_stop_service(&task.get_name(), &path){
+
+            println!("Ja wol");
 
 
 
+        } else {
+            println!("nööö")
+        }
 
    }
 }
 
-fn find_next_prepare_or_stop_service(prefix: &String, path: &PathBuf) -> Option<PathBuf> {
+fn find_next_prepare_or_stop_service(prefix: &str, path: &PathBuf) -> Option<PathBuf> {
     if let Ok(entries) = fs::read_dir(&path) {
         for entry in entries {
             if let Ok(entry) = entry {
+                //
                 if let Some(file_name) = entry.file_name().to_str() {
-                    if file_name.starts_with(&prefix) {
+                    if file_name.starts_with(prefix) {
                         // Hier hast du einen Ordner mit dem gewünschten Präfix
                         // Jetzt kannst du die Nummer extrahieren und weiter verarbeiten
-                        if let Some(rest) = file_name.strip_prefix(&prefix) {
-                            if let Some(number) = rest.chars().next() {
-                                if let Ok(parsed_number) = number.to_digit(10) {
-                                    // Jetzt hast du die Nummer und kannst sie verwenden
-                                    println!("Found folder with prefix '{}', number: {}", prefix, parsed_number);
-                                    let _ = path.join(format!("{}-{}", prefix, parsed_number));
+                        if let Some(rest) = file_name.strip_prefix(prefix) {
+                            if let Some(number) = rest.chars().next().and_then(|c| c.to_digit(10)) {
+                                // Jetzt hast du die Nummer und kannst sie verwenden
+                                println!("Found folder with prefix '{}', number: {}", prefix, number);
 
-                                    let mut path_service = path.clone();
-                                    path_service.push(".game_cloud");
+                                let mut path_service = path.clone();
+                                path_service.push(format!("{}-{}", prefix, number));
+                                path_service.push(".game_cloud");
 
-                                    if !path_service.exists() {
-                                        //println!("Service: {:?} ist ungültig", path);
+                                if !path_service.exists() {
+                                    // Wenn der Ordner nicht existiert, erstelle ihn
+                                    fs::create_dir_all(&path_service).expect("Fehler beim Erstellen des .game_cloud Ordners");
+                                }
+
+                                path_service.push("service_config.json");
+
+                                if !path_service.exists() {
+                                    // Wenn die Datei nicht existiert, erstelle sie
+                                    let default_config = json!({
+                                        "status": "stop",
+                                        // Weitere Standardwerte hier hinzufügen
+                                    });
+
+                                    let default_config_str = serde_json::to_string_pretty(&default_config).expect("Fehler beim Serialisieren der Standardkonfiguration");
+
+                                    let mut file = File::create(&path_service).expect("Fehler beim Erstellen der service_config.json");
+                                    file.write_all(default_config_str.as_bytes()).expect("Fehler beim Schreiben in die service_config.json");
+                                }
+
+                                let file_content = read_to_string(&path_service).expect("Fehler beim Lesen von service_config.json");
+                                let file: serde_json::Value = serde_json::from_str(&file_content).expect("Fehler beim Deserialisieren von service_config.json");
+
+                                if let Some(status) = file["status"].as_str() {
+                                    if !(status == "stop" || status == "prepare") {
                                         break;
                                     }
-
-                                    path_service.push("service_config.json");
-                                    if !path_service.exists() {
-                                        break
-                                    }
-
-
-
-
-                                    return Some(path.clone());
                                 }
+
+                                return Some(path.clone());
                             }
                         }
                     }
