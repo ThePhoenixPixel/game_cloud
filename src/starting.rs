@@ -202,8 +202,8 @@ impl Starting {
             if !config_software_path.exists() {
                 let url = "http://37.114.62.121/cloud/default_file/config/software.json";
                 if let Ok(response) = get(url) {
-                    let mut file = File::create(&config_software_path);
-                    file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    let mut file = File::create(&config_software_path).expect("Error beim Erstellen der Datei");
+                    file.write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
                     eprintln!("Software file kann nicht heruntergeladen werden");
