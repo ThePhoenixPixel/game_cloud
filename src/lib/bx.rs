@@ -54,7 +54,7 @@ impl Bx {
         None
     }
 
-    fn extract_filename_from_pathbuf(path: &PathBuf) -> Option<String> {
+    pub fn extract_filename_from_pathbuf(path: &PathBuf) -> Option<String> {
         if let Some(file_name) = path.file_name().and_then(|name| name.to_str()) {
             // Die letzten Teile der Pfadzeichenkette nach Pfadtrennern ('\') oder ('/') trennen und ausgeben
             let parts: Vec<&str> = file_name.split(|c| c == '/' || c == '\\').collect();
