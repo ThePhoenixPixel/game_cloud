@@ -12,5 +12,5 @@ reqwest = { version = "0.11.18", features = ["blocking"] }
 fs_extra = "1.2.0"
 colored = "2.0.4"
 rand = "0.8.5"
-chrono = "0.4.26"
+chrono = { version = "0.4.26", features = ["serde"] }
 chrono-tz = "0.8.3"
