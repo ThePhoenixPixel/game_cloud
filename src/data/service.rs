@@ -1,11 +1,10 @@
 use std::fs;
 use std::fs::{File, read_to_string};
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use serde_json::json;
 use crate::config::Config;
 use crate::data::task::Task;
-use crate::lib::bx::Bx;
 
 enum Status {
     Start,
