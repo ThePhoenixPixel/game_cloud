@@ -1,4 +1,5 @@
 use std::{env, fs};
+use std::fmt::format;
 use std::path::PathBuf;
 use colored::{ColoredString, Colorize};
 use serde_json;
@@ -7,6 +8,34 @@ pub struct Config;
 
 
 impl Config{
+    pub fn get_node_listener() -> String {
+        let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port());
+        listener
+    }
+
+    pub fn get_node_port() -> u32 {
+        let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
+        exe_path.pop();
+        let config_path = exe_path.join("config.json");
+
+        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
+        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+
+        let node_port = config["node_port"].as_u32();
+        node_port
+    }
+
+    pub fn get_node_host() -> String {
+        let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
+        exe_path.pop();
+        let config_path = exe_path.join("config.json");
+
+        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
+        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+
+        let node_host = config["node_host"].to_string();
+        node_host
+    }
 
     pub fn get_prefix() -> ColoredString {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
