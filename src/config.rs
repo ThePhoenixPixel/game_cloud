@@ -9,11 +9,11 @@ pub struct Config;
 
 impl Config{
     pub fn get_node_listener() -> String {
-        let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port());
+        let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port().expect("Error beim get des node_port"));
         listener
     }
 
-    pub fn get_node_port() -> u32 {
+    pub fn get_node_port() -> Option<u64> {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();
         let config_path = exe_path.join("config.json");
@@ -21,7 +21,7 @@ impl Config{
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let node_port = config["node_port"].as_u32();
+        let node_port = config["node_port"].as_u64();
         node_port
     }
 
