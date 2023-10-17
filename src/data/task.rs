@@ -333,13 +333,19 @@ impl Task{
 
         for task_name in task_all {
             if let Some(task) = Task::get_task(task_name) {
-                println!("{}", &task.get_name());
+                /*println!("{}", &task.get_name());
                 if task.get_min_service_count() > 0 {
                     for _ in 0..task.get_min_service_count() {
                         println!("Dienst starten {}", &task.get_name());
-                        Service::start(&task);
+                        println!("{}", Service::get_start_service_from_task(&task));
+                        if task.get_min_service_count() >= Service::get_start_service_from_task(&task) as u32 {
+                            println!("Start the the service from task {} ", task.get_name());
+                            //Service::start(&task);
+                        }
+
                     }
-                }
+                }*/
+                Service::start(&task);
             } else {
                 println!("{} task error", Config::get_prefix());
             }
@@ -377,13 +383,13 @@ impl Task{
             // Hier wird der Zielordner erstellt, wenn er nicht existiert
             fs::create_dir_all(&target_path).expect("Fehler beim Erstellen des Zielordners");
 
-            println!("{:?}", &template.get_path());
-            println!("{:?}", &target_path);
+            //println!("{:?}", &template.get_path());
+            //println!("{:?}", &target_path);
 
             // Jetzt kannst du den Inhalt aus dem Template-Pfad in den Zielordner kopieren
             Bx::copy_folder_contents(&template.get_path(), &target_path).expect("Fehler beim Kopieren des Templates");
 
-            println!("{:?}", &self.get_software().get_software_file_path());
+            //println!("{:?}", &self.get_software().get_software_file_path());
 
             let mut target_server_file_path = target_path.clone();
             target_server_file_path.push(&self.get_software().get_name_with_ext());
