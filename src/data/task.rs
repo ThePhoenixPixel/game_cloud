@@ -18,6 +18,7 @@ use crate::lib::bx::Bx;
 pub struct Task {
     // Task Struktur
     name: String,
+    split: char,
     delete_on_stop: bool,
     static_service: bool,
     nodes: Vec<String>,
@@ -37,6 +38,15 @@ impl Task{
         let default_task_config: serde_json::Value = serde_json::from_str(&default_task_content).unwrap_or_else(|_| serde_json::Value::Null);
 
         let name = default_task_config["name"].as_str().unwrap_or("taskname").to_string();
+        let split = '-';
+        let split_temp: String = default_task_config["split"].as_str().unwrap_or("-").to_string();
+        if split_temp.len() == 1 {
+            // Überprüfen, ob der String nur aus einem Zeichen besteht
+            let split = split_temp.chars().next().unwrap();
+        } else {
+            println!("Fehler: Der 'split'-Wert ist kein einzelnes Zeichen.");
+        }
+
         let delete_on_stop = default_task_config["delete_on_stop"].as_bool().unwrap_or(true);
         let static_service = default_task_config["static_service"].as_bool().unwrap_or(false);
         let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
@@ -51,6 +61,7 @@ impl Task{
 
         Task {
             name,
+            split,
             delete_on_stop,
             static_service,
             nodes: Vec::new(),
@@ -71,6 +82,15 @@ impl Task{
     pub fn change_name(&mut self, name: String) {
         self.name = name;
         //self.save_to_file();
+    }
+
+    //getter und setter for split
+    pub fn get_split(&self) -> char {
+        self.split
+    }
+
+    pub fn set_split(&mut self, &split: char) {
+        self.split = split
     }
 
     // Getter and Setter for delete_on_stop
@@ -329,27 +349,7 @@ impl Task{
 
     pub fn reload(){
 
-        let task_all = Task::get_task_all();
-
-        for task_name in task_all {
-            if let Some(task) = Task::get_task(task_name) {
-                /*println!("{}", &task.get_name());
-                if task.get_min_service_count() > 0 {
-                    for _ in 0..task.get_min_service_count() {
-                        println!("Dienst starten {}", &task.get_name());
-                        println!("{}", Service::get_start_service_from_task(&task));
-                        if task.get_min_service_count() >= Service::get_start_service_from_task(&task) as u32 {
-                            println!("Start the the service from task {} ", task.get_name());
-                            //Service::start(&task);
-                        }
-
-                    }
-                }*/
-                Service::start(&task);
-            } else {
-                println!("{} task error", Config::get_prefix());
-            }
-        }
+        Service::reload();
 
     }
 
