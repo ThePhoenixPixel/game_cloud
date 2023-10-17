@@ -1,5 +1,6 @@
 {
   "name": "task",
+  "split": "-",
   "delete_on_stop": true,
   "static_service": false,
   "nodes": [],
