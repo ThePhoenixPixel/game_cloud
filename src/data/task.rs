@@ -89,8 +89,8 @@ impl Task{
         self.split
     }
 
-    pub fn set_split(&mut self, &split: char) {
-        self.split = split
+    pub fn set_split(&mut self, split: &char) {
+        self.split = split.clone()
     }
 
     // Getter and Setter for delete_on_stop

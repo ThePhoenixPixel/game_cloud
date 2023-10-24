@@ -1,5 +1,6 @@
 use std::fs;
-use std::fs::{read_to_string};
+use std::fs::{File, read_to_string};
+use std::io::Write;
 use std::path::PathBuf;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
@@ -57,10 +58,40 @@ impl Service {
         self.time.to_string()
     }
 
+    pub fn is_start(&self) -> bool {
+        if self.status == "Start".to_string() {
+            return true
+        }
+        return false;
+    }
+    pub fn reload() {
+        let task_all = Task::get_task_all();
+
+        for task_name in task_all {
+            if let Some(task) = Task::get_task(task_name) {
+                println!("{} Gestartete Service: {}",Config::get_prefix(), Service::get_start_service_from_task(&task));
+                if task.get_min_service_count() > 0 {
+                    for _ in 0..task.get_min_service_count() {
+                        println!("Dienst starten from {}", &task.get_name());
+                        if task.get_min_service_count() >= Service::get_start_service_from_task(&task) as u32 {
+                            println!("Start the the service from task {} ", task.get_name());
+                            task.prepared_to_services();
+                            Service::start(&task);
+                        }
+                    }
+                } else {
+                    println!("{} Task: {} muss kein service gestartet werden", Config::get_prefix(), task.get_name());
+                }
+            } else {
+                println!("{} task error", Config::get_prefix());
+            }
+        }
+    }
+
     pub fn get_start_service_from_task(task: &Task) -> u64 {
         let mut service_path = PathBuf::new();
 
-        let start_service:u64 = 0;
+        let mut start_service: u64 = 0;
 
         if task.get_static_service() {
             service_path = Config::get_service_static_path();
@@ -71,19 +102,21 @@ impl Service {
         let files_name = get_files_name_from_path(&service_path);
 
         for file_name in files_name {
+            let mut current_service_path = service_path.clone(); // Kopiere den service_path für diesen Schleifendurchlauf
             if file_name.starts_with(&task.get_name()) {
-                service_path.push(file_name);
-                if let Some(start) = is_service_start(&mut service_path) {
+                current_service_path.push(file_name);
+                if let Some(start) = is_service_start(&mut current_service_path) {
                     if start {
-                        start_service + 1;
+                        start_service += 1;
                     }
                 } else {
-                    println!("{} Error beim service {:?}", Config::get_prefix(), &service_path);
+                    println!("{} Error beim service {:?}", Config::get_prefix(), &current_service_path);
                 }
             }
         }
         start_service
     }
+
 
     pub fn start(task: &Task) {
         println!("in der start fn ----------------");
@@ -96,15 +129,16 @@ impl Service {
             println!("task ist temp");
             path = Config::get_service_temp_path();
         }
-        let split = '-';
-        let next_number = get_next_free_service_with_start(&path, &task.get_name(), &split);
+        let next_number = get_next_free_service_with_start(&path, &task.get_name(), &task.get_split());
         println!("{}", next_number);
-
+        let service_name = format!("{}{}{}", task.get_name(), task.get_split(), next_number);
+        path.push(service_name);
+        check_folder(&mut path, &task.get_name());
+        //jetzt hier den service starten aber so richtig
 
 
     }
 }
-
 
 fn get_next_free_service_with_start(path: &PathBuf, name: &String, split: &char) -> u64 {
     // Lies den Inhalt des Verzeichnisses
@@ -153,14 +187,14 @@ fn get_next_free_service_with_start(path: &PathBuf, name: &String, split: &char)
 }
 
 fn is_service_start(path: &mut PathBuf) -> Option<bool> {
+    println!("{:?}", path);
     path.push(".game_cloud");
     path.push("service_config.json");
-    println!("{:?}", path);
+
     let file_content = read_to_string(&path).expect("Fehler beim Lesen von service_config.json");
     let file: serde_json::Value = serde_json::from_str(&file_content).expect("Fehler beim Deserialisieren von service_config.json");
 
     if let Some(status) = file["status"].as_str() {
-        println!("in startus");
         return if status == "Stop" || status == "Prepare" {
             Some(false)
         } else {
@@ -184,6 +218,34 @@ fn get_files_name_from_path(path: &PathBuf) -> Vec<String> {
     files_name
 }
 
+fn check_folder(path: &mut PathBuf, task_name: &String) {
+    path.push(".game_cloud");
+    create_service_folder(path);
+    create_service_file(path, task_name);
+}
+
+fn create_service_file(path: &mut PathBuf, task_name: &String) {
+    path.push("service_config.json");
+    if !path.exists() { // Wenn die Datei nicht existiert, erstelle sie
+        let mut service_path = path.clone();
+        service_path.pop();
+        service_path.pop();
+        let service = Service::new_from_pathbuf_with_task_name(&service_path, &task_name);
+
+        let default_config_str = serde_json::to_string_pretty(&service).expect("Fehler beim Serialisieren der Standardkonfiguration");
+        println!("{:?}", path);
+        let mut file = File::create(&path).expect("Fehler beim Erstellen der service_config.json");
+        file.write_all(default_config_str.as_bytes()).expect("Fehler beim Schreiben in die service_config.json");
+    }
+}
+
+fn create_service_folder(path: &mut PathBuf) {
+    //create the .game_cloud folder in service
+    if !path.exists() {
+        Bx::create_path(&path);
+    }
+}
+
 
 /*
 fn check_service(path: &mut PathBuf, task_name: &String) {
@@ -204,33 +266,6 @@ fn check_service(path: &mut PathBuf, task_name: &String) {
     }
 }
 
-
-
-fn create_service_file(path: &mut PathBuf, task_name: &String) {
-    path.push("service_config.json");
-    println!("efefefefef");
-    println!("{:?}", path);
-    if !path.exists() { // Wenn die Datei nicht existiert, erstelle sie
-        println!("fefwdf3r3r3r");
-        let mut service_path = path.clone();
-        service_path.pop();
-        service_path.pop();
-        let service = Service::new_from_pathbuf_with_task_name(&service_path, &task_name);
-
-        let default_config_str = serde_json::to_string_pretty(&service).expect("Fehler beim Serialisieren der Standardkonfiguration");
-        println!("{:?}", path);
-        let mut file = File::create(&path).expect("Fehler beim Erstellen der service_config.json");
-        file.write_all(default_config_str.as_bytes()).expect("Fehler beim Schreiben in die service_config.json");
-    }
-}
-
-fn create_service_folder(path: &mut PathBuf) {
-    path.push(".game_cloud");
-    //create the .game_cloud folder in service
-    if !path.exists() {
-        Bx::create_path(&path);
-    }
-}
 
 fn get_file_name_number(file_name: &mut String, split: &char) -> Option<u32> {
     if let Some(index) = file_name.find(*split) {
