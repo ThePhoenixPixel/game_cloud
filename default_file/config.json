@@ -14,6 +14,7 @@
     },
     "config": {
       "software": "config",
+      "system_plugins": "config/system_plugins",
       "default_task": "config",
       "software_files": "config/software_files"
     }

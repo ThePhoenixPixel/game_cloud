@@ -7,6 +7,21 @@ pub struct Config;
 
 
 impl Config{
+
+    pub fn get_system_plugins_path() -> PathBuf {
+        let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
+        exe_path.pop();
+        let config_path = exe_path.join("config.json");
+
+        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
+        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+
+        let system_plugins_path = config["path"]["config"]["system_plugins"].as_str().expect("Pfad zur Aufgabe nicht gefunden");
+        let system_plugins_path = exe_path.join(system_plugins_path);
+
+        system_plugins_path
+    }
+
     pub fn get_server_host() -> String {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();

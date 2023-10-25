@@ -186,7 +186,15 @@ impl Starting {
                 println!("{} {:?} erfolgreich erstellt", cmd_prefix, software_files_path);
             }
         }
-
+        //system plugins
+        {
+            let mut plugin_path = exe_path.clone();
+            plugin_path.push(config["path"]["config"]["system_plugins"].as_str().expect("Error beim lesen des system plugin path"));
+            if !plugin_path.exists() {
+                Bx::create_path(&plugin_path);
+                println!("{} {:?} erfolgreich erstellt", cmd_prefix, plugin_path);
+            }
+        }
     }
 
     fn check_link(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString) -> bool {
@@ -225,6 +233,27 @@ impl Starting {
                 let url = "http://37.114.62.121/cloud/default_file/config/task.json";
                 if let Ok(response) = get(url) {
                     let mut file = File::create(&config_task_path);
+                    file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    println!("{} Datei erstellt von {}", cmd_prefix, url);
+                } else {
+                    eprintln!("task default file kann nicht heruntergeladen werden");
+                    eprintln!("Bitte stellen sie sicher das sie zugriff auf {} haben", url);
+                    return false;
+                }
+            }
+        }
+        {
+            let mut config_system_plugins_path = exe_path.clone();
+            config_system_plugins_path.push(config["path"]["config"]["system_plugins"].as_str().expect("Error beim Lesen des path der config datei"));
+            if !config_system_plugins_path.exists() {
+                Bx::create_path(&config_system_plugins_path);
+                println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, &config_system_plugins_path);
+            }
+            config_system_plugins_path.push("gamecloud-master.jar");
+            if !config_system_plugins_path.exists() {
+                let url = "http://37.114.62.121/cloud/default_file/config/system_plugins/gamecloud-master.jar";
+                if let Ok(response) = get(url) {
+                    let mut file = File::create(&config_system_plugins_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
