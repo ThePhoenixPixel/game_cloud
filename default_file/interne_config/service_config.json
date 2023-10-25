@@ -1,4 +1,7 @@
 {
-  "name": "service-1",
-  "status": "stop"
+  "name": "Proxy-1",
+  "status": "Start",
+  "time": "2023-10-25T10:02:51.744765419+02:00",
+  "listener": "\"127.0.0.1\":5005",
+  "task": "Proxy"
 }
