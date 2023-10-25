@@ -187,8 +187,15 @@ impl Service {
             println!("Service Time: {}", service.get_time_to_string());
             let mut status = String::from("Prepare");
             service.set_status(&status);
-
             println!("Service startet gerade");
+            //service start
+
+
+
+
+
+
+
             status = String::from("Start");
             service.set_status(&status);
             println!("{} Service ist gestartet {}", Config::get_prefix(), service.get_name());
@@ -197,6 +204,11 @@ impl Service {
         }
     }
 }
+
+
+
+
+
 
 fn prepare_to_start(service_path: &mut PathBuf, task: &Task) {
     if !is_service_start(service_path) {
@@ -343,143 +355,3 @@ fn create_service_folder(path: &mut PathBuf) {
         Bx::create_path(&path);
     }
 }
-
-
-/*
-
-fn extract_number_from_filename(file_name: &str, prefix: &str) -> Option<u64> {
-    if file_name.starts_with(prefix) {
-        let rest = &file_name[prefix.len()..];
-        let parts: Vec<&str> = rest.split('-').collect();
-
-        if parts.len() == 2 {
-            if let Ok(number) = parts[1].parse::<u64>() {
-                return Some(number);
-            }
-        }
-    }
-
-    None
-}
-
-
-fn check_service(path: &mut PathBuf, task_name: &String) {
-    //path darf nur  /service/temp/service-1 oder /service/static/service-1
-    create_service_folder(path);
-    create_service_file(path, task_name);
-
-    path.push(task_name);
-    if let Some(boolean) = is_service_start(path) {
-        if boolean {
-            println!("start");
-        } else {
-            println!("create new");
-        }
-    } else {
-        println!("Fehler haft");
-        println!("Lösche den alten .game_cloud ordner");
-    }
-}
-
-
-fn get_file_name_number(file_name: &mut String, split: &char) -> Option<u32> {
-    if let Some(index) = file_name.find(*split) {
-        file_name.drain(0..index + 1);
-    }
-
-    if let Some(number) = file_name.chars().next().and_then(|c| c.to_digit(10)) {
-        Some(number)
-    } else {
-        println!("{} Keine Number", Config::get_prefix()); // Ersetze Config::get_prefix() entsprechend.
-        None
-    }
-}
-
-    fn find_next_prepare_or_stop_service(task: &Task, path: &PathBuf) -> Option<PathBuf> {
-    let prefix = task.get_name();
-
-    if let Ok(entries) = fs::read_dir(&path) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-
-                if let Some(file_name) = entry.file_name().to_str() {
-
-                    if file_name.starts_with(&prefix) {
-
-                        // Hier hast du einen Ordner mit dem gewünschten Präfix
-                        // Jetzt kannst du die Nummer extrahieren und weiter verarbeiten
-
-                        if let Some(mut rest) = file_name.strip_prefix(&prefix) {
-                            if rest.starts_with('-') {
-                                rest = &rest[1..]; // Das erste Zeichen abschneiden
-                            }
-                            if let Some(number) = rest.chars().next().and_then(|c| c.to_digit(10)) {
-                                // Jetzt hast du die Nummer und kannst sie verwenden
-
-
-
-                      //-------------------------------------------------------------------------------------
-                                let mut path_service = path.clone();
-                                path_service.push(format!("{}-{}", prefix, number));
-                                path_service.push(".game_cloud");
-
-                                if !path_service.exists() {
-                                    // Wenn der Ordner nicht existiert, erstelle ihn
-                                    fs::create_dir_all(&path_service).expect("Fehler beim Erstellen des .game_cloud Ordners");
-                                }
-
-                                path_service.push("service_config.json");
-
-                                if !path_service.exists() {
-                                    // Wenn die Datei nicht existiert, erstelle sie
-                                    let mut service_path = path_service.clone();
-                                    service_path.pop();
-                                    service_path.pop();
-                                    let service = Service::new_from_pathbuf_with_task_name(&service_path, &task.get_name());
-
-                                    let default_config_str = serde_json::to_string_pretty(&service).expect("Fehler beim Serialisieren der Standardkonfiguration");
-
-                                    let mut file = File::create(&path_service).expect("Fehler beim Erstellen der service_config.json");
-                                    file.write_all(default_config_str.as_bytes()).expect("Fehler beim Schreiben in die service_config.json");
-                                }
-                                println!("Found folder with prefix '{}', number: {}", prefix, number);
-                                let file_content = read_to_string(&path_service).expect("Fehler beim Lesen von service_config.json");
-                                let file: serde_json::Value = serde_json::from_str(&file_content).expect("Fehler beim Deserialisieren von service_config.json");
-
-                                if let Some(status) = file["status"].as_str() {
-                                    println!("in startus");
-                                    if status == "stop" || status == "prepare" {
-                                        return Some(path_service);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    None
-}
-
-
-fn prepare_or_start_service(service_path: &PathBuf, task_name: &String) -> Option<Service> {
-    let file_content = read_to_string(&service_path).expect("Fehler beim Lesen von service_config.json");
-    let file: serde_json::Value = serde_json::from_str(&file_content).expect("Fehler beim Deserialisieren von service_config.json");
-
-    if let Some(status) = file["status"].as_str() {
-        if status == "stop" || status == "prepare" {
-            // Starte den Service, indem du ihn aus der Datei lädst
-            let service = Service::new_from_pathbuf_with_task_name(&service_path, task_name);
-            Some(service)
-        } else {
-            // Der Status ist nicht "stop" oder "prepare", also starte nicht.
-            None
-        }
-    } else {
-        // Status nicht gefunden, tue nichts.
-        None
-    }
-}
-*/
