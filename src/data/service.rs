@@ -1,8 +1,10 @@
 use std::fs;
 use std::fs::{File, read_to_string};
 use std::io::Write;
+use std::net::TcpListener;
 use std::path::PathBuf;
 use chrono::{DateTime, Local};
+use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::task::Task;
@@ -190,9 +192,7 @@ impl Service {
             println!("Service startet gerade");
             //service start
 
-
-
-
+            start(&task);
 
 
 
@@ -205,10 +205,44 @@ impl Service {
     }
 }
 
+fn start(task: &Task){
+    if let Some(port) = find_next_port(task.get_start_port()) {
 
 
 
 
+
+    } else {
+        println!("{} Service kann nicht starten from {}", Config::get_prefix(), task.get_name());
+    }
+}
+
+fn find_next_port(start_port: u32) -> Option<u32> {
+    let mut port = start_port;
+    let max_port: u32 = 65535;
+    while port <= max_port {
+        if is_port_available(port) {
+            return Some(port); // Verwende 'return' hier, um den gefundenen Port zurückzugeben
+        }
+        port += 1;
+    }
+    println!("{} Error es ist kein freier Port gefunden worden", Config::get_prefix());
+    None
+}
+
+fn is_port_available(port: u32) -> bool {
+    let host = Config::get_server_host(); // Lade die Server-Host-Adresse
+    let socket_addr = format!("{}:{}", host, port);
+
+    if let Ok(listener) = TcpListener::bind(&socket_addr) {
+        // Port ist verfügbar
+        drop(listener);
+        true
+    } else {
+        // Port ist bereits in Verwendung
+        false
+    }
+}
 
 fn prepare_to_start(service_path: &mut PathBuf, task: &Task) {
     if !is_service_start(service_path) {
