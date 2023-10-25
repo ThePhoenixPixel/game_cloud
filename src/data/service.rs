@@ -1,15 +1,10 @@
-use std::fmt::format;
 use std::fs;
 use std::fs::{File, read_to_string};
 use std::io::Write;
 use std::path::PathBuf;
 use chrono::{DateTime, Local};
-use chrono::format::parse;
-use reqwest::get;
 use serde::{Deserialize, Serialize};
-use serde::de::Unexpected::Str;
 use crate::config::Config;
-use crate::data::service::Status::Start;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
 
@@ -179,7 +174,7 @@ impl Service {
         let next_number = get_next_free_number(&path, &task.get_name()).expect("Error beim get next number");
         let service_name = format!("{}{}{}", task.get_name(), task.get_split(), next_number);
         path.push(&service_name);
-        prepare_to_start(next_number, &mut path, &task);
+        prepare_to_start(&mut path, &task);
         println!("{}", next_number);
         println!("{} Start tgferhgiwhgierhgrhguihgherghe {} Service", Config::get_prefix(), service_name);
 
@@ -203,7 +198,7 @@ impl Service {
     }
 }
 
-fn prepare_to_start(number: u64, service_path: &mut PathBuf, task: &Task) {
+fn prepare_to_start(service_path: &mut PathBuf, task: &Task) {
     if !is_service_start(service_path) {
         if !service_path.exists() {
             task.prepared_to_services()

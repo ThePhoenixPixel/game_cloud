@@ -1,5 +1,4 @@
 use std::{env, fs};
-use std::fmt::format;
 use std::path::PathBuf;
 use colored::{ColoredString, Colorize};
 use serde_json;

@@ -37,7 +37,7 @@ impl Bx {
     pub fn extract_extension_from_url(url: &String) -> Option<String> {
         if let Ok(url) = reqwest::Url::parse(url) {
             if let Some(file_name) = url.path_segments().and_then(|segments| segments.last()) {
-                if let Some(extension) = std::path::Path::new(file_name).extension() {
+                if let Some(extension) = Path::new(file_name).extension() {
                     return Some(extension.to_string_lossy().to_string());
                 }
             }

@@ -20,7 +20,7 @@ impl Starting {
             Starting::check_folder(&exe_path, &config, &cmd_prefix);
 
             if Starting::check_link(&exe_path, &config, &cmd_prefix) {
-                Starting::check_software(&exe_path, &cmd_prefix);
+                Starting::check_software(&cmd_prefix);
 
                 Starting::check_task();
             } else {
@@ -51,7 +51,7 @@ impl Starting {
         println!(" ");
     }
 
-    fn check_software(exe_path: &PathBuf, cmd_prefix: &ColoredString) {
+    fn check_software(cmd_prefix: &ColoredString) {
         // Pfade und Verzeichnisse einrichten
         let install_dir = Config::get_software_files_path();
 
@@ -238,14 +238,14 @@ impl Starting {
     }
 }
 fn extract_and_install_links(software_type: &str, software_links: &Map<String, Value>){
-    let install_dir = Config::get_software_files_path();
+    //let install_dir = Config::get_software_files_path();
     let cmd_prefix = Config::get_prefix();
 
     // Iteriere durch die Kategorien (self, server, proxy)
     // Iteriere durch die Software-Links in diesem Software-Typ (Kategorie)
     for (software_name, software_link_value) in software_links.iter() {
         if let Some(software_link) = software_link_value.as_str() {
-            let software_dir = install_dir.join(software_type);
+            //let software_dir = install_dir.join(software_type);
             install_software(software_link, software_name, software_type, &cmd_prefix);
 
         } else {

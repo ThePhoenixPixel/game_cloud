@@ -1,8 +1,6 @@
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
-use fs_extra::dir::create;
 use rand::Rng;
 use serde::Serialize;
 use crate::config::Config;
@@ -38,11 +36,11 @@ impl Task{
         let default_task_config: serde_json::Value = serde_json::from_str(&default_task_content).unwrap_or_else(|_| serde_json::Value::Null);
 
         let name = default_task_config["name"].as_str().unwrap_or("taskname").to_string();
-        let split = '-';
+        let mut split = '-';
         let split_temp: String = default_task_config["split"].as_str().unwrap_or("-").to_string();
         if split_temp.len() == 1 {
             // Überprüfen, ob der String nur aus einem Zeichen besteht
-            let split = split_temp.chars().next().unwrap();
+            split = split_temp.chars().next().unwrap();
         } else {
             println!("Fehler: Der 'split'-Wert ist kein einzelnes Zeichen.");
         }
@@ -328,7 +326,7 @@ impl Task{
 
     pub fn save_to_file(&self) {
         let serialized_task = serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
-        let task_path = Config::get_task_path().join(format!("{}.json", self.name));
+        let task_path = Config::get_task_path().join(format!("{}.json", self.get_name()));
 
         if !task_path.exists() {
 
@@ -336,7 +334,7 @@ impl Task{
 
         }
 
-        let mut file = fs::File::create(&task_path).expect("Error beim Erstellen der Task-Datei");
+        let mut file = File::create(&task_path).expect("Error beim Erstellen der Task-Datei");
         file.write_all(serialized_task.as_bytes()).expect("Error beim Schreiben in die Task-Datei");
     }
 

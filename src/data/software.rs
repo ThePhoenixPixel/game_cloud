@@ -39,11 +39,11 @@ impl Software{
         let name = &self.get_name();
         let binding = &self.get_software_url().unwrap();
         let link = Path::new(&binding);
-        if let Some(ext) = link.extension().and_then(|ext| ext.to_str()) {
-            return format!("{}.{}", name, ext);
+        return if let Some(ext) = link.extension().and_then(|ext| ext.to_str()) {
+            format!("{}.{}", name, ext)
         } else {
             // Fallback, wenn keine Dateiendung gefunden wurde
-            return format!("{}", name);
+            format!("{}", name)
         }
     }
 
