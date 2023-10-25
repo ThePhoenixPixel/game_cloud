@@ -7,6 +7,18 @@ pub struct Config;
 
 
 impl Config{
+    pub fn get_server_host() -> String {
+        let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
+        exe_path.pop();
+        let config_path = exe_path.join("config.json");
+
+        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
+        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+
+        let server_host = config["server_host"].to_string();
+        server_host
+    }
+
     pub fn get_node_listener() -> String {
         let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port().expect("Error beim get des node_port"));
         listener
