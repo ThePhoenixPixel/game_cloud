@@ -1,3 +1,4 @@
+use std::fs;
 use crate::config::Config;
 
 pub struct CmdStop;
@@ -5,13 +6,22 @@ pub struct CmdStop;
 impl CmdStop {
     pub fn execute(args: &Vec<String>) -> bool{
 
-        CmdStop::shutdown_all_service();
+        shutdown_all_service();
+        remove_temp_folder();
         true
     }
-    fn shutdown_all_service(){
+}
 
+fn shutdown_all_service(){
 
-        println!("{} All Service Closed", Config::get_prefix());
+    println!("{} All Service Closed", Config::get_prefix());
+}
+
+fn remove_temp_folder() -> bool {
+    let path = Config::get_service_temp_path();
+    match fs::remove_dir_all(&path) {
+        Ok(_) => true,
+        Err(_) => false,
     }
 }
 
