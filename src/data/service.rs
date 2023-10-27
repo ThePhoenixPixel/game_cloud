@@ -3,7 +3,9 @@ use std::fs::{File, read_to_string};
 use std::io::Write;
 use std::net::TcpListener;
 use std::path::PathBuf;
+use std::process::Command;
 use chrono::{DateTime, Local};
+use chrono::format::parse;
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
 use crate::config::Config;
@@ -192,9 +194,7 @@ impl Service {
             println!("Service startet gerade");
             //service start
 
-            start(&task);
-
-
+            start(&task, &service, &path);
 
             status = String::from("Start");
             service.set_status(&status);
@@ -205,9 +205,20 @@ impl Service {
     }
 }
 
-fn start(task: &Task){
+fn start(task: &Task, service: &Service, path: &PathBuf){
     if let Some(port) = find_next_port(task.get_start_port()) {
 
+
+
+
+        let server = Command::new("java")
+            .args(&[format!("-Xmx{}M", task.get_software().get_max_ram()),
+                "-jar".to_string(),
+                path.join(task.get_software().get_name_with_ext()).to_str().unwrap().to_string()])
+
+            .current_dir(&path)
+            .spawn()
+            .expect("Fehler beim Starten des Servers");
 
 
 
