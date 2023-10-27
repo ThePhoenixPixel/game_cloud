@@ -21,7 +21,7 @@ pub struct Task {
     static_service: bool,
     nodes: Vec<String>,
     software: Software,
-    pub max_ram: u32,
+    max_ram: u32,
     start_port: u32,
     min_service_count: u32,
     groups: Vec<String>,
@@ -59,7 +59,7 @@ impl Task{
         let templates = vec![Template::new()];
 
 
-        Task {
+        let task = Task {
             name,
             split,
             delete_on_stop,
@@ -72,7 +72,8 @@ impl Task{
             groups,
             installer,
             templates,
-        }
+        };
+        task
     }
 
     // Getter and Setter for name
