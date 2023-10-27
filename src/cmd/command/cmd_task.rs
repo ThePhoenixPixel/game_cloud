@@ -334,7 +334,7 @@ impl CmdTask{
                 println!("{} | Software:                | ", Config::get_prefix());
                 println!("{} |      Type                | {}", Config::get_prefix(), task.get_software().get_software_type());
                 println!("{} |      Name                | {}", Config::get_prefix(), task.get_software().get_name());
-                println!("{} |      Max Ram             | {}", Config::get_prefix(), task.get_software().get_max_ram());
+                println!("{} |      Max Ram             | {}", Config::get_prefix(), task.get_max_ram());
                 //print Port
                 println!("{} | Start Port               | {}", Config::get_prefix(), task.get_start_port());
                 println!("{} | MinServiceCount          | {}", Config::get_prefix(), task.get_min_service_count());

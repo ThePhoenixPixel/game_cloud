@@ -212,7 +212,7 @@ fn start(task: &Task, service: &Service, path: &PathBuf){
 
 
         let server = Command::new("java")
-            .args(&[format!("-Xmx{}M", task.get_software().get_max_ram()),
+            .args(&[format!("-Xmx{}M", task.get_max_ram()),
                 "-jar".to_string(),
                 path.join(task.get_software().get_name_with_ext()).to_str().unwrap().to_string()])
 
