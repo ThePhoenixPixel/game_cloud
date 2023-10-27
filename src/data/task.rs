@@ -21,6 +21,7 @@ pub struct Task {
     static_service: bool,
     nodes: Vec<String>,
     software: Software,
+    pub max_ram: u32,
     start_port: u32,
     min_service_count: u32,
     groups: Vec<String>,
@@ -47,6 +48,7 @@ impl Task{
 
         let delete_on_stop = default_task_config["delete_on_stop"].as_bool().unwrap_or(true);
         let static_service = default_task_config["static_service"].as_bool().unwrap_or(false);
+        let max_ram = default_task_config["max_ram"].as_u64().unwrap_or(2048) as u32;
         let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
         let min_service_count = default_task_config["min_service_count"].as_u64().unwrap_or(0) as u32;
        // let installer = default_task_config["installer"].to_string();
@@ -64,6 +66,7 @@ impl Task{
             static_service,
             nodes: Vec::new(),
             software,
+            max_ram,
             start_port,
             min_service_count,
             groups,
@@ -136,6 +139,15 @@ impl Task{
     pub fn set_software(&mut self, software: Software) {
         self.software = software;
         self.save_to_file();
+    }
+
+    //max ram
+    pub fn get_max_ram(&self) -> &u32 {
+        &self.max_ram
+    }
+
+    pub fn set_max_ram(&mut self, max_ram: &u32) {
+        self.max_ram = max_ram.clone();
     }
 
     // Getter and Setter for start_port
@@ -254,9 +266,9 @@ impl Task{
                         Software {
                             software_type: config["software"]["software_type"].as_str().unwrap_or("server").to_string(),
                             name: config["software"]["name"].as_str().unwrap_or("paper").to_string(),
-                            max_ram: config["software"]["max_ram"].as_u64().unwrap_or(1024) as u32,
                         },
-                        config["start_port"].as_u64().unwrap_or(40000) as u32,
+                        config["software"]["max_ram"].as_u64().unwrap_or(1024) as u32,
+                        config["start_port"].as_u64().unwrap_or(49152) as u32,
                         config["min_service_count"].as_u64().unwrap_or(0) as u32,
                         Vec::new(), // Hier können die Groups aus der Config hinzugefügt werden
                         config["templates"]
@@ -307,6 +319,7 @@ impl Task{
                  static_service: bool,
                  nodes: Vec<String>,
                  software: Software,
+                 max_ram: u32,
                  start_port: u32,
                  min_service_count: u32,
                  groups: Vec<String>,
@@ -317,6 +330,7 @@ impl Task{
         self.static_service = static_service;
         self.nodes = nodes;
         self.software = software;
+        self.max_ram = max_ram;
         self.start_port = start_port;
         self.min_service_count = min_service_count;
         self.groups = groups;

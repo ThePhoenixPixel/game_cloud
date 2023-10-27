@@ -8,14 +8,13 @@ use crate::config::Config;
 pub struct Software{
     pub software_type: String,
     pub name: String,
-    pub max_ram: u32,
+
 }
 impl Software{
     pub fn new() -> Software{
         Software{
             software_type: "Server".to_string(),
             name: "paper".to_string(),
-            max_ram: 1024,
         }
     }
     //get Software
@@ -52,14 +51,7 @@ impl Software{
         self.name = name.clone();
     }
 
-    //max ram
-    pub fn get_max_ram(&self) -> &u32 {
-        &self.max_ram
-    }
 
-    pub fn set_max_ram(&mut self, max_ram: &u32) {
-        self.max_ram = max_ram.clone();
-    }
 
     pub fn get_software_url(&self) -> Option<String> {
         let software_path = Config::get_software_path();
