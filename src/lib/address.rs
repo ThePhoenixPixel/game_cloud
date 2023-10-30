@@ -30,17 +30,17 @@ impl Address {
     }
 
 
-    pub fn find_next_port(ip: &String, start_port: u32) -> Option<u32> {
+    pub fn find_next_port(ip: &String, start_port: u32) -> u32 {
         let mut port = start_port;
         let max_port: u32 = 65535;
         while port <= max_port {
             if is_port_available(ip, port) {
-                return Some(port); // Verwende 'return' hier, um den gefundenen Port zurückzugeben
+                return port; // Verwende 'return' hier, um den gefundenen Port zurückzugeben
             }
             port += 1;
         }
-        println!("Error es ist kein freier Port gefunden worden");
-        None
+        //keine ahnung was ich machen soll
+        panic!("Error es ist kein freier Port gefunden worden");
     }
 }
 
