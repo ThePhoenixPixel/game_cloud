@@ -39,7 +39,7 @@ impl Config{
         listener
     }
 
-    pub fn get_node_port() -> Option<u64> {
+    pub fn get_node_port() -> u64 {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();
         let config_path = exe_path.join("config.json");
@@ -47,7 +47,7 @@ impl Config{
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let node_port = config["node_port"].as_u64();
+        let node_port = config["node_port"].as_u64().unwrap_or(50263);
         node_port
     }
 
