@@ -1,15 +1,15 @@
-use std::fs;
+use std::{fs, thread};
 use std::fs::{File, read_to_string};
-use std::io::Write;
-use std::net::TcpListener;
+use std::io::{BufRead, Write};
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
+use std::time::Duration;
 use chrono::{DateTime, Local};
-use chrono::format::parse;
-use colored::Colorize;
+use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::task::Task;
+use crate::lib::address::Address;
 use crate::lib::bx::Bx;
 
 #[derive(Serialize, Deserialize, PartialEq)]
@@ -23,27 +23,37 @@ pub struct Service{
     name: String,
     status: String,
     time: DateTime<Local>,
-    listener: String,
+    plugin_listener: Address,
+    cloud_listener: Address,
     task: String,
 }
 
 impl Service {
-    pub fn new_from_pathbuf_with_task_name(path: &PathBuf, task: &String) -> Service {
-        let name = Bx::extract_filename_from_pathbuf(&path).unwrap(); // Den Dateinamen extrahieren.
-        let status = String::from("Stop"); // Den Status auf "Stop" setzen.
-        let listener = Config::get_node_listener();
-        let time = Local::now(); // Die aktuelle lokale Zeit abrufen.
 
-        // Hier kannst du alle anderen erforderlichen Initialisierungen für deinen Service vornehmen.
-
-        // Zum Schluss den Service erstellen und zurückgeben.
-        Service {
-            name,
-            status,
-            time,
-            listener,
-            task: task.clone(),
+    pub fn new(service_name: &String, task: &Task) -> Service {
+        let temp_port:Option<u32> = Config::get_node_port().try_into().ok();
+        let mut port:u32 = 0;
+        match temp_port {
+            Some(result) => {
+                port = result;
+            }
+            None => {
+                println!("umwandlung nicht möglich");
+            }
         }
+
+        let plugin_listener = Address::new(&"127.0.0.1".to_string(), &Address::find_next_port(&"127.0.0.1".to_string(), task.get_start_port()));
+        let cloud_listener = Address::new(&Config::get_node_host(), &port);
+
+        Service {
+            name: service_name.clone(),
+            status: "Stop".to_string(),
+            time: Local::now(),
+            plugin_listener,
+            cloud_listener,
+            task: task.get_name(),
+        }
+
     }
 
     pub fn get_name(&self) -> String {
@@ -180,7 +190,7 @@ impl Service {
         path.push(&service_name);
         prepare_to_start(&mut path, &task);
         println!("{}", next_number);
-        println!("{} Start tgferhgiwhgierhgrhguihgherghe {} Service", Config::get_prefix(), service_name);
+        println!("{} Start {} Service", Config::get_prefix(), service_name);
 
         if let Some(mut service) = Service::load_from_file(&path) {
             path.pop();
@@ -200,60 +210,92 @@ impl Service {
             service.set_status(&status);
             println!("{} Service ist gestartet {}", Config::get_prefix(), service.get_name());
         } else {
-            println!("Eroor beim getten des service")
+            println!("Error beim getten des service")
         }
     }
 }
 
 fn start(task: &Task, service: &Service, path: &PathBuf){
-    if let Some(port) = find_next_port(task.get_start_port()) {
 
+    let port = Address::find_next_port(&Config::get_server_host(),task.get_start_port());
+    let task_clone = task.clone();
+    let path_clone = path.clone();
 
+    thread::spawn(move || {
+        // Öffne Dateien für die Ausgabeumleitung
+        let stdout_file = File::create("server_stdout.log").expect("Fehler beim Erstellen der Ausgabedatei");
+        let stderr_file = File::create("server_stderr.log").expect("Fehler beim Erstellen der Fehlerausgabedatei");
 
-
+        // Öffne die Datei für die Standardeingabe (stdin) und lese nichts daraus
+        let stdin_file = File::open("/dev/null").expect("Fehler beim Öffnen der Standardeingabe");
+        println!("{}", path_clone.join(task_clone.get_software().get_name_with_ext()).to_str().unwrap().to_string());
+        // Code zum Server starten
         let server = Command::new("java")
-            .args(&[format!("-Xmx{}M", task.get_max_ram()),
+            .args(&[
+                format!("-Xmx{}M", task_clone.get_max_ram().to_string()),
                 "-jar".to_string(),
-                path.join(task.get_software().get_name_with_ext()).to_str().unwrap().to_string()])
+                path_clone.join(task_clone.get_software().get_name_with_ext()).to_str().unwrap().to_string(),
+            ])
 
-            .current_dir(&path)
+            .current_dir(path_clone)
+            .stdout(Stdio::from(stdout_file))
+            .stderr(Stdio::from(stderr_file))
+            .stdin(Stdio::from(stdin_file))  // Hier wird die Standardeingabe (stdin) umgeleitet
             .spawn()
             .expect("Fehler beim Starten des Servers");
 
+        // Warte auf das Beenden des Servers, wenn notwendig
+        // server.wait().expect("Fehler beim Warten auf den Server");
+    });
 
 
-
-    } else {
-        println!("{} Service kann nicht starten from {}", Config::get_prefix(), task.get_name());
-    }
-}
-
-fn find_next_port(start_port: u32) -> Option<u32> {
-    let mut port = start_port;
-    let max_port: u32 = 65535;
-    while port <= max_port {
-        if is_port_available(port) {
-            return Some(port); // Verwende 'return' hier, um den gefundenen Port zurückzugeben
+    //connect to preoxy
+    if task.get_software().get_name().clone() == "paper".to_string() {
+        if let Some(_) = send_webhook_request(&service.get_name(), &Config::get_server_host(), &port).ok() {
+            println!("erfolgreich gesendet");
+        } else {
+            println!("error bei der anfrage an den proxy");
         }
-        port += 1;
     }
-    println!("{} Error es ist kein freier Port gefunden worden", Config::get_prefix());
-    None
+
 }
 
-fn is_port_available(port: u32) -> bool {
-    let host = Config::get_server_host(); // Lade die Server-Host-Adresse
-    let socket_addr = format!("{}:{}", host, port);
+fn send_webhook_request(server_name: &String, ip: &String, port: &u32) -> Result<(), reqwest::Error> {
+    let duration = Duration::from_secs(3);
+    thread::sleep(duration);
+    // Ersetze diese URL durch die tatsächliche URL deines Webhook-Servers
+    let url = "http://127.0.0.1:60001/webhook";
 
-    if let Ok(listener) = TcpListener::bind(&socket_addr) {
-        // Port ist verfügbar
-        drop(listener);
-        true
+
+
+    let client = Client::new();
+    let mut try_to_connect = String::new();
+    if server_name.starts_with("Lobby") {
+        try_to_connect = String::from("true");
     } else {
-        // Port ist bereits in Verwendung
-        false
+        try_to_connect = String::from("false");
     }
+
+    // Erstelle die Daten, die du im Webhook-Request senden möchtest
+    let data = [("name", server_name), ("try_to_connect", &try_to_connect), ("host", ip), ("port", &port.to_string())];
+
+    match client.post(url).form(&data).send() {
+        Ok(response) => {
+            if response.status().is_success() {
+                println!("Webhook-Anfrage erfolgreich gesendet.");
+                // Hier kannst du die Antwort des Java-Plugins verarbeiten, falls gewünscht.
+            } else {
+                println!("Fehler beim Senden der Webhook-Anfrage: {:?}", response.status());
+            }
+        }
+        Err(e) => {
+            println!("Fehler beim Senden der Webhook-Anfrage: {:?}", e);
+        }
+    }
+
+    Ok(())
 }
+
 
 fn prepare_to_start(service_path: &mut PathBuf, task: &Task) {
     if !is_service_start(service_path) {
@@ -262,7 +304,7 @@ fn prepare_to_start(service_path: &mut PathBuf, task: &Task) {
         }
         service_path.pop();
         service_path.pop();
-        check_folder(service_path, &task.get_name());
+        check_folder(service_path, task);
     }
 }
 
@@ -371,23 +413,22 @@ fn get_files_name_from_path(path: &PathBuf) -> Vec<String> {
     files_name
 }
 
-fn check_folder(path: &mut PathBuf, task_name: &String) {
+fn check_folder(path: &mut PathBuf, task: &Task) {
     //println!("in check folder {:?}", path);
     path.push(".game_cloud");
     create_service_folder(path);
-    create_service_file(path, task_name);
+    create_service_file(path, task);
 }
 
-fn create_service_file(path: &mut PathBuf, task_name: &String) {
+fn create_service_file(path: &mut PathBuf, task: &Task) {
     path.push("service_config.json");
     if !path.exists() { // Wenn die Datei nicht existiert, erstelle sie
         let mut service_path = path.clone();
         service_path.pop();
         service_path.pop();
-        let service = Service::new_from_pathbuf_with_task_name(&service_path, &task_name);
 
+        let service = Service::new(&Bx::get_last_folder_name(&service_path), task);
         let default_config_str = serde_json::to_string_pretty(&service).expect("Fehler beim Serialisieren der Standardkonfiguration");
-        //println!("{:?}", path);
         let mut file = File::create(&path).expect("Fehler beim Erstellen der service_config.json");
         file.write_all(default_config_str.as_bytes()).expect("Fehler beim Schreiben in die service_config.json");
     }
