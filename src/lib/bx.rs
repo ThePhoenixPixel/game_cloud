@@ -64,4 +64,13 @@ impl Bx {
         }
         None
     }
+
+    pub fn get_last_folder_name(path: &PathBuf) -> String {
+        if let Some(file_name) = path.file_name() {
+            if let Some(name_str) = file_name.to_str() {
+                return name_str.to_string();
+            }
+        }
+        String::new()
+    }
 }
