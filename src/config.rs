@@ -35,7 +35,7 @@ impl Config{
     }
 
     pub fn get_node_listener() -> String {
-        let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port().expect("Error beim get des node_port"));
+        let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port());
         listener
     }
 
