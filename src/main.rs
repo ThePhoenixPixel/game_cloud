@@ -12,7 +12,6 @@ pub mod starting;
 pub mod lib{
     pub mod bx;
     pub mod address;
-    pub mod thread_manager;
 }
 
 pub mod cmd{
