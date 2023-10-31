@@ -59,8 +59,8 @@ impl Config{
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let node_host = config["node_host"].to_string();
-        node_host
+        let node_host = config["node_host"].as_str().unwrap_or("127.0.0.1");
+        node_host.to_string()
     }
 
     pub fn get_prefix() -> ColoredString {
