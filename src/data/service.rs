@@ -264,8 +264,8 @@ fn send_webhook_request(server_name: &String, ip: &String, port: &u32) -> Result
     let duration = Duration::from_secs(3);
     thread::sleep(duration);
     // Ersetze diese URL durch die tatsächliche URL deines Webhook-Servers
-    let url = "http://127.0.0.1:60001/webhook";
-
+    let url = format!("http://{}:{}/service/{}", ip, port, "Proxy-1");
+    println!("url ist: {}", url);
 
 
     let client = Client::new();

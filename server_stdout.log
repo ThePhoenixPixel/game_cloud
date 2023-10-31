@@ -1,0 +1,39 @@
+Starting org.bukkit.craftbukkit.Main
+System Info: Java 19 (OpenJDK 64-Bit Server VM 19.0.2+7-Ubuntu-0ubuntu322.04) Host: Linux 6.2.0-35-generic (amd64)
+Loading libraries, please wait...
+2023-10-31 12:40:08,819 ServerMain WARN Advanced terminal features are not available in this environment
+[12:40:17 INFO]: Environment: Environment[accountsHost=https://api.mojang.com, sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[12:40:17 INFO]: Found new data pack file/bukkit, loading it automatically
+[12:40:20 INFO]: Loaded 7 recipes
+[12:40:21 INFO]: Starting minecraft server version 1.20.2
+[12:40:21 INFO]: Loading properties
+[12:40:22 INFO]: This server is running Paper version git-Paper-246 (MC: 1.20.2) (Implementing API version 1.20.2-R0.1-SNAPSHOT) (Git: c1ac983)
+[12:40:23 INFO]: Using 4 threads for Netty based IO
+[12:40:23 INFO]: Server Ping Player Sample Count: 12
+[12:40:23 INFO]: [ChunkTaskScheduler] Chunk system is using 1 I/O threads, 1 worker threads, and gen parallelism of 1 threads
+[12:40:23 WARN]: [!] The timings profiler has been enabled but has been scheduled for removal from Paper in the future.
+    We recommend installing the spark profiler as a replacement: https://spark.lucko.me/
+    For more information please visit: https://github.com/PaperMC/Paper/issues/8948
+[12:40:24 INFO]: Default game type: SURVIVAL
+[12:40:24 INFO]: Generating keypair
+[12:40:24 INFO]: Starting Minecraft server on *:25565
+[12:40:24 INFO]: Using epoll channel type
+[12:40:24 INFO]: Paper: Using libdeflate (Linux x86_64) compression from Velocity.
+[12:40:24 INFO]: Paper: Using OpenSSL 3.0.x (Linux x86_64) cipher from Velocity.
+[12:40:24 WARN]: **** FAILED TO BIND TO PORT!
+[12:40:24 WARN]: The exception was: io.netty.channel.unix.Errors$NativeIoException: bind(..) failed: Die Adresse wird bereits verwendet
+[12:40:24 WARN]: Perhaps a server is already running on that port?
+[12:40:24 ERROR]: Encountered an unexpected exception
+java.lang.IllegalStateException: Failed to initialize server
+	at net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:1087) ~[paper-1.20.2.jar:git-Paper-246]
+	at net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:315) ~[paper-1.20.2.jar:git-Paper-246]
+	at java.lang.Thread.run(Thread.java:1589) ~[?:?]
+[12:40:25 ERROR]: This crash report has been saved to: /home/thephoenixpixel/Programmieren/Rust/game_cloud/target/debug/service/temp/Lobby-1/./crash-reports/crash-2023-10-31_12.40.25-server.txt
+[12:40:25 INFO]: Stopping server
+[12:40:25 INFO]: Saving players
+2023-10-31 12:40:25,283 Log4j2-AsyncAppenderEventDispatcher-1-Async WARN Advanced terminal features are not available in this environment
+[12:40:25 INFO]: Saving worlds
+[12:40:25 INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[12:40:25 INFO]: Flushing Chunk IO
+[12:40:25 INFO]: Closing Thread Pool
+[12:40:25 INFO]: Closing Server
