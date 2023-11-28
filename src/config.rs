@@ -8,6 +8,19 @@ pub struct Config;
 
 impl Config{
 
+    pub fn get_language_path() -> PathBuf {
+        let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
+        exe_path.pop();
+        let config_path = exe_path.join("config.json");
+
+        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
+        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+
+        let mut language_path = exe_path.join(config["path"]["language"].as_str().expect("Pfad zur Aufgabe nicht gefunden"));
+        let language_ext = format!("{}.{}", config["language"].as_str().expect("Error beim json language path"), "json");
+        language_path.join(language_ext)
+    }
+
     pub fn get_system_plugins_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
