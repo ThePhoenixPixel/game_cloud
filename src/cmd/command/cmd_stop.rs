@@ -4,7 +4,7 @@ use crate::config::Config;
 pub struct CmdStop;
 
 impl CmdStop {
-    pub fn execute(args: &Vec<String>) -> bool{
+    pub fn execute(_args: &Vec<String>) -> bool{
 
         shutdown_all_service();
         remove_temp_folder();

@@ -4,7 +4,7 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 use colored::*;
 use reqwest::blocking::get;
-use serde_json::{Map, Value};
+use serde_json::Value;
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
@@ -116,7 +116,7 @@ impl Starting {
         if !config_file_path.exists() {
             let url = "http://37.114.62.121/cloud/default_file/config.json";
             if let Ok(response) = get(url) {
-                let mut file = File::create(&config_file_path);
+                let file = File::create(&config_file_path);
                 file.expect("Error beim write all config.json")
                     .write_all(&response.bytes().expect("Error beim Lesen des response"))
                     .expect("Error beim schreiben der datei");
@@ -240,7 +240,7 @@ impl Starting {
             if !config_task_path.exists() {
                 let url = "http://37.114.62.121/cloud/default_file/config/task.json";
                 if let Ok(response) = get(url) {
-                    let mut file = File::create(&config_task_path);
+                    let file = File::create(&config_task_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
@@ -261,7 +261,7 @@ impl Starting {
             if !config_system_plugins_path.exists() {
                 let url = "http://37.114.62.121/cloud/default_file/config/system_plugins/gamecloud-master.jar";
                 if let Ok(response) = get(url) {
-                    let mut file = File::create(&config_system_plugins_path);
+                    let file = File::create(&config_system_plugins_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
@@ -274,26 +274,6 @@ impl Starting {
         return true;
     }
 }
-fn extract_and_install_links(software_type: &str, software_links: &Map<String, Value>){
-    //let install_dir = Config::get_software_files_path();
-    let cmd_prefix = Config::get_prefix();
-
-    // Iteriere durch die Kategorien (self, server, proxy)
-    // Iteriere durch die Software-Links in diesem Software-Typ (Kategorie)
-    for (software_name, software_link_value) in software_links.iter() {
-        if let Some(software_link) = software_link_value.as_str() {
-            //let software_dir = install_dir.join(software_type);
-            install_software(software_link, software_name, software_type, &cmd_prefix);
-
-        } else {
-            println!(
-                "{} Ungültiger Link für Software: {}",
-                cmd_prefix, software_name
-            );
-        }
-    }
-}
-
 
 fn install_software(
     software_link: &str,

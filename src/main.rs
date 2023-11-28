@@ -1,8 +1,5 @@
 use std::env;
-use std::io::{Read, Write};
 use std::path::PathBuf;
-use colored::Colorize;
-use serde_json;
 use crate::cmd::cmd::Cmd;
 use crate::config::Config;
 use crate::starting::Starting;

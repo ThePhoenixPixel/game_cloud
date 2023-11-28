@@ -77,7 +77,7 @@ impl Software{
     pub fn get_software_file_path(&self) -> PathBuf {
         let mut software_path = Config::get_software_files_path();
         software_path.push(&self.get_software_type());
-        software_path.push((format!("{}.jar", &self.get_name())));
+        software_path.push(format!("{}.jar", &self.get_name()));
         software_path
     }
 

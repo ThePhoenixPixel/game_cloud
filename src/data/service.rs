@@ -1,6 +1,6 @@
 use std::{fs, thread};
 use std::fs::{File, read_to_string};
-use std::io::{BufRead, Write};
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
@@ -88,7 +88,8 @@ impl Service {
 
         let task = Task::get_task(self.get_task_name()).expect("Error");
         // get der path entweder temp oder static
-        let mut  path = PathBuf::new();
+        #[warn(unused_assignments)]
+        let mut path = PathBuf::new();
         if task.get_static_service() {
             path = Config::get_service_static_path();
         } else {
@@ -230,7 +231,7 @@ fn start(task: &Task, service: &Service, path: &PathBuf){
         let stdin_file = File::open("/dev/null").expect("Fehler beim Öffnen der Standardeingabe");
         println!("{}", path_clone.join(task_clone.get_software().get_name_with_ext()).to_str().unwrap().to_string());
         // Code zum Server starten
-        let server = Command::new("java")
+        let _server = Command::new("java")
             .args(&[
                 format!("-Xmx{}M", task_clone.get_max_ram().to_string()),
                 "-jar".to_string(),
@@ -328,52 +329,6 @@ fn get_next_free_number(path: &PathBuf, prefix: &str) -> Option<u64> {
     }
 }
 
-fn get_next_free_service_with_start(path: &PathBuf, name: &String, split: &char) -> u64 {
-    // Lies den Inhalt des Verzeichnisses
-    let dir_contents = fs::read_dir(path).expect("Kann Verzeichnis nicht lesen");
-
-    // Erstelle einen Vektor, um die vorhandenen Nummern zu speichern
-    let mut existing_numbers: Vec<u64> = vec![];
-
-    for entry in dir_contents {
-        if let Ok(entry) = entry {
-            if let Some(file_name) = entry.file_name().to_str() {
-                if file_name.starts_with(name) && file_name.contains(*split) {
-                    // Extrahiere die Nummer aus dem Dateinamen
-                    let parts: Vec<&str> = file_name.split(*split).collect();
-
-                    if parts.len() > 1 {
-                        if let Ok(number) = parts[1].parse::<u64>() {
-                            // Die Zahl wurde erfolgreich extrahiert und kann nun als u64 verwendet werden
-                            //existing_numbers.push(number);
-
-                            let mut service_path = entry.path();
-                            println!("{:?}", service_path);
-
-                            if !is_service_start(&mut service_path) {
-                                return number; // Die Nummer ist verfügbar
-
-                            }
-
-                        } else {
-                            println!("Fehler: Konnte die Zahl nicht extrahieren.");
-                        }
-                    } else {
-                        println!("Fehler: Ungültiges Format");
-                    }
-                }
-            }
-        }
-    }
-
-    // Finde die nächste verfügbare Nummer
-    let mut next_number: u64 = 1;
-    while existing_numbers.contains(&next_number) {
-        next_number += 1;
-    }
-
-    next_number
-}
 fn is_service_start(path: &mut PathBuf) -> bool {
     //println!("{:?}", path);
     path.push(".game_cloud");
@@ -441,3 +396,26 @@ fn create_service_folder(path: &mut PathBuf) {
         Bx::create_path(&path);
     }
 }
+
+
+/*
+
+fn extract_and_install_links(software_type: &str, software_links: &Map<String, Value>){
+    //let install_dir = Config::get_software_files_path();
+    let cmd_prefix = Config::get_prefix();
+
+    // Iteriere durch die Kategorien (self, server, proxy)
+    // Iteriere durch die Software-Links in diesem Software-Typ (Kategorie)
+    for (software_name, software_link_value) in software_links.iter() {
+        if let Some(software_link) = software_link_value.as_str() {
+            //let software_dir = install_dir.join(software_type);
+            install_software(software_link, software_name, software_type, &cmd_prefix);
+
+        } else {
+            println!(
+                "{} Ungültiger Link für Software: {}",
+                cmd_prefix, software_name
+            );
+        }
+    }
+*/

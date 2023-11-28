@@ -54,7 +54,7 @@ impl Task{
        // let installer = default_task_config["installer"].to_string();
 
         let installer = Installer::InstallAll;
-        let mut groups = Vec::new();
+        let groups = Vec::new();
         let software = Software::new();
         let templates = vec![Template::new()];
 
@@ -368,7 +368,7 @@ impl Task{
 
     pub fn prepared_to_services(&self) {
         let templates = &self.templates;
-        let mut select_template= select_template_with_priority(&templates);
+        let select_template= select_template_with_priority(&templates);
 
         //check ob es template gibt
         if select_template.is_some() {

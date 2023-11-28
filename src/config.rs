@@ -16,7 +16,7 @@ impl Config{
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let mut language_path = exe_path.join(config["path"]["language"].as_str().expect("Pfad zur Aufgabe nicht gefunden"));
+        let language_path = exe_path.join(config["path"]["language"].as_str().expect("Pfad zur Aufgabe nicht gefunden"));
         let language_ext = format!("{}.{}", config["language"].as_str().expect("Error beim json language path"), "json");
         language_path.join(language_ext)
     }
@@ -195,7 +195,7 @@ impl Config{
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
         let config_default_software_files_relative_path = config["path"]["config"]["software_files"].as_str().expect("software files Path kann nicht gelsesen werden");
-        let mut software_files_path = exe_path.join(config_default_software_files_relative_path);
+        let software_files_path = exe_path.join(config_default_software_files_relative_path);
         software_files_path
     }
 

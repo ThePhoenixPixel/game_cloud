@@ -70,7 +70,7 @@ impl CmdTask{
 
 fn setup(args: &Vec<String>) {
     // check task setup '<name>' set is
-    let task_name = match args.get(1) {
+    let _task_name = match args.get(1) {
         Some(name) => { name }
         None => {
             //println!("{}", Language::print_cloud_cmd_error_task_create_missing_name());
