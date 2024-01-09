@@ -14,6 +14,9 @@ pub mod lib{
     pub mod address;
 }
 
+pub mod utils {
+    pub mod service_status;
+}
 pub mod cmd{
     pub mod cmd;
     pub mod command{
@@ -31,7 +34,7 @@ pub mod data{
     //pub mod group;
     //pub mod node;
     pub mod software;
-    pub mod service;
+    pub mod service_alt;
     pub mod installer;
 }
 

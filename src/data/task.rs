@@ -5,7 +5,7 @@ use rand::Rng;
 use serde::Serialize;
 use crate::config::Config;
 use crate::data::installer::Installer;
-use crate::data::service::Service;
+use crate::data::service_alt::Service;
 use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;

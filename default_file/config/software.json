@@ -4,28 +4,40 @@
       "paper": {
         "download": "https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/132/downloads/paper-1.20.1-132.jar",
         "command": "java",
-        "host": "service/server.propeties/server-ip=%port%",
-        "port": "service/server.propeties/server-port=%port%"
+        "connect": [
+          {
+            "path": "server.propeties",
+            "content": "server-ip=%ip%"
+          },
+          {
+            "path": "server.propeties",
+            "content": "server-port=%port%"
+          }
+        ],
+        "purpur": {
+          "download": "https://api.purpurmc.org/v2/purpur/1.20.2/latest/download",
+          "command": "java",
+          "host": "service/purpur.yml-host=%ip%",
+          "port": "service/purpur.yml-port=%port%"
+        }
       },
-      "purpur": {
-        "download": "https://api.purpurmc.org/v2/purpur/1.20.2/latest/download",
-        "command": "java",
-        "host": "service/purpur.yml/host=%ip%",
-        "port": "service/purpur.yml/port=%port%"
+      "proxy": {
+        "velocity": {
+          "download": "https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/264/downloads/velocity-3.2.0-SNAPSHOT-264.jar",
+          "command": "java",
+          "host": {
+            "path": "velocity.toml",
+            "content": "bind: \"%ip%:\""
+          },
+          "port": {
+            "path": "velocity.toml",
+            "content": "bind: \":%port%\""
+          }
+        },
+        "waterfall": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/536/downloads/waterfall-1.20-536.jar",
+        "bungeecord": "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
       }
-    },
-
-    "proxy": {
-      "velocity": {
-        "download": "https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/264/downloads/velocity-3.2.0-SNAPSHOT-264.jar",
-        "command": "java",
-        "host": "service/velocity.toml/bind=%ip%:",
-        "port": "service/velocity.toml/bind=:%port%"
-    },
-      "waterfall": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/536/downloads/waterfall-1.20-536.jar",
-      "bungeecord": "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
     }
-
   }
 }
 
