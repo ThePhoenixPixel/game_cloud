@@ -11,9 +11,15 @@ pub mod lib{
     pub mod address;
 }
 
+pub mod utils{
+    pub mod service_status;
+}
+
 pub mod cmd{
     pub mod cmd;
+    pub mod command_manager;
     pub mod command{
+        pub mod command_task;
         //pub mod cmd_group;
         //pub mod cmd_node;
         //pub mod cmd_software;
