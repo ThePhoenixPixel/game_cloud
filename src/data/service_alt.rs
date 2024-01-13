@@ -1,6 +1,6 @@
 use std::{fs, thread};
 use std::fs::{File, read_to_string};
-use std::io::{BufRead, Write};
+use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
@@ -93,7 +93,7 @@ impl Service {
 
         let task = Task::get_task(self.get_task_name()).expect("Error");
         // get der path entweder temp oder static
-        let mut  path = PathBuf::new();
+        let mut path = PathBuf::new();
         if task.get_static_service() {
             path = Config::get_service_static_path();
         } else {
@@ -152,7 +152,7 @@ impl Service {
     }
 
     pub fn get_start_service_from_task(task: &Task) -> u64 {
-        let mut service_path = PathBuf::new();
+        let mut service_path: PathBuf;
 
         let mut start_service: u64 = 0;
 

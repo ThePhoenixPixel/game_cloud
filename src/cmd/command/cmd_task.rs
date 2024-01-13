@@ -38,7 +38,7 @@ impl CmdTask{
                 "list" => {
                     println!("{} --------> Tasks <--------", Config::get_prefix());
                     for task in Task::get_task_all() {
-                        println!("{} {}", Config::get_prefix(), task);
+                        println!("{} {}", Config::get_prefix(), task.get_name());
                     }
                 }
 
@@ -87,6 +87,7 @@ impl CmdTask{
         }
     }
 
+    /*
     fn setup_remove(args: &Vec<String>){
 
         let task_name = args.get(1).unwrap().to_string();
@@ -100,10 +101,8 @@ impl CmdTask{
                 return;
             }
         };
-
-
-
     }
+    */
 
     //task setup <name> set <attribut> <new wert>
     fn setup_set(args: &Vec<String>) {
@@ -176,9 +175,7 @@ impl CmdTask{
 
                 let software_type = args.get(5).unwrap();
                 if let Some(software_name) = new_wert {
-                    let mut software = Software::new();
-                    software.set_software_type(&software_type);
-                    software.set_name(&software_name);
+                    let software = Software::new(software_type, software_name);
                     task.set_software(software);
                     println!("{} Setze 'Software' auf '{} {}'", Config::get_prefix(), software_type, software_name);
                 } else {
@@ -275,7 +272,7 @@ impl CmdTask{
 
                 if let  Some(software_name) = args.get(3) {
 
-                    create_task(task_name.to_string(), software_type.to_string(), software_name.to_string());
+                    create_task(&task_name.to_string(), &software_type.to_string(), &software_name.to_string());
 
                 } else {
                     //hannes hat die Zeile geschrieben
@@ -358,22 +355,9 @@ impl CmdTask{
 
 
 //create fn for default task objekt
-fn create_task(name: String, software_type: String, software_name: String){
-    let mut software = Software::new();
-    software.set_software_type(&software_type);
-    software.set_name(&software_name);
-
-    if Software::get_software_url(&software).is_some() {
-
-    } else {
-        println!("{} Software nicht gefunden oder ungültig", Config::get_prefix());
-        println!("{} Bitte geben sie eine vorhandene Software an oder fügen sie eine hinzu", Config::get_prefix());
-        return;
-    }
-
-    //cerate task and software objekkts
+fn create_task(name: &String, software_type: &String, software_name: &String) {
+    let software = Software::new(software_type, software_name);
     let mut task = Task::new();
-    let mut software = Software::new();
     let mut template = Template::new();
 
     //steupp template
@@ -382,13 +366,9 @@ fn create_task(name: String, software_type: String, software_name: String){
     let priority:u32 = 1;
     template.set_priority(&priority);
 
-    //setup software with parameters
-    software.set_software_type(&software_type);
-    software.set_name(&software_name);
-
     //setup the task objekt
     task.set_software(software);
-    task.change_name(name);
+    task.change_name(name.clone());
     task.clear_templates();
     task.add_template(template);
 

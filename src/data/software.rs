@@ -1,26 +1,23 @@
 use std::{env, fs};
-use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use crate::config::Config;
 
-#[derive(Serialize, Clone)]
-pub struct Software{
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Software {
     pub software_type: String,
     pub name: String,
 }
 
 impl Software {
 
-    pub fn new() -> Software {
+    pub fn new(software_type: &String, name: &String) -> Software {
         Software{
-            software_type: "Server".to_string(),
-            name: "paper".to_string(),
+            software_type: software_type.clone(),
+            name: name.clone(),
         }
     }
-    //get Software
-
 
     //software type
     pub fn get_software_type(&self) -> &String {
@@ -54,7 +51,7 @@ impl Software {
     }
 
     pub fn get_host_path(&self) -> Option<PathBuf> {
-        let mut path = env::current_exe().expect("Error beim getten des exe path");
+        let path = env::current_exe().expect("Error beim getten des exe path");
         let config = Software::get_config();
         match config["software"][&self.get_software_type()][&self.get_name()]["host"]["path"].as_str() {
             Some(content) => {
@@ -65,7 +62,7 @@ impl Software {
     }
 
     pub fn get_port_path(&self) -> Option<PathBuf> {
-        let mut path = env::current_exe().expect("Error beim getten des exe path");
+        let path = env::current_exe().expect("Error beim getten des exe path");
         let config = Software::get_config();
         match config["software"][&self.get_software_type()][&self.get_name()]["port"]["path"].as_str() {
             Some(content) => {
@@ -87,23 +84,11 @@ impl Software {
 
     pub fn get_port_content(&self) -> Option<String> {
         let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["content"] {
-            Some(content) => content,
+        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["content"].as_str() {
+            Some(content) => Some(content.to_string()),
             None => None,
         }
     }
-
-    pub fn set_host(&self) -> bool {
-        let software_config = Software::get_config();
-        let software_content = match self.get_host_content() {
-            Some(content) => content,
-            None => return false,
-        };
-        
-
-        return true;
-    }
-
 
     pub fn get_software_url(&self) -> Option<String> {
         let software_path = Config::get_software_path();
@@ -135,7 +120,7 @@ impl Software {
     pub fn get_software_file_path(&self) -> PathBuf {
         let mut software_path = Config::get_software_files_path();
         software_path.push(&self.get_software_type());
-        software_path.push((format!("{}.jar", &self.get_name())));
+        software_path.push(format!("{}.jar", &self.get_name()));
         software_path
     }
 

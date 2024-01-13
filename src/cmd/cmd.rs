@@ -1,6 +1,6 @@
 use std::io;
 use std::io::Write;
-use colored::{ColoredString, Colorize};
+use colored::ColoredString;
 use crate::cmd::command::cmd_stop::CmdStop;
 use crate::cmd::command::cmd_task::CmdTask;
 use crate::cmd::command::cmd_template::CmdTemplate;

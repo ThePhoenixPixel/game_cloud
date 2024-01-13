@@ -1,8 +1,5 @@
 use std::env;
-use std::io::{Read, Write};
 use std::path::PathBuf;
-use colored::Colorize;
-use serde_json;
 use crate::cmd::cmd::Cmd;
 use crate::config::Config;
 use crate::starting::Starting;
@@ -16,6 +13,7 @@ pub mod lib{
 
 pub mod utils {
     pub mod service_status;
+    pub mod path;
 }
 pub mod cmd{
     pub mod cmd;
@@ -34,14 +32,13 @@ pub mod data{
     //pub mod group;
     //pub mod node;
     pub mod software;
-    pub mod service_alt;
+    pub mod service;
     pub mod installer;
 }
 
 mod config;
 
 fn main(){
-
     println!("Start Game Cloud...");
 
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
@@ -57,9 +54,6 @@ fn main(){
         //end
         println!("{} BB", Config::get_prefix());
     }
-
-
-
 
 
     println!("Game Cloud Stop");

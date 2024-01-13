@@ -1,10 +1,10 @@
 use std::path::PathBuf;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
 
-#[derive(Serialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Template {
     pub template: String,
     pub name: String,
