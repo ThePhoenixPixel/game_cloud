@@ -207,5 +207,27 @@ impl Service {
 
     }
 
-
 }
+
+
+/*
+
+fn extract_and_install_links(software_type: &str, software_links: &Map<String, Value>){
+    //let install_dir = Config::get_software_files_path();
+    let cmd_prefix = Config::get_prefix();
+
+    // Iteriere durch die Kategorien (self, server, proxy)
+    // Iteriere durch die Software-Links in diesem Software-Typ (Kategorie)
+    for (software_name, software_link_value) in software_links.iter() {
+        if let Some(software_link) = software_link_value.as_str() {
+            //let software_dir = install_dir.join(software_type);
+            install_software(software_link, software_name, software_type, &cmd_prefix);
+
+        } else {
+            println!(
+                "{} Ungültiger Link für Software: {}",
+                cmd_prefix, software_name
+            );
+        }
+    }
+*/
