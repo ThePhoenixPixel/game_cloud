@@ -1,6 +1,7 @@
 .idea/
 .vscode/
 target/
+alt/
 Cargo.lock
 game_cloud.iml
 server_stderr.log
