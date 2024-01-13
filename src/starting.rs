@@ -136,15 +136,7 @@ impl Starting {
     }
 
     fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString){
-        //language
-        {
-            let mut language_path = exe_path.clone();
-            language_path.push(config["path"]["language"].as_str().expect("Kein  Language gegeben"));
-            if !language_path.exists() {
-                Bx::create_path(&language_path);
-                println!("{} Language folder erfolgreich erstellt", Config::get_prefix());
-            }
-        }
+
         //task folder
         {
             let mut task_path = exe_path.clone();

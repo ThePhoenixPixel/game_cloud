@@ -35,6 +35,7 @@ pub mod data{
     pub mod service;
     pub mod installer;
 }
+
 mod config;
 
 fn main(){
@@ -43,14 +44,19 @@ fn main(){
     let mut exe_path:PathBuf = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
     exe_path.pop();
 
+
     //start the cloud
     if Starting::start(exe_path){
 
         let mut cmd = Cmd::new();
         cmd.set_prefix(Config::get_prefix());
         cmd.start();
+        //end
+        println!("{} BB", Config::get_prefix());
     }
+
 
     println!("Game Cloud Stop");
     println!("Good Bye");
+
 }
