@@ -114,7 +114,7 @@ impl Starting {
         config_file_path.push("config.json");
 
         if !config_file_path.exists() {
-            let url = "http://37.114.62.121/cloud/default_file/config.json";
+            let url = "http://download.codergames.de/game_cloud/v0.1/config.json";
             if let Ok(response) = get(url) {
                 let file = File::create(&config_file_path);
                 file.expect("Error beim write all config.json")
@@ -208,7 +208,7 @@ impl Starting {
             }
             config_software_path.push("software.json");
             if !config_software_path.exists() {
-                let url = "http://37.114.62.121/cloud/default_file/config/software.json";
+                let url = "http://download.codergames.de/game_cloud/v0.1/config/software.json";
                 if let Ok(response) = get(url) {
                     let mut file = File::create(&config_software_path).expect("Error beim Erstellen der Datei");
                     file.write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
@@ -230,7 +230,7 @@ impl Starting {
             }
             config_task_path.push("task.json");
             if !config_task_path.exists() {
-                let url = "http://37.114.62.121/cloud/default_file/config/task.json";
+                let url = "http://download.codergames.de/game_cloud/v0.1/config/task.json";
                 if let Ok(response) = get(url) {
                     let file = File::create(&config_task_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
@@ -251,7 +251,7 @@ impl Starting {
             }
             config_system_plugins_path.push("gamecloud-master.jar");
             if !config_system_plugins_path.exists() {
-                let url = "http://37.114.62.121/cloud/default_file/config/system_plugins/gamecloud-master.jar";
+                let url = "http://download.codergames.de/game_cloud/v0.1/config/system_plugins/gamecloud-master.jar";
                 if let Ok(response) = get(url) {
                     let file = File::create(&config_system_plugins_path);
                     file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
