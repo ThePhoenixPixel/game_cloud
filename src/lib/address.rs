@@ -1,4 +1,5 @@
 use std::net::TcpListener;
+use std::ops::Add;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -32,11 +33,11 @@ impl Address {
     }
 
 
-    pub fn find_next_port(ip: &String, start_port: u32) -> u32 {
-        let mut port = start_port;
+    pub fn find_next_port(address: &Address) -> u32 {
+        let mut port = address.get_port();
         let max_port: u32 = 65535;
         while port <= max_port {
-            if Address::is_port_available(ip, port) {
+            if Address::is_port_available(address) {
                 return port; // Verwende 'return' hier, um den gefundenen Port zurückzugeben
             }
             port += 1;
@@ -45,8 +46,8 @@ impl Address {
         panic!("Error es ist kein freier Port gefunden worden");
     }
 
-    pub fn is_port_available(host: &String, port: u32) -> bool {
-        let socket_addr = format!("{}:{}", host, port);
+    pub fn is_port_available(address: &Address) -> bool {
+        let socket_addr = format!("{}:{}", address.get_ip(), address.get_port());
         if let Ok(listener) = TcpListener::bind(&socket_addr) {
             // Port ist verfügbar
             drop(listener);
