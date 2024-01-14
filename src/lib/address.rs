@@ -36,7 +36,7 @@ impl Address {
         let mut port = start_port;
         let max_port: u32 = 65535;
         while port <= max_port {
-            if is_port_available(ip, port) {
+            if Address::is_port_available(ip, port) {
                 return port; // Verwende 'return' hier, um den gefundenen Port zurückzugeben
             }
             port += 1;
@@ -44,16 +44,18 @@ impl Address {
         //keine ahnung was ich machen soll
         panic!("Error es ist kein freier Port gefunden worden");
     }
-}
 
-fn is_port_available(host: &String, port: u32) -> bool {
-    let socket_addr = format!("{}:{}", host, port);
-    if let Ok(listener) = TcpListener::bind(&socket_addr) {
-        // Port ist verfügbar
-        drop(listener);
-        true
-    } else {
-        // Port ist bereits in Verwendung
-        false
+    pub fn is_port_available(host: &String, port: u32) -> bool {
+        let socket_addr = format!("{}:{}", host, port);
+        if let Ok(listener) = TcpListener::bind(&socket_addr) {
+            // Port ist verfügbar
+            drop(listener);
+            true
+        } else {
+            // Port ist bereits in Verwendung
+            false
+        }
     }
 }
+
+
