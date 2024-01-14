@@ -2,72 +2,60 @@ use std::{env, fs};
 use std::path::PathBuf;
 use colored::{ColoredString, Colorize};
 use serde_json;
+use crate::lib::address::Address;
 
 pub struct Config;
 
 
 impl Config{
-
-    pub fn get_language_path() -> PathBuf {
-        let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
-        exe_path.pop();
-        let config_path = exe_path.join("config.json");
-
-        let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
-        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
-
-        let language_path = exe_path.join(config["path"]["language"].as_str().expect("Pfad zur Aufgabe nicht gefunden"));
-        let language_ext = format!("{}.{}", config["language"].as_str().expect("Error beim json language path"), "json");
-        language_path.join(language_ext)
-    }
-
+    /*
     pub fn get_system_plugins_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
-        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+        let sys_config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let system_plugins_path = config["path"]["config"]["system_plugins"].as_str().expect("Pfad zur Aufgabe nicht gefunden");
+        let system_plugins_path = sys_config["path"]["sys_config"]["system_plugins"].as_str().expect("Pfad zur Aufgabe nicht gefunden");
         let system_plugins_path = exe_path.join(system_plugins_path);
 
         system_plugins_path
     }
-
+    #[warn(dead_code)]
     pub fn get_server_host() -> String {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
-        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+        let sys_config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let server_host = config["server_host"].as_str().unwrap_or("127.0.0.1");
+        let server_host = sys_config["server_host"].as_str().unwrap_or("127.0.0.1");
         server_host.to_string()
     }
-
-    pub fn get_node_listener() -> String {
-        let listener = format!("{}:{}", Config::get_node_host(), Config::get_node_port());
+    */
+    pub fn get_node_listener() -> Address {
+        let listener = Address::new(&Config::get_node_host(), &Config::get_node_port());
         listener
     }
 
-    pub fn get_node_port() -> u64 {
+    pub fn get_node_port() -> u32 {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let node_port = config["node_port"].as_u64().unwrap_or(50263);
+        let node_port = config["node_port"].as_u64().unwrap_or(50263) as u32;
         node_port
     }
 
     pub fn get_node_host() -> String {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
@@ -79,7 +67,7 @@ impl Config{
     pub fn get_prefix() -> ColoredString {
         let mut exe_path = env::current_exe().expect("Error beim lesen des exe Path");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
@@ -91,7 +79,7 @@ impl Config{
     pub fn get_task_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
@@ -105,7 +93,7 @@ impl Config{
     pub fn get_template_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
@@ -119,7 +107,7 @@ impl Config{
     pub fn get_service_temp_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
@@ -133,7 +121,7 @@ impl Config{
     pub fn get_service_static_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
         let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
@@ -143,21 +131,21 @@ impl Config{
 
         service_static_path
     }
-
+    /*
     pub fn get_config_links_path() -> PathBuf{
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();
-        let config_path = exe_path.join("config.json");
+        let config_path = exe_path.join("sys_config.json");
 
         let config_content = fs::read_to_string(&config_path).expect("Fehler beim Lesen der Konfigurationsdatei");
-        let config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+        let sys_config: serde_json::Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
 
-        let config_links_relative_path = config["path"]["config"]["links"].as_str().expect("Pfad zur Aufgabe nicht gefunden");
+        let config_links_relative_path = sys_config["path"]["sys_config"]["links"].as_str().expect("Pfad zur Aufgabe nicht gefunden");
         let mut config_links_path :PathBuf= exe_path.join(config_links_relative_path);
         config_links_path.push("links.json");
         config_links_path
     }
-
+    */
     pub fn get_config_default_task_path() -> PathBuf {
         let mut exe_path = env::current_exe().expect("Fehler beim Abrufen des Ausführungspfads");
         exe_path.pop();

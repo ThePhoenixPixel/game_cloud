@@ -1,8 +1,9 @@
 use std::fs;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 use rand::Rng;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::installer::Installer;
 use crate::data::service::Service;
@@ -12,7 +13,7 @@ use crate::lib::bx::Bx;
 
 
 
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Task {
     // Task Struktur
     name: String,
@@ -55,9 +56,8 @@ impl Task{
 
         let installer = Installer::InstallAll;
         let groups = Vec::new();
-        let software = Software::new();
+        let software = Software::new(&"server".to_string(), &"paper".to_string());
         let templates = vec![Template::new()];
-
 
         let task = Task {
             name,
@@ -73,6 +73,7 @@ impl Task{
             installer,
             templates,
         };
+
         task
     }
 
@@ -133,8 +134,8 @@ impl Task{
     }
 
     // Getter and Setter for software
-    pub fn get_software(&self) -> &Software {
-        &self.software
+    pub fn get_software(&self) -> Software {
+        self.software.clone()
     }
 
     pub fn set_software(&mut self, software: Software) {
@@ -143,8 +144,8 @@ impl Task{
     }
 
     //max ram
-    pub fn get_max_ram(&self) -> &u32 {
-        &self.max_ram
+    pub fn get_max_ram(&self) -> u32 {
+        self.max_ram
     }
 
     pub fn set_max_ram(&mut self, max_ram: &u32) {
@@ -247,7 +248,7 @@ impl Task{
         for file_path in json_files {
             // Dateiinhalt lesen
             let file_content = fs::read_to_string(&file_path)
-                .expect("Fehler beim Lesen der YAML-Datei");
+                .expect("Fehler beim Lesen der Json-Datei");
 
             let config: serde_json::Value = serde_json::from_str(&file_content)
                 .expect("Fehler beim Deserialisieren der JSON-Datei");
@@ -293,10 +294,9 @@ impl Task{
         None // Wenn kein passender Task gefunden wurde
     }
 
-    pub fn get_task_all() -> Vec<String> {
+    pub fn get_task_all() -> Vec<Task> {
         let task_path = Config::get_task_path();
-
-        let mut task_names = Vec::new();
+        let mut tasks: Vec<Task> = Vec::new();
 
         if task_path.exists() && task_path.is_dir() {
             if let Ok(entries) = fs::read_dir(task_path) {
@@ -304,7 +304,10 @@ impl Task{
                     if let Ok(entry) = entry {
                         if let Some(file_name) = entry.file_name().to_str() {
                             if let Some(name) = file_name.strip_suffix(".json") {
-                                task_names.push(name.to_string());
+                                tasks.push(match Task::get_task(name.to_string()) {
+                                        Some(task) => task,
+                                        None => break,
+                                });
                             }
                         }
                     }
@@ -312,7 +315,7 @@ impl Task{
             }
         }
 
-        task_names
+        tasks
     }
 
     pub fn setup(&mut self, name: String,
@@ -413,6 +416,16 @@ impl Task{
         }
 
     }
+    //get temp or static for the service
+    pub fn get_service_path(&self) -> PathBuf {
+        let path = if self.static_service {
+            Config::get_service_static_path()
+        }else {
+            Config::get_service_temp_path()
+        };
+        path
+    }
+
 }
 
 fn select_template_with_priority(templates: &[Template]) -> Option<&Template> {

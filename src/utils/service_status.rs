@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Clone)]
 pub enum ServiceStatus {
     Start,
     Stop,
@@ -8,7 +8,6 @@ pub enum ServiceStatus {
 }
 
 impl ServiceStatus {
-
     pub fn to_string(&self) -> String {
         match self {
             ServiceStatus::Start => String::from("Start"),

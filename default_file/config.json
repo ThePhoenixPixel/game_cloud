@@ -1,14 +1,11 @@
 {
   "name": "Node-1",
   "prefix": "[Game Cloud]",
-  "language": "de",
-  "auto_language_download": true,
   "server_host": "127.0.0.1",
   "node_host": "127.0.0.1",
   "node_port": 5005,
   "max_ram": 2028,
   "path": {
-    "language": "language",
     "task": "task",
     "template": "template",
     "service": {
