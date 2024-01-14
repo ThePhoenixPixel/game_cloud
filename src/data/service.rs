@@ -1,11 +1,13 @@
 use std::fs::{File, read_to_string};
 use std::io::Write;
 use std::path::PathBuf;
+use std::process::Command;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::address::Address;
+use crate::lib::bx::Bx;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 
@@ -22,7 +24,7 @@ pub struct Service {
 impl Service {
     // es werden neue oder prepard service zurückgegeben da die fn get_next_free_number() den nächsten nicht start service zurückgibt
     pub fn new(task: &Task) -> Service {
-        let plugin_listener = Address::new(&"127.0.0.1".to_string(), &Address::find_next_port(&"127.0.0.1".to_string(), task.get_start_port()));
+        let plugin_listener = Address::new(&"127.0.0.1".to_string(), &Address::find_next_port(&Address::new(&"127.0.0.1".to_string(), &task.get_start_port())));
         let cloud_listener = Config::get_node_listener();
 
         Service {
@@ -90,6 +92,28 @@ impl Service {
         path
     }
 
+    pub fn get_path_stdout_file(&self) -> PathBuf {
+        let mut path = self.get_path_with_service_file();
+        path.pop();
+        path.push("server_stdout.log");
+        path
+    }
+
+    pub fn get_path_stderr_file(&self) -> PathBuf {
+        let mut path = self.get_path_with_service_file();
+        path.pop();
+        path.push("server_stderr.log");
+        path
+    }
+
+    pub fn find_new_free_plugin_listener(&mut self) {
+        if Address::is_port_available(&self.get_plugin_listener()) {
+            return;
+        }
+        self.set_plugin_listener(&Address::new(&"127.0.0.1".to_string(), &Address::find_next_port(&Address::new(&"127.0.0.1".to_string(), &self.get_task().get_start_port()))));
+        self.save_to_file();
+    }
+
     pub fn get_path_with_service_file(&self) -> PathBuf {
         let mut path = self.get_task().get_service_path();
         path.push(self.get_name());
@@ -140,7 +164,7 @@ impl Service {
                     break;
                 }
                 println!("{} Service wird gestartet von task: {}", Config::get_prefix(), task.get_name());
-                let service = Service::new(&task);
+                let mut service = Service::new(&task);
                 service.start();
             }
         }
@@ -199,13 +223,46 @@ impl Service {
         }
     }
 
-    pub fn start(&self) {
+    pub fn start(&mut self) {
         println!("in der start fn");
+        self.prepare_to_start();
+        println!("nach prepare to start");
+
+
+        let stdout_file = match File::create(self.get_path_stdout_file()) {
+            Ok(file) => file,
+            Err(err) => {
+                println!("{}", err);
+                return;
+            }
+        };
+
+        let stderr_file = match File::create(self.get_path_stderr_file()) {
+            Ok(file) => file,
+            Err(err) => {
+                println!("{}", err);
+                return;
+            }
+        };
+
+        let server = Command::new()
+
+
+
+
     }
 
     pub fn connect_to_proxy(&self) {
 
     }
 
-
+    fn prepare_to_start(&mut self) {
+        println!("in prepare to start");
+        // create the service path to file
+        Bx::create_path(&self.get_path_with_service_file());
+        // the ports set
+        self.find_new_free_plugin_listener();
+        println!("nach check service sys_config");
+    }
 }
+

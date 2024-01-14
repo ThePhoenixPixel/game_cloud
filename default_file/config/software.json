@@ -1,5 +1,5 @@
 {
-  "software": {
+  "softwares": {
     "server": {
       "paper": {
         "download": "https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/132/downloads/paper-1.20.1-132.jar",

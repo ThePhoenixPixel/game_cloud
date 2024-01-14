@@ -392,6 +392,9 @@ fn get_next_free_service_with_start(path: &PathBuf, name: &String, split: &char)
 
     next_number
 }
+
+
+
 fn is_service_start(path: &mut PathBuf) -> bool {
     //println!("{:?}", path);
     path.push(".game_cloud");

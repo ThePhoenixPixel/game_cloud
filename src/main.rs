@@ -36,7 +36,10 @@ pub mod data{
     pub mod installer;
 }
 
-mod config;
+pub mod sys_config {
+    pub mod software_config;
+}
+pub mod config;
 
 fn main(){
     println!("Start Game Cloud...");
