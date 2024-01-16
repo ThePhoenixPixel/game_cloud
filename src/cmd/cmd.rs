@@ -1,11 +1,10 @@
-use std::io;
-use std::io::Write;
-use colored::ColoredString;
 use crate::cmd::command::cmd_stop::CmdStop;
 use crate::cmd::command::cmd_task::CmdTask;
 use crate::cmd::command::cmd_template::CmdTemplate;
 use crate::config::Config;
-
+use colored::ColoredString;
+use std::io;
+use std::io::Write;
 
 pub struct Cmd {
     pub command: String,
@@ -16,24 +15,25 @@ pub struct Cmd {
 impl Cmd {
     pub fn new() -> Cmd {
         let command = String::new();
-        let args:Vec<String> = Vec::new();
+        let args: Vec<String> = Vec::new();
         let prefix: ColoredString = ColoredString::default();
         Cmd {
             command,
             args,
-            prefix
+            prefix,
         }
     }
 
-    pub fn set_prefix(&mut self, prefix: ColoredString){
+    pub fn set_prefix(&mut self, prefix: ColoredString) {
         self.prefix = prefix;
     }
 
-    pub fn start(&mut self){
+    pub fn start(&mut self) {
         loop {
-
             print!("{} ", Config::get_prefix());
-            io::stdout().flush().expect("Fehler beim Flushen des Puffers");
+            io::stdout()
+                .flush()
+                .expect("Fehler beim Flushen des Puffers");
 
             let mut input = String::new();
             io::stdin()
@@ -60,11 +60,10 @@ impl Cmd {
                     break;
                 }
             }
-
         }
     }
 
-    pub fn process(&self) -> bool{
+    pub fn process(&self) -> bool {
         match self.command.as_str() {
             "task" => CmdTask::execute(&self.args),
 
@@ -73,7 +72,11 @@ impl Cmd {
             "stop" => return CmdStop::execute(&self.args),
 
             _ => {
-                println!("{} Unbekannter Befehl: {}", Config::get_prefix(), self.command);
+                println!(
+                    "{} Unbekannter Befehl: {}",
+                    Config::get_prefix(),
+                    self.command
+                );
                 println!("{} Benutze task / stop / template", Config::get_prefix());
             }
         }

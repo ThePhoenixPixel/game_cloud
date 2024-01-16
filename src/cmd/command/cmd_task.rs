@@ -5,14 +5,10 @@ use crate::data::template::Template;
 
 pub struct CmdTask;
 
-
-impl CmdTask{
-    pub fn execute(args: &Vec<String>){
-
+impl CmdTask {
+    pub fn execute(args: &Vec<String>) {
         if let Some(arg0) = args.get(0) {
-
             match arg0.as_str() {
-
                 "create" => {
                     CmdTask::create(args);
                 }
@@ -23,12 +19,10 @@ impl CmdTask{
 
                 "delete" => {
                     CmdTask::delete(args);
-
                 }
 
                 "setup" => {
                     CmdTask::setup(args);
-
                 }
 
                 "reload" => {
@@ -57,7 +51,7 @@ impl CmdTask{
 
     fn setup(args: &Vec<String>) {
         if args.get(1).is_some() {
-            if let  Some(arg) = args.get(2) {
+            if let Some(arg) = args.get(2) {
                 match arg.to_lowercase().as_str() {
                     "add" => {
                         CmdTask::setup_add(args);
@@ -67,13 +61,9 @@ impl CmdTask{
                         CmdTask::setup_set(args);
                     }
 
-                    "remove" => {
+                    "remove" => {}
 
-                    }
-
-                    "clear" => {
-
-                    }
+                    "clear" => {}
 
                     &_ => {
                         println!("{} Kein Gültiges Argument", Config::get_prefix());
@@ -83,7 +73,10 @@ impl CmdTask{
                 println!("{} Please give set/add/remove/clear", Config::get_prefix());
             }
         } else {
-            println!("{} Please give a task name to change this", Config::get_prefix())
+            println!(
+                "{} Please give a task name to change this",
+                Config::get_prefix()
+            )
         }
     }
 
@@ -107,7 +100,10 @@ impl CmdTask{
     //task setup <name> set <attribut> <new wert>
     fn setup_set(args: &Vec<String>) {
         if args.len() < 5 {
-            println!("{} Bitte geben Sie mindestens 5 Argumente an.", Config::get_prefix());
+            println!(
+                "{} Bitte geben Sie mindestens 5 Argumente an.",
+                Config::get_prefix()
+            );
             return;
         }
 
@@ -118,7 +114,11 @@ impl CmdTask{
         let mut task = match Task::get_task(task_name.clone()) {
             Some(t) => t,
             None => {
-                println!("{} Task '{}' nicht gefunden.", Config::get_prefix(), task_name);
+                println!(
+                    "{} Task '{}' nicht gefunden.",
+                    Config::get_prefix(),
+                    task_name
+                );
                 return;
             }
         };
@@ -127,9 +127,16 @@ impl CmdTask{
             "name" => {
                 if let Some(new_name) = new_wert {
                     task.change_name(new_name.clone());
-                    println!("{} Setze den Task-Namen auf '{}'.", Config::get_prefix(), new_name);
+                    println!(
+                        "{} Setze den Task-Namen auf '{}'.",
+                        Config::get_prefix(),
+                        new_name
+                    );
                 } else {
-                    println!("{} Bitte geben Sie einen neuen Namen an.", Config::get_prefix());
+                    println!(
+                        "{} Bitte geben Sie einen neuen Namen an.",
+                        Config::get_prefix()
+                    );
                 }
             }
 
@@ -144,9 +151,18 @@ impl CmdTask{
                         }
                     }
 
-                    println!("{} Setze '{}' auf '{}'.", Config::get_prefix(), attribut, new_value);
+                    println!(
+                        "{} Setze '{}' auf '{}'.",
+                        Config::get_prefix(),
+                        attribut,
+                        new_value
+                    );
                 } else {
-                    println!("{} Bitte geben Sie einen neuen Wert für '{}' an.", Config::get_prefix(), attribut);
+                    println!(
+                        "{} Bitte geben Sie einen neuen Wert für '{}' an.",
+                        Config::get_prefix(),
+                        attribut
+                    );
                 }
             }
 
@@ -161,15 +177,27 @@ impl CmdTask{
                         }
                     }
 
-                    println!("{} Setze '{}' auf '{}'.", Config::get_prefix(), attribut, new_value);
+                    println!(
+                        "{} Setze '{}' auf '{}'.",
+                        Config::get_prefix(),
+                        attribut,
+                        new_value
+                    );
                 } else {
-                    println!("{} Bitte geben Sie einen neuen Wert für '{}' an.", Config::get_prefix(), attribut);
+                    println!(
+                        "{} Bitte geben Sie einen neuen Wert für '{}' an.",
+                        Config::get_prefix(),
+                        attribut
+                    );
                 }
             }
 
             "software" => {
                 if args.len() < 6 {
-                    println!("{} Bitte geben Sie den Typ und den Namen der Software an.", Config::get_prefix());
+                    println!(
+                        "{} Bitte geben Sie den Typ und den Namen der Software an.",
+                        Config::get_prefix()
+                    );
                     return;
                 }
 
@@ -177,9 +205,17 @@ impl CmdTask{
                 if let Some(software_name) = new_wert {
                     let software = Software::new(software_type, software_name);
                     task.set_software(software);
-                    println!("{} Setze 'Software' auf '{} {}'", Config::get_prefix(), software_type, software_name);
+                    println!(
+                        "{} Setze 'Software' auf '{} {}'",
+                        Config::get_prefix(),
+                        software_type,
+                        software_name
+                    );
                 } else {
-                    println!("{} Bitte geben Sie den Namen der Software an.", Config::get_prefix());
+                    println!(
+                        "{} Bitte geben Sie den Namen der Software an.",
+                        Config::get_prefix()
+                    );
                 }
             }
 
@@ -188,14 +224,25 @@ impl CmdTask{
                     match start_port_str.parse::<u32>() {
                         Ok(start_port) => {
                             task.set_start_port(start_port);
-                            println!("{} Setze den Start-Port auf {}.", Config::get_prefix(), start_port);
+                            println!(
+                                "{} Setze den Start-Port auf {}.",
+                                Config::get_prefix(),
+                                start_port
+                            );
                         }
                         Err(_) => {
-                            println!("{} Ungültiger Wert für den Start-Port: {}", Config::get_prefix(), start_port_str);
+                            println!(
+                                "{} Ungültiger Wert für den Start-Port: {}",
+                                Config::get_prefix(),
+                                start_port_str
+                            );
                         }
                     }
                 } else {
-                    println!("{} Bitte geben Sie einen Wert für den Start-Port an.", Config::get_prefix());
+                    println!(
+                        "{} Bitte geben Sie einen Wert für den Start-Port an.",
+                        Config::get_prefix()
+                    );
                 }
             }
 
@@ -204,14 +251,25 @@ impl CmdTask{
                     match min_service_count_str.parse::<u32>() {
                         Ok(min_service_count) => {
                             task.set_min_service_count(min_service_count);
-                            println!("{} Setze 'Min Service Count' auf {}.", Config::get_prefix(), min_service_count);
+                            println!(
+                                "{} Setze 'Min Service Count' auf {}.",
+                                Config::get_prefix(),
+                                min_service_count
+                            );
                         }
                         Err(_) => {
-                            println!("{} Ungültiger Wert für 'Min Service Count': {}", Config::get_prefix(), min_service_count_str);
+                            println!(
+                                "{} Ungültiger Wert für 'Min Service Count': {}",
+                                Config::get_prefix(),
+                                min_service_count_str
+                            );
                         }
                     }
                 } else {
-                    println!("{} Bitte geben Sie einen Wert für 'Min Service Count' an.", Config::get_prefix());
+                    println!(
+                        "{} Bitte geben Sie einen Wert für 'Min Service Count' an.",
+                        Config::get_prefix()
+                    );
                 }
             }
 
@@ -221,23 +279,29 @@ impl CmdTask{
         }
     }
 
-
     //task setup <name> add <attribut> <new wert>
     fn setup_add(args: &Vec<String>) {
         if let Some(attribut) = args.get(3) {
             if let Some(new_wert) = args.get(4) {
-
                 let mut task = Task::get_task(args.get(1).unwrap().to_string()).unwrap();
 
                 match attribut.to_lowercase().as_str() {
                     "group" => {
                         task.add_group(&new_wert.to_string());
-                        println!("{} Added group {} to the Task", Config::get_prefix(), new_wert);
+                        println!(
+                            "{} Added group {} to the Task",
+                            Config::get_prefix(),
+                            new_wert
+                        );
                     }
 
                     "node" => {
                         task.add_node(new_wert.to_string());
-                        println!("{} Added node {} to the task", Config::get_prefix(), new_wert);
+                        println!(
+                            "{} Added node {} to the task",
+                            Config::get_prefix(),
+                            new_wert
+                        );
                     }
 
                     "template" => {
@@ -245,106 +309,177 @@ impl CmdTask{
                     }
 
                     _ => {
-                        println!("{} Please specify 'group', 'node', or 'template'", Config::get_prefix());
+                        println!(
+                            "{} Please specify 'group', 'node', or 'template'",
+                            Config::get_prefix()
+                        );
                     }
                 }
             } else {
                 println!("{} Please provide a value to add", Config::get_prefix());
             }
         } else {
-            println!("{} Please specify an attribute to change", Config::get_prefix());
+            println!(
+                "{} Please specify an attribute to change",
+                Config::get_prefix()
+            );
         }
     }
 
-
-
-    fn create(args: &Vec<String>){
+    fn create(args: &Vec<String>) {
         //check task name is set
         if let Some(task_name) = args.get(1) {
-
             //check ob task exits
             if Task::is_exist(task_name.to_string()) {
-                println!("{} task {} allready exist", Config::get_prefix().to_string(), task_name);
+                println!(
+                    "{} task {} allready exist",
+                    Config::get_prefix().to_string(),
+                    task_name
+                );
                 return;
             }
 
             if let Some(software_type) = args.get(2) {
-
-                if let  Some(software_name) = args.get(3) {
-
-                    create_task(&task_name.to_string(), &software_type.to_string(), &software_name.to_string());
-
+                if let Some(software_name) = args.get(3) {
+                    create_task(
+                        &task_name.to_string(),
+                        &software_type.to_string(),
+                        &software_name.to_string(),
+                    );
                 } else {
                     //hannes hat die Zeile geschrieben
                     println!("{} bitte gebe ein software name ein", Config::get_prefix());
                 }
-
             } else {
                 println!("{} Bitte gebe ein Software Type ein", Config::get_prefix());
             }
-
         } else {
             println!("{} Bitte gebe ein namen an", Config::get_prefix());
-            println!("{} task create <name> <Server_Type> <Software>", Config::get_prefix());
+            println!(
+                "{} task create <name> <Server_Type> <Software>",
+                Config::get_prefix()
+            );
         }
     }
 
-    fn delete(args: &Vec<String>){
-
-        if let  Some(task_name) = args.get(1) {
+    fn delete(args: &Vec<String>) {
+        if let Some(task_name) = args.get(1) {
             if let Some(task) = Task::get_task(task_name.to_string()) {
-
                 task.delete_as_file();
-                println!("{} Sucessful delete the task {}", Config::get_prefix(), task_name);
-
+                println!(
+                    "{} Sucessful delete the task {}",
+                    Config::get_prefix(),
+                    task_name
+                );
             } else {
                 println!("{} Task does not exist", Config::get_prefix());
             }
-
         } else {
             println!("{} Please give a task name", Config::get_prefix())
         }
-
     }
 
     fn help() {
-        println!("{} task create <name> <Software Type> <Software Name>", Config::get_prefix());
-        println!("{} task delete <name>",Config::get_prefix());
-        println!("{} task help ",Config::get_prefix());
-        println!("{} task list",Config::get_prefix());
-        println!("{} task setup <name> add <template/group/node>",Config::get_prefix());
+        println!(
+            "{} task create <name> <Software Type> <Software Name>",
+            Config::get_prefix()
+        );
+        println!("{} task delete <name>", Config::get_prefix());
+        println!("{} task help ", Config::get_prefix());
+        println!("{} task list", Config::get_prefix());
+        println!(
+            "{} task setup <name> add <template/group/node>",
+            Config::get_prefix()
+        );
         println!("{} task setup <name> set <name/delete_on_stop/static_service/software/max_ram/min_service_count/installer>",Config::get_prefix());
-        println!("{} task setup <name> remove <template/group/node>",Config::get_prefix());
+        println!(
+            "{} task setup <name> remove <template/group/node>",
+            Config::get_prefix()
+        );
     }
 
     fn info(args: &Vec<String>) {
-        if let  Some(arg1) = args.get(1) {
-            if let Some(task) = Task::get_task(arg1.to_string()){
+        if let Some(arg1) = args.get(1) {
+            if let Some(task) = Task::get_task(arg1.to_string()) {
                 //print task
                 println!("{} | Type                     | Wert", Config::get_prefix());
-                println!("{} | ----------------------------------------------", Config::get_prefix());
-                println!("{} | Name                     | {}", Config::get_prefix(), task.get_name());
-                println!("{} | Delete On Stop           | {}", Config::get_prefix(), task.get_delete_on_stop());
-                println!("{} | Static Service           | {}", Config::get_prefix(), task.get_static_service());
-                println!("{} | Nodes                    | {:?}", Config::get_prefix(), task.get_nodes());
+                println!(
+                    "{} | ----------------------------------------------",
+                    Config::get_prefix()
+                );
+                println!(
+                    "{} | Name                     | {}",
+                    Config::get_prefix(),
+                    task.get_name()
+                );
+                println!(
+                    "{} | Delete On Stop           | {}",
+                    Config::get_prefix(),
+                    task.get_delete_on_stop()
+                );
+                println!(
+                    "{} | Static Service           | {}",
+                    Config::get_prefix(),
+                    task.get_static_service()
+                );
+                println!(
+                    "{} | Nodes                    | {:?}",
+                    Config::get_prefix(),
+                    task.get_nodes()
+                );
                 //print Software
                 println!("{} | Software:                | ", Config::get_prefix());
-                println!("{} |      Type                | {}", Config::get_prefix(), task.get_software().get_software_type());
-                println!("{} |      Name                | {}", Config::get_prefix(), task.get_software().get_name());
-                println!("{} |      Max Ram             | {}", Config::get_prefix(), task.get_max_ram());
+                println!(
+                    "{} |      Type                | {}",
+                    Config::get_prefix(),
+                    task.get_software().get_software_type()
+                );
+                println!(
+                    "{} |      Name                | {}",
+                    Config::get_prefix(),
+                    task.get_software().get_name()
+                );
+                println!(
+                    "{} |      Max Ram             | {}",
+                    Config::get_prefix(),
+                    task.get_max_ram()
+                );
                 //print Port
-                println!("{} | Start Port               | {}", Config::get_prefix(), task.get_start_port());
-                println!("{} | MinServiceCount          | {}", Config::get_prefix(), task.get_min_service_count());
-                println!("{} | Groups                   | {:?}", Config::get_prefix(), task.get_groups());
+                println!(
+                    "{} | Start Port               | {}",
+                    Config::get_prefix(),
+                    task.get_start_port()
+                );
+                println!(
+                    "{} | MinServiceCount          | {}",
+                    Config::get_prefix(),
+                    task.get_min_service_count()
+                );
+                println!(
+                    "{} | Groups                   | {:?}",
+                    Config::get_prefix(),
+                    task.get_groups()
+                );
 
                 //print Template
                 println!("{} | Templates:               | ", Config::get_prefix());
                 for template in task.get_templates() {
-                    println!("{} |      Template: {}    | ", Config::get_prefix(), template.get_template());
-                    println!("{} |      Name: {}        | ", Config::get_prefix(), template.get_name());
-                    println!("{} |      Priority: {}    | ", Config::get_prefix(), template.get_priority());
+                    println!(
+                        "{} |      Template: {}    | ",
+                        Config::get_prefix(),
+                        template.get_template()
+                    );
+                    println!(
+                        "{} |      Name: {}        | ",
+                        Config::get_prefix(),
+                        template.get_name()
+                    );
+                    println!(
+                        "{} |      Priority: {}    | ",
+                        Config::get_prefix(),
+                        template.get_priority()
+                    );
                 }
-
             } else {
                 //task not exsits
                 println!("{} Task does not exsists", Config::get_prefix());
@@ -352,7 +487,6 @@ impl CmdTask{
         }
     }
 }
-
 
 //create fn for default task objekt
 fn create_task(name: &String, software_type: &String, software_name: &String) {
@@ -363,7 +497,7 @@ fn create_task(name: &String, software_type: &String, software_name: &String) {
     //steupp template
     template.set_template(&name);
     template.set_name(&"default".to_string());
-    let priority:u32 = 1;
+    let priority: u32 = 1;
     template.set_priority(&priority);
 
     //setup the task objekt

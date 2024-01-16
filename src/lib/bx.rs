@@ -59,7 +59,7 @@ impl Bx {
             // Die letzten Teile der Pfadzeichenkette nach Pfadtrennern ('\') oder ('/') trennen und ausgeben
             let parts: Vec<&str> = file_name.split(|c| c == '/' || c == '\\').collect();
             if let Some(last_part) = parts.last() {
-                return Some(last_part.to_string())
+                return Some(last_part.to_string());
             }
         }
         None

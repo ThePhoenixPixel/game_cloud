@@ -1,36 +1,72 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct SofwareConfig{
-    software_type: HashMap<String, SoftwareType>
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SoftwareConfig {
+    software_type: HashMap<String, SoftwareType>,
 }
 
-impl SofwareConfig {
-    fn new(software_type: HashMap<String, SoftwareType>) -> SofwareConfig {
-        SofwareConfig {
-            software_type
-        }
+impl SoftwareConfig {
+    fn new(software_type: HashMap<String, SoftwareType>) -> SoftwareConfig {
+        SoftwareConfig { software_type }
+    }
+
+    pub fn get_software_type(&self) -> HashMap<String, SoftwareType> {
+        self.software_type.clone()
+    }
+
+    pub fn add_software_type(&mut self, name: &String, software_type: &SoftwareType) {
+        self.software_type
+            .insert(name.to_string(), software_type.clone());
+    }
+
+    pub fn remove_software_type(&mut self, name: &str) {
+        self.software_type.remove(name);
+    }
+
+    pub fn test() {
+        let mut software_name = Vec::new();
+        software_name.push(SoftwareName::new("paper", "http://paper.de", "java"));
+
+        let software_type_1 = SoftwareType::new(software_name);
+        let mut software_type = HashMap::new();
+        software_type.insert("server".to_string(), software_type_1);
+
+        let software_config = SoftwareConfig::new(software_type);
+
+        save_to_file(&software_config, &PathBuf::from("software_config.json"))
+            .expect("Error sace to file");
     }
 }
 // -----------------------------------------------------------
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareType {
-    software_name: Vec<SoftwareName>
+    software_name: Vec<SoftwareName>,
 }
 
 impl SoftwareType {
     fn new(software_name: Vec<SoftwareName>) -> SoftwareType {
-        SoftwareType {
-            software_name
-        }
+        SoftwareType { software_name }
+    }
+
+    pub fn get_software_name(&self) -> Vec<SoftwareName> {
+        self.software_name.clone()
+    }
+
+    pub fn add_software_name(&mut self, software_name: &SoftwareName) {
+        self.software_name.push(software_name.clone());
+    }
+
+    pub fn remove_software_name(&mut self, software_name: &SoftwareName) {
+        self.software_name
+            .insert((self.software_name.len() + 1), software_name.clone());
     }
 }
 //-------------------------------------------------------------
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareName {
     name: String,
     download: String,
@@ -45,35 +81,36 @@ impl SoftwareName {
             command: command.to_string(),
         }
     }
-}
 
-
-fn main() {
-    // Beispiel SofwareConfig erstellen
-    let software_name_1 = SoftwareName::new("http://dw1", "java");
-    let software_name_2 = SoftwareName::new("http://dw2", "python");
-
-    let mut software_type_1_map = HashMap::new();
-    software_type_1_map.insert("paper".to_string(), software_name_1);
-
-    let mut software_type_2_map = HashMap::new();
-    software_type_2_map.insert("velocity".to_string(), software_name_2);
-
-    let mut software_config_map = HashMap::new();
-    software_config_map.insert("server".to_string(), SoftwareType::new(software_type_1_map));
-
-    let software_config = SofwareConfig::new(software_config_map);
-
-    // Speichern in eine Datei
-    if let Err(err) = save_to_file(&software_config, &PathBuf::from("config.json")) {
-        eprintln!("Fehler beim Speichern der Konfiguration");
-    } else {
-        println!("Konfiguration erfolgreich in 'config.json' gespeichert.");
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 
+    pub fn set_name(&mut self, name: &String) {
+        self.name = name.clone();
+    }
+
+    pub fn get_download(&self) -> String {
+        self.download.clone()
+    }
+
+    pub fn set_download(&mut self, download: &String) {
+        self.download = download.clone();
+    }
+
+    pub fn get_command(&self) -> String {
+        self.command.clone()
+    }
+
+    pub fn set_command(&mut self, command: &String) {
+        self.command = command.clone();
+    }
 }
 
-fn save_to_file(config: &SofwareConfig, file_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+fn save_to_file(
+    config: &SoftwareConfig,
+    file_path: &PathBuf,
+) -> Result<(), Box<dyn std::error::Error>> {
     // Serialize SoftwareConfig to a JSON string
     let json_str = serde_json::to_string_pretty(config)?;
 

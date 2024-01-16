@@ -3,6 +3,7 @@
   "prefix": "[Game Cloud]",
   "server_host": "127.0.0.1",
   "node_host": "127.0.0.1",
+  "language": "de",
   "node_port": 5005,
   "max_ram": 2028,
   "path": {

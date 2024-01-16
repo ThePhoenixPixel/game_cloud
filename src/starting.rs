@@ -111,13 +111,13 @@ impl Starting {
     fn check_config(exe_path: &PathBuf) -> Option<Value> {
         // sys_config.json
         let mut config_file_path = exe_path.clone();
-        config_file_path.push("sys_config.json");
+        config_file_path.push("config.json");
 
         if !config_file_path.exists() {
             let url = "http://download.codergames.de/game_cloud/v0.1/config.json";
             if let Ok(response) = get(url) {
                 let file = File::create(&config_file_path);
-                file.expect("Error beim write all sys_config.json")
+                file.expect("Error beim write all config.json")
                     .write_all(&response.bytes().expect("Error beim Lesen des response"))
                     .expect("Error beim schreiben der datei");
 
@@ -130,9 +130,9 @@ impl Starting {
         }
 
         // sys_config.json deserialisieren
-        let config_content = fs::read_to_string(&config_file_path).expect("Error beim lesen des sys_config content");
+        let config_content = fs::read_to_string(&config_file_path).expect("Error beim lesen des config content");
 
-        Some(serde_json::from_str(&config_content).expect("Error beim deserialisieren des sys_config Inhalts"))
+        Some(serde_json::from_str(&config_content).expect("Error beim deserialisieren des config Inhalts"))
     }
 
     fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString){
@@ -180,7 +180,7 @@ impl Starting {
         //software files
         {
             let mut software_files_path = exe_path.clone();
-            software_files_path.push(config["path"]["sys_config"]["software_files"].as_str().expect("Error beim lesen des path der seoftware_files foldes"));
+            software_files_path.push(config["path"]["config"]["software_files"].as_str().expect("Error beim lesen des path der software_files foldes"));
             if !software_files_path.exists() {
                 Bx::create_path(&software_files_path);
                 println!("{} {:?} erfolgreich erstellt", cmd_prefix, software_files_path);
@@ -189,7 +189,7 @@ impl Starting {
         //system plugins
         {
             let mut plugin_path = exe_path.clone();
-            plugin_path.push(config["path"]["sys_config"]["system_plugins"].as_str().expect("Error beim lesen des system plugin path"));
+            plugin_path.push(config["path"]["config"]["system_plugins"].as_str().expect("Error beim lesen des system plugin path"));
             if !plugin_path.exists() {
                 Bx::create_path(&plugin_path);
                 println!("{} {:?} erfolgreich erstellt", cmd_prefix, plugin_path);
@@ -201,7 +201,7 @@ impl Starting {
         // software.json link
         {
             let mut config_software_path = exe_path.clone();
-            config_software_path.push(config["path"]["sys_config"]["software"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            config_software_path.push(config["path"]["config"]["software"].as_str().expect("Error beim Lesen des path der config datei"));
             if !config_software_path.exists() {
                 Bx::create_path(&config_software_path);
                 println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, config_software_path);
@@ -223,7 +223,7 @@ impl Starting {
         // task.json link
         {
             let mut config_task_path = exe_path.clone();
-            config_task_path.push(config["path"]["sys_config"]["default_task"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            config_task_path.push(config["path"]["config"]["default_task"].as_str().expect("Error beim Lesen des path der config datei"));
             if !config_task_path.exists() {
                 Bx::create_path(&config_task_path);
                 println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, &config_task_path);
@@ -244,7 +244,7 @@ impl Starting {
         }
         {
             let mut config_system_plugins_path = exe_path.clone();
-            config_system_plugins_path.push(config["path"]["sys_config"]["system_plugins"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            config_system_plugins_path.push(config["path"]["config"]["system_plugins"].as_str().expect("Error beim Lesen des path der config datei"));
             if !config_system_plugins_path.exists() {
                 Bx::create_path(&config_system_plugins_path);
                 println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, &config_system_plugins_path);

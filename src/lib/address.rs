@@ -1,5 +1,5 @@
-use std::net::TcpListener;
 use serde::{Deserialize, Serialize};
+use std::net::TcpListener;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Address {
@@ -12,7 +12,7 @@ impl Address {
         return Address {
             ip: ip.clone(),
             port: port.clone(),
-        }
+        };
     }
 
     pub fn get_ip(&self) -> String {
@@ -30,7 +30,6 @@ impl Address {
     pub fn set_port(&mut self, port: u32) {
         self.port = port.clone();
     }
-
 
     pub fn find_next_port(address: &Address) -> u32 {
         let mut port = address.get_port();
@@ -57,5 +56,3 @@ impl Address {
         }
     }
 }
-
-

@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use std::fs;
+use crate::config::Config;
 use colored::{ColoredString, Colorize};
 use serde::{Deserialize, Serialize};
-use crate::config::Config;
+use std::collections::HashMap;
+use std::fs;
 
 pub struct Language;
 
@@ -17,13 +17,16 @@ impl Language {
         let lang_file_path = Config::get_language_path();
         let file_content = match fs::read_to_string(lang_file_path) {
             Ok(content) => content,
-            Err(_) =>  Language::get_default_content(),
+            Err(_) => Language::get_default_content(),
         };
 
         //file content in die langstrukt pressen :))
         let language_data: LanguageData = match serde_json::from_str(file_content.as_str()) {
             Ok(content) => content,
-            Err(_) => return ColoredString::from(format!("Error translate key = {} ", key).as_str()).red(),
+            Err(_) => {
+                return ColoredString::from(format!("Error translate key = {} ", key).as_str())
+                    .red()
+            }
         };
 
         // Überprüfe, ob der Schlüssel im HashMap vorhanden ist not retrun the para key
@@ -34,14 +37,15 @@ impl Language {
     }
 
     fn get_default_content() -> String {
-        return String::from(r#"
+        return String::from(
+            r#"
         {
             "version_1": {
                 "start": "Start GameCloud ...",
                 "shutdown": "Gob Bye"
             }
         }
-    "#);
+    "#,
+        );
     }
-
 }

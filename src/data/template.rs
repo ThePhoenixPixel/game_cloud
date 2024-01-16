@@ -1,8 +1,8 @@
-use std::path::PathBuf;
-use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Template {
@@ -12,8 +12,8 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn new() -> Template{
-        Template{
+    pub fn new() -> Template {
+        Template {
             template: "templatename".to_string(),
             name: "default".to_string(),
             priority: 1,
@@ -25,7 +25,7 @@ impl Template {
         &self.template
     }
 
-    pub fn set_template(&mut self, template: &String){
+    pub fn set_template(&mut self, template: &String) {
         self.template = template.clone();
     }
 
@@ -53,7 +53,7 @@ impl Template {
             .join(&self.name)
     }
 
-    pub fn create_by_task(task: &Task){
+    pub fn create_by_task(task: &Task) {
         let mut template_path = Config::get_template_path();
         template_path.push(task.get_name());
         template_path.push("default");
@@ -61,11 +61,9 @@ impl Template {
         if !template_path.exists() {
             Bx::create_path(&template_path);
         }
-
     }
 
     pub fn create_by_self(&self) {
         Bx::create_path(&self.get_path());
-
     }
 }

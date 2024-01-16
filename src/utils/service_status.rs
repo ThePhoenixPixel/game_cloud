@@ -31,7 +31,7 @@ impl ServiceStatus {
     }
 
     pub fn is_prepare(&self) -> bool {
-        match self { 
+        match self {
             ServiceStatus::Prepare => true,
             _ => false,
         }

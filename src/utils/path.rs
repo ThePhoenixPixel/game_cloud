@@ -3,7 +3,6 @@ use std::path::PathBuf;
 
 pub struct Path;
 
-
 impl Path {
     //
     pub fn get_files_name_from_path(path: &PathBuf) -> Vec<String> {
@@ -19,5 +18,4 @@ impl Path {
         }
         files_name
     }
-
 }

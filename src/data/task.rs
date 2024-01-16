@@ -1,17 +1,15 @@
-use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
-use rand::Rng;
-use serde::{Deserialize, Serialize};
 use crate::config::Config;
 use crate::data::installer::Installer;
 use crate::data::service::Service;
 use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;
-
-
+use rand::Rng;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Task {
@@ -30,16 +28,24 @@ pub struct Task {
     templates: Vec<Template>,
 }
 
-impl Task{
+impl Task {
     pub fn new() -> Task {
         let default_task_path = Config::get_config_default_task_path();
 
-        let default_task_content = fs::read_to_string(&default_task_path).unwrap_or_else(|_| "".to_string());
-        let default_task_config: serde_json::Value = serde_json::from_str(&default_task_content).unwrap_or_else(|_| serde_json::Value::Null);
+        let default_task_content =
+            fs::read_to_string(&default_task_path).unwrap_or_else(|_| "".to_string());
+        let default_task_config: serde_json::Value =
+            serde_json::from_str(&default_task_content).unwrap_or_else(|_| serde_json::Value::Null);
 
-        let name = default_task_config["name"].as_str().unwrap_or("taskname").to_string();
+        let name = default_task_config["name"]
+            .as_str()
+            .unwrap_or("taskname")
+            .to_string();
         let mut split = '-';
-        let split_temp: String = default_task_config["split"].as_str().unwrap_or("-").to_string();
+        let split_temp: String = default_task_config["split"]
+            .as_str()
+            .unwrap_or("-")
+            .to_string();
         if split_temp.len() == 1 {
             // Überprüfen, ob der String nur aus einem Zeichen besteht
             split = split_temp.chars().next().unwrap();
@@ -47,12 +53,18 @@ impl Task{
             println!("Fehler: Der 'split'-Wert ist kein einzelnes Zeichen.");
         }
 
-        let delete_on_stop = default_task_config["delete_on_stop"].as_bool().unwrap_or(true);
-        let static_service = default_task_config["static_service"].as_bool().unwrap_or(false);
+        let delete_on_stop = default_task_config["delete_on_stop"]
+            .as_bool()
+            .unwrap_or(true);
+        let static_service = default_task_config["static_service"]
+            .as_bool()
+            .unwrap_or(false);
         let max_ram = default_task_config["max_ram"].as_u64().unwrap_or(2048) as u32;
         let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
-        let min_service_count = default_task_config["min_service_count"].as_u64().unwrap_or(0) as u32;
-       // let installer = default_task_config["installer"].to_string();
+        let min_service_count = default_task_config["min_service_count"]
+            .as_u64()
+            .unwrap_or(0) as u32;
+        // let installer = default_task_config["installer"].to_string();
 
         let installer = Installer::InstallAll;
         let groups = Vec::new();
@@ -196,7 +208,6 @@ impl Task{
             _ => {
                 // Hier kannst du eine Fehlerbehandlung hinzufügen, wenn ein unbekannter Wert übergeben wird.
                 panic!("Unbekannter Installer: {}", installer)
-
             }
         };
     }
@@ -247,8 +258,8 @@ impl Task{
         // Nach dem Task mit dem angegebenen Namen suchen
         for file_path in json_files {
             // Dateiinhalt lesen
-            let file_content = fs::read_to_string(&file_path)
-                .expect("Fehler beim Lesen der Json-Datei");
+            let file_content =
+                fs::read_to_string(&file_path).expect("Fehler beim Lesen der Json-Datei");
 
             let config: serde_json::Value = serde_json::from_str(&file_content)
                 .expect("Fehler beim Deserialisieren der JSON-Datei");
@@ -266,8 +277,14 @@ impl Task{
                         config["static_service"].as_bool().unwrap_or(false),
                         Vec::new(), // Hier können die Nodes aus der Config hinzugefügt werden
                         Software {
-                            software_type: config["software"]["software_type"].as_str().unwrap_or("server").to_string(),
-                            name: config["software"]["name"].as_str().unwrap_or("paper").to_string(),
+                            software_type: config["software"]["software_type"]
+                                .as_str()
+                                .unwrap_or("server")
+                                .to_string(),
+                            name: config["software"]["name"]
+                                .as_str()
+                                .unwrap_or("paper")
+                                .to_string(),
                         },
                         config["software"]["max_ram"].as_u64().unwrap_or(1024) as u32,
                         config["start_port"].as_u64().unwrap_or(49152) as u32,
@@ -279,7 +296,10 @@ impl Task{
                             .iter()
                             .map(|template| Template {
                                 // Hier wird jedes JSON-Objekt in ein Template-Objekt umgewandelt
-                                template: template["template"].as_str().unwrap_or("taskname").to_string(),
+                                template: template["template"]
+                                    .as_str()
+                                    .unwrap_or("taskname")
+                                    .to_string(),
                                 name: template["name"].as_str().unwrap_or("default").to_string(),
                                 priority: template["priority"].as_u64().unwrap_or(1) as u32,
                             })
@@ -289,7 +309,6 @@ impl Task{
                     return Some(task);
                 }
             }
-
         }
         None // Wenn kein passender Task gefunden wurde
     }
@@ -305,8 +324,8 @@ impl Task{
                         if let Some(file_name) = entry.file_name().to_str() {
                             if let Some(name) = file_name.strip_suffix(".json") {
                                 tasks.push(match Task::get_task(name.to_string()) {
-                                        Some(task) => task,
-                                        None => break,
+                                    Some(task) => task,
+                                    None => break,
                                 });
                             }
                         }
@@ -318,17 +337,19 @@ impl Task{
         tasks
     }
 
-    pub fn setup(&mut self, name: String,
-                 delete_on_stop: bool,
-                 static_service: bool,
-                 nodes: Vec<String>,
-                 software: Software,
-                 max_ram: u32,
-                 start_port: u32,
-                 min_service_count: u32,
-                 groups: Vec<String>,
-                 templates: Vec<Template>,)
-    {
+    pub fn setup(
+        &mut self,
+        name: String,
+        delete_on_stop: bool,
+        static_service: bool,
+        nodes: Vec<String>,
+        software: Software,
+        max_ram: u32,
+        start_port: u32,
+        min_service_count: u32,
+        groups: Vec<String>,
+        templates: Vec<Template>,
+    ) {
         self.name = name;
         self.delete_on_stop = delete_on_stop;
         self.static_service = static_service;
@@ -343,48 +364,50 @@ impl Task{
     }
 
     pub fn save_to_file(&self) {
-        let serialized_task = serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
+        let serialized_task =
+            serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
         let task_path = Config::get_task_path().join(format!("{}.json", self.get_name()));
 
         if !task_path.exists() {
-
             Template::create_by_task(&self);
-
         }
 
         let mut file = File::create(&task_path).expect("Error beim Erstellen der Task-Datei");
-        file.write_all(serialized_task.as_bytes()).expect("Error beim Schreiben in die Task-Datei");
+        file.write_all(serialized_task.as_bytes())
+            .expect("Error beim Schreiben in die Task-Datei");
     }
 
-    pub fn delete_as_file(&self){
+    pub fn delete_as_file(&self) {
         let mut task_path = Config::get_task_path();
         task_path.push(format!("{}.json", &self.name));
 
         fs::remove_file(task_path).expect("Error bei  removen der task datei");
     }
 
-    pub fn reload(){
-
+    pub fn reload() {
         Service::reload();
-
     }
 
     pub fn prepared_to_services(&self) {
         let templates = &self.templates;
-        let select_template= select_template_with_priority(&templates);
+        let select_template = select_template_with_priority(&templates);
 
         //check ob es template gibt
         if select_template.is_some() {
-
         } else {
-            println!("{} Kein Template gefunden für Task: {}", Config::get_prefix(), &self.get_name());
+            println!(
+                "{} Kein Template gefunden für Task: {}",
+                Config::get_prefix(),
+                &self.get_name()
+            );
             return;
         }
         //make option template to template
         let template = select_template.unwrap();
 
         //hier temp oder static
-        {   //temp service
+        {
+            //temp service
             let mut target_folder_name = format!("{}-1", &template.template);
             let mut target_path = Config::get_service_temp_path().join(&target_folder_name);
 
@@ -403,29 +426,35 @@ impl Task{
             //println!("{:?}", &target_path);
 
             // Jetzt kannst du den Inhalt aus dem Template-Pfad in den Zielordner kopieren
-            Bx::copy_folder_contents(&template.get_path(), &target_path).expect("Fehler beim Kopieren des Templates");
+            Bx::copy_folder_contents(&template.get_path(), &target_path)
+                .expect("Fehler beim Kopieren des Templates");
 
             //println!("{:?}", &self.get_software().get_software_file_path());
 
             let mut target_server_file_path = target_path.clone();
             target_server_file_path.push(&self.get_software().get_name_with_ext());
-            fs::copy(&self.get_software().get_software_file_path(), &target_server_file_path).expect("Erro beim copy der server datei");
+            fs::copy(
+                &self.get_software().get_software_file_path(),
+                &target_server_file_path,
+            )
+            .expect("Erro beim copy der server datei");
 
-            println!("{} Template wurde in Zielordner kopiert: {:?}", Config::get_prefix(), &target_path);
-
+            println!(
+                "{} Template wurde in Zielordner kopiert: {:?}",
+                Config::get_prefix(),
+                &target_path
+            );
         }
-
     }
     //get temp or static for the service
     pub fn get_service_path(&self) -> PathBuf {
         let path = if self.static_service {
             Config::get_service_static_path()
-        }else {
+        } else {
             Config::get_service_temp_path()
         };
         path
     }
-
 }
 
 fn select_template_with_priority(templates: &[Template]) -> Option<&Template> {

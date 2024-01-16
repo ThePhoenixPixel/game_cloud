@@ -1,8 +1,8 @@
-use std::{env, fs};
-use std::path::{Path, PathBuf};
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use crate::config::Config;
+use std::path::{Path, PathBuf};
+use std::{env, fs};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Software {
@@ -11,9 +11,8 @@ pub struct Software {
 }
 
 impl Software {
-
     pub fn new(software_type: &String, name: &String) -> Software {
-        Software{
+        Software {
             software_type: software_type.clone(),
             name: name.clone(),
         }
@@ -42,9 +41,8 @@ impl Software {
         } else {
             // Fallback, wenn keine Dateiendung gefunden wurde
             format!("{}", name)
-        }
+        };
     }
-
 
     pub fn set_name(&mut self, name: &String) {
         self.name = name.clone();
@@ -53,38 +51,41 @@ impl Software {
     pub fn get_host_path(&self) -> Option<PathBuf> {
         let path = env::current_exe().expect("Error beim getten des exe path");
         let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["host"]["path"].as_str() {
-            Some(content) => {
-                Some(path.join(content))
-            }
-            None => None
+        match config["software"][&self.get_software_type()][&self.get_name()]["host"]["path"]
+            .as_str()
+        {
+            Some(content) => Some(path.join(content)),
+            None => None,
         }
     }
 
     pub fn get_port_path(&self) -> Option<PathBuf> {
         let path = env::current_exe().expect("Error beim getten des exe path");
         let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["path"].as_str() {
-            Some(content) => {
-                Some(path.join(content))
-            }
-            None => None
+        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["path"]
+            .as_str()
+        {
+            Some(content) => Some(path.join(content)),
+            None => None,
         }
     }
 
     pub fn get_host_content(&self) -> Option<String> {
         let config = Software::get_config();
 
-        match config["software"][&self.get_software_type()][&self.get_name()]["host"]["content"].as_str() {
+        match config["software"][&self.get_software_type()][&self.get_name()]["host"]["content"]
+            .as_str()
+        {
             Some(content) => Some(content.to_string()),
             None => None,
         }
     }
 
-
     pub fn get_port_content(&self) -> Option<String> {
         let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["content"].as_str() {
+        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["content"]
+            .as_str()
+        {
             Some(content) => Some(content.to_string()),
             None => None,
         }
@@ -93,8 +94,10 @@ impl Software {
     pub fn get_software_url(&self) -> Option<String> {
         let software_path = Config::get_software_path();
 
-        let config_content = fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
-        let config: Value = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+        let config_content =
+            fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
+        let config: Value = serde_json::from_str(&config_content)
+            .expect("Fehler beim Deserialisieren der Konfiguration");
 
         if let Some(software) = config.get("software") {
             for (_, software_type_value) in software.as_object().unwrap() {
@@ -112,8 +115,10 @@ impl Software {
     pub fn get_config() -> Value {
         let software_path = Config::get_software_path();
 
-        let config_content = fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
-        let config = serde_json::from_str(&config_content).expect("Fehler beim Deserialisieren der Konfiguration");
+        let config_content =
+            fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
+        let config = serde_json::from_str(&config_content)
+            .expect("Fehler beim Deserialisieren der Konfiguration");
         config
     }
 
@@ -123,5 +128,4 @@ impl Software {
         software_path.push(format!("{}.jar", &self.get_name()));
         software_path
     }
-
 }
