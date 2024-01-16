@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 pub struct Bx;
 
 impl Bx {
-    pub fn create_path(path: &Path) {
+    pub fn create_path(path: &PathBuf) {
         let mut current_path = PathBuf::new();
 
         for component in path.components() {

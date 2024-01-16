@@ -1,13 +1,13 @@
+use crate::config::Config;
+use crate::data::task::Task;
+use crate::lib::bx::Bx;
+use colored::*;
+use reqwest::blocking::get;
+use serde_json::Value;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
-use colored::*;
-use reqwest::blocking::get;
-use serde_json::Value;
-use crate::config::Config;
-use crate::data::task::Task;
-use crate::lib::bx::Bx;
 
 pub struct Starting;
 
@@ -36,18 +36,89 @@ impl Starting {
         Task::reload();
     }
 
-
     fn print_icon() {
         println!(" ");
         println!("_____{}__________________________________________________________{}__{}________________________________________{}_____", r"/\\\\\\\\\\\\".red(), r"/\\\\\\\\\".cyan(), r"/\\\\\\".cyan(), r"/\\\".cyan() );
         println!("___{}________________________________________________________{}__{}_______________________________________{}_____", r"/\\\//////////".red(), r"/\\\////////".cyan(), r"\////\\\".cyan(), r"\/\\\".cyan() );
         println!("__{}_________________________________________________________________{}______________{}_______________________________________{}_____", r"/\\\".red(), r"/\\\/".cyan(), r"\/\\\".cyan(), r"\/\\\".cyan() );
         println!("_{}____{}__{}_______{}__{}_______{}___{}________________{}________{}_____{}____{}________{}_____", r"\/\\\".red(), r"/\\\\\\\".red(), r"/\\\\\\\\\".red(), r"/\\\\\".red(), r"/\\\\\".red(), r"/\\\\\\\\".red(), r"/\\\".cyan(), r"\/\\\".cyan(), r"/\\\\\".cyan(), r"/\\\".cyan(), r"/\\\".cyan(), r"\/\\\".cyan());
-        println!("_{}___{}_{}____{}___{}_{}________________{}______{}__{}___{}___{}_____", r"\/\\\".red(), r"\/////\\\".red(), r"\////////\\\".red(), r"/\\\///\\\\\///\\\".red(), r"/\\\/////\\\".red(), r"\/\\\".cyan(), r"\/\\\".cyan(), r"/\\\///\\\".cyan(), r"\/\\\".cyan(), r"\/\\\".cyan(), r"/\\\\\\\\\".cyan());
-        println!("__{}_______{}___{}__{}_{}__{}__{}__{}_______________{}_____{}__{}_{}___{}__{}____", r"\/\\\".red(), r"\/\\\".red(), r"/\\\\\\\\\\".red(), r"\/\\\".red(), r"\//\\\".red(), r"\/\\\".red(), r"/\\\\\\\\\\\".red(), r"\//\\\".cyan(), r"\/\\\".cyan(), r"/\\\".cyan(), r"\//\\\".cyan(), r"\/\\\".cyan(), r"\/\\\".cyan(), r"/\\\////\\\".cyan());
-        println!("___{}_______{}__{}__{}__{}__{}_{}____{}_____________{}____{}__{}__{}___{}_{}__{}___", r"\/\\\".red(), r"\/\\\".red(), r"/\\\/////\\\".red(), r"\/\\\".red(), r"\/\\\".red(), r"\/\\\".red(), r"\//\\///////".red(), r"\///\\\".cyan(), r"\/\\\".cyan(), r"\//\\\".cyan(), r"/\\\".cyan(), r"\/\\\".cyan(), r"\/\\\".cyan(), r"\/\\\".cyan(), r"\/\\\".cyan());
-        println!("____{}__{}_{}__{}__{}__{}____{}__{}__{}___{}__{}_", r"\//\\\\\\\\\\\\/".red(), r"\//\\\\\\\\/\\".red(), r"\/\\\".red(), r"\/\\\".red(), r"\/\\\".red(), r"\//\\\\\\\\\\".red(), r"\////\\\\\\\\\".cyan(), r"/\\\\\\\\\".cyan(), r"\///\\\\\/".cyan(), r"\//\\\\\\\\\".cyan(), r"\//\\\\\\\/\\".cyan());
-        println!("_____{}_____{}__{}___{}___{}____{}________{}__{}_____{}______{}____{}__", r"\////////////".red(), r"\////////\//".red(), r"\///".red(), r"\///".red(), r"\///".red(), r"\//////////".red(), r"\/////////".cyan(), r"\/////////".cyan(), r"\/////".cyan(), r"\/////////".cyan(), r"\///////\//".cyan());
+        println!(
+            "_{}___{}_{}____{}___{}_{}________________{}______{}__{}___{}___{}_____",
+            r"\/\\\".red(),
+            r"\/////\\\".red(),
+            r"\////////\\\".red(),
+            r"/\\\///\\\\\///\\\".red(),
+            r"/\\\/////\\\".red(),
+            r"\/\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"/\\\///\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"/\\\\\\\\\".cyan()
+        );
+        println!(
+            "__{}_______{}___{}__{}_{}__{}__{}__{}_______________{}_____{}__{}_{}___{}__{}____",
+            r"\/\\\".red(),
+            r"\/\\\".red(),
+            r"/\\\\\\\\\\".red(),
+            r"\/\\\".red(),
+            r"\//\\\".red(),
+            r"\/\\\".red(),
+            r"/\\\\\\\\\\\".red(),
+            r"\//\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"/\\\".cyan(),
+            r"\//\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"/\\\////\\\".cyan()
+        );
+        println!(
+            "___{}_______{}__{}__{}__{}__{}_{}____{}_____________{}____{}__{}__{}___{}_{}__{}___",
+            r"\/\\\".red(),
+            r"\/\\\".red(),
+            r"/\\\/////\\\".red(),
+            r"\/\\\".red(),
+            r"\/\\\".red(),
+            r"\/\\\".red(),
+            r"\//\\///////".red(),
+            r"\///\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"\//\\\".cyan(),
+            r"/\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"\/\\\".cyan(),
+            r"\/\\\".cyan()
+        );
+        println!(
+            "____{}__{}_{}__{}__{}__{}____{}__{}__{}___{}__{}_",
+            r"\//\\\\\\\\\\\\/".red(),
+            r"\//\\\\\\\\/\\".red(),
+            r"\/\\\".red(),
+            r"\/\\\".red(),
+            r"\/\\\".red(),
+            r"\//\\\\\\\\\\".red(),
+            r"\////\\\\\\\\\".cyan(),
+            r"/\\\\\\\\\".cyan(),
+            r"\///\\\\\/".cyan(),
+            r"\//\\\\\\\\\".cyan(),
+            r"\//\\\\\\\/\\".cyan()
+        );
+        println!(
+            "_____{}_____{}__{}___{}___{}____{}________{}__{}_____{}______{}____{}__",
+            r"\////////////".red(),
+            r"\////////\//".red(),
+            r"\///".red(),
+            r"\///".red(),
+            r"\///".red(),
+            r"\//////////".red(),
+            r"\/////////".cyan(),
+            r"\/////////".cyan(),
+            r"\/////".cyan(),
+            r"\/////////".cyan(),
+            r"\///////\//".cyan()
+        );
         println!(" ");
     }
 
@@ -88,7 +159,12 @@ impl Starting {
                                     .expect("Fehler beim Erstellen des Verzeichnisses");
                             }
 
-                            install_software(software_link, software_name, software_type,cmd_prefix);
+                            install_software(
+                                software_link,
+                                software_name,
+                                software_type,
+                                cmd_prefix,
+                            );
                         } else {
                             println!(
                                 "{} Ungültiger Link für Software: {}",
@@ -104,7 +180,10 @@ impl Starting {
                 }
             }
         } else {
-            println!("{} Die JSON-Datei enthält keine 'software'-Kategorie", Config::get_prefix());
+            println!(
+                "{} Die JSON-Datei enthält keine 'software'-Kategorie",
+                Config::get_prefix()
+            );
         }
     }
 
@@ -130,66 +209,105 @@ impl Starting {
         }
 
         // sys_config.json deserialisieren
-        let config_content = fs::read_to_string(&config_file_path).expect("Error beim lesen des config content");
+        let config_content =
+            fs::read_to_string(&config_file_path).expect("Error beim lesen des config content");
 
-        Some(serde_json::from_str(&config_content).expect("Error beim deserialisieren des config Inhalts"))
+        Some(
+            serde_json::from_str(&config_content)
+                .expect("Error beim deserialisieren des config Inhalts"),
+        )
     }
 
-    fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString){
-
+    fn check_folder(exe_path: &PathBuf, config: &Value, cmd_prefix: &ColoredString) {
         //task folder
         {
             let mut task_path = exe_path.clone();
-            task_path.push(config["path"]["task"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            task_path.push(
+                config["path"]["task"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der sys_config datei"),
+            );
             if !task_path.exists() {
                 Bx::create_path(&task_path);
-                println!("{} Task ordner erfolgreich erstellt {:?}", cmd_prefix, task_path);
+                println!(
+                    "{} Task ordner erfolgreich erstellt {:?}",
+                    cmd_prefix, task_path
+                );
             }
         }
 
         //template folder
         {
             let mut template_path = exe_path.clone();
-            template_path.push(config["path"]["template"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            template_path.push(
+                config["path"]["template"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der sys_config datei"),
+            );
             if !template_path.exists() {
                 Bx::create_path(&template_path);
-                println!("{} {:?} erfolgreich erstellt",cmd_prefix ,template_path);
+                println!("{} {:?} erfolgreich erstellt", cmd_prefix, template_path);
             }
         }
 
         //service temp folder
         {
             let mut service_temp_path = exe_path.clone();
-            service_temp_path.push(config["path"]["service"]["temp"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            service_temp_path.push(
+                config["path"]["service"]["temp"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der sys_config datei"),
+            );
             if !service_temp_path.exists() {
                 Bx::create_path(&service_temp_path);
-                println!("{} {:?} erfolgreich erstellt",cmd_prefix ,service_temp_path);
+                println!(
+                    "{} {:?} erfolgreich erstellt",
+                    cmd_prefix, service_temp_path
+                );
             }
         }
 
         //service static folder
         {
             let mut service_static_path = exe_path.clone();
-            service_static_path.push(config["path"]["service"]["static"].as_str().expect("Error beim Lesen des path der sys_config datei"));
+            service_static_path.push(
+                config["path"]["service"]["static"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der sys_config datei"),
+            );
             if !service_static_path.exists() {
                 Bx::create_path(&service_static_path);
-                println!("{} {:?} erfolgreich erstellt",cmd_prefix ,service_static_path);
+                println!(
+                    "{} {:?} erfolgreich erstellt",
+                    cmd_prefix, service_static_path
+                );
             }
         }
 
         //software files
         {
             let mut software_files_path = exe_path.clone();
-            software_files_path.push(config["path"]["config"]["software_files"].as_str().expect("Error beim lesen des path der software_files foldes"));
+            software_files_path.push(
+                config["path"]["config"]["software_files"]
+                    .as_str()
+                    .expect("Error beim lesen des path der software_files foldes"),
+            );
             if !software_files_path.exists() {
                 Bx::create_path(&software_files_path);
-                println!("{} {:?} erfolgreich erstellt", cmd_prefix, software_files_path);
+                println!(
+                    "{} {:?} erfolgreich erstellt",
+                    cmd_prefix, software_files_path
+                );
             }
         }
         //system plugins
         {
             let mut plugin_path = exe_path.clone();
-            plugin_path.push(config["path"]["config"]["system_plugins"].as_str().expect("Error beim lesen des system plugin path"));
+            plugin_path.push(
+                config["path"]["config"]["system_plugins"]
+                    .as_str()
+                    .expect("Error beim lesen des system plugin path"),
+            );
             if !plugin_path.exists() {
                 Bx::create_path(&plugin_path);
                 println!("{} {:?} erfolgreich erstellt", cmd_prefix, plugin_path);
@@ -201,17 +319,26 @@ impl Starting {
         // software.json link
         {
             let mut config_software_path = exe_path.clone();
-            config_software_path.push(config["path"]["config"]["software"].as_str().expect("Error beim Lesen des path der config datei"));
+            config_software_path.push(
+                config["path"]["config"]["software"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der config datei"),
+            );
             if !config_software_path.exists() {
                 Bx::create_path(&config_software_path);
-                println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, config_software_path);
+                println!(
+                    "{} Config Ordner erfolgreich erstellt {:?}",
+                    cmd_prefix, config_software_path
+                );
             }
             config_software_path.push("software.json");
             if !config_software_path.exists() {
                 let url = "http://download.codergames.de/game_cloud/v0.1/config/software.json";
                 if let Ok(response) = get(url) {
-                    let mut file = File::create(&config_software_path).expect("Error beim Erstellen der Datei");
-                    file.write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    let mut file = File::create(&config_software_path)
+                        .expect("Error beim Erstellen der Datei");
+                    file.write_all(&response.bytes().expect("Error beim Lesen des response"))
+                        .expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
                     eprintln!("Software file kann nicht heruntergeladen werden");
@@ -223,17 +350,26 @@ impl Starting {
         // task.json link
         {
             let mut config_task_path = exe_path.clone();
-            config_task_path.push(config["path"]["config"]["default_task"].as_str().expect("Error beim Lesen des path der config datei"));
+            config_task_path.push(
+                config["path"]["config"]["default_task"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der config datei"),
+            );
             if !config_task_path.exists() {
                 Bx::create_path(&config_task_path);
-                println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, &config_task_path);
+                println!(
+                    "{} Config Ordner erfolgreich erstellt {:?}",
+                    cmd_prefix, &config_task_path
+                );
             }
             config_task_path.push("task.json");
             if !config_task_path.exists() {
                 let url = "http://download.codergames.de/game_cloud/v0.1/config/task.json";
                 if let Ok(response) = get(url) {
                     let file = File::create(&config_task_path);
-                    file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    file.expect("Error beim Erstellen der Datei")
+                        .write_all(&response.bytes().expect("Error beim Lesen des response"))
+                        .expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
                     eprintln!("task default file kann nicht heruntergeladen werden");
@@ -244,17 +380,26 @@ impl Starting {
         }
         {
             let mut config_system_plugins_path = exe_path.clone();
-            config_system_plugins_path.push(config["path"]["config"]["system_plugins"].as_str().expect("Error beim Lesen des path der config datei"));
+            config_system_plugins_path.push(
+                config["path"]["config"]["system_plugins"]
+                    .as_str()
+                    .expect("Error beim Lesen des path der config datei"),
+            );
             if !config_system_plugins_path.exists() {
                 Bx::create_path(&config_system_plugins_path);
-                println!("{} Config Ordner erfolgreich erstellt {:?}", cmd_prefix, &config_system_plugins_path);
+                println!(
+                    "{} Config Ordner erfolgreich erstellt {:?}",
+                    cmd_prefix, &config_system_plugins_path
+                );
             }
             config_system_plugins_path.push("gamecloud-master.jar");
             if !config_system_plugins_path.exists() {
                 let url = "http://download.codergames.de/game_cloud/v0.1/config/system_plugins/gamecloud-master.jar";
                 if let Ok(response) = get(url) {
                     let file = File::create(&config_system_plugins_path);
-                    file.expect("Error beim Erstellen der Datei").write_all(&response.bytes().expect("Error beim Lesen des response")).expect("Error beim Schreiben der Datei");
+                    file.expect("Error beim Erstellen der Datei")
+                        .write_all(&response.bytes().expect("Error beim Lesen des response"))
+                        .expect("Error beim Schreiben der Datei");
                     println!("{} Datei erstellt von {}", cmd_prefix, url);
                 } else {
                     eprintln!("task default file kann nicht heruntergeladen werden");
@@ -294,17 +439,13 @@ fn install_software(
         }
     } else {
         // Die Software soll von einem externen Link installiert werden
-        let file_extension = software_link
-            .rsplitn(2, '.')
-            .next()
-            .unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
+        let file_extension = software_link.rsplitn(2, '.').next().unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
 
         let file_name = format!("{}.{}", software_name, file_extension);
         let software_dir = install_dir.join(software_type);
 
         if !software_dir.exists() {
-            fs::create_dir_all(&software_dir)
-                .expect("Fehler beim Erstellen des Verzeichnisses");
+            fs::create_dir_all(&software_dir).expect("Fehler beim Erstellen des Verzeichnisses");
         }
 
         let external_file_path = software_dir.join(&file_name);
@@ -327,13 +468,14 @@ fn install_software(
     }
 }
 
-fn install_software_from_external_link(software_link: &str, software_name: &str, target_path: &PathBuf) {
+fn install_software_from_external_link(
+    software_link: &str,
+    software_name: &str,
+    target_path: &PathBuf,
+) {
     let cmd_prefix = Config::get_prefix();
     let install_dir = Config::get_software_files_path();
-    let file_extension = software_link
-        .rsplitn(2, '.')
-        .next()
-        .unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
+    let file_extension = software_link.rsplitn(2, '.').next().unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
 
     let file_name = format!("{}.{}", software_name, file_extension);
     let external_file_path = install_dir.join(&file_name);
@@ -354,8 +496,8 @@ fn install_software_from_external_link(software_link: &str, software_name: &str,
             Ok(response) => {
                 if response.status().is_success() {
                     // Erstelle die Datei und schreibe die heruntergeladenen Daten hinein
-                    let mut file = File::create(&target_path)
-                        .expect("Fehler beim Erstellen der Datei");
+                    let mut file =
+                        File::create(&target_path).expect("Fehler beim Erstellen der Datei");
 
                     let bytes = response.bytes().expect("Fehler beim Lesen der Antwort");
                     file.write_all(&bytes)

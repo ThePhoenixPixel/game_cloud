@@ -273,8 +273,6 @@ impl Service {
         };
 
         //let server = Command::new();
-
-
     }
 
     pub fn connect_to_proxy(&self) {}

@@ -9,15 +9,9 @@ pub enum Log {
 impl Log {
     pub fn get(log: Log) -> ColoredString {
         return match log {
-            Log::Info => {
-                ColoredString::from("[info]").green()
-            }
-            Log::Warning => {
-                ColoredString::from("[warning]").yellow()
-            }
-            Log::Error => {
-                ColoredString::from("[error]").red()
-            }
-        }
+            Log::Info => ColoredString::from("[info]").green(),
+            Log::Warning => ColoredString::from("[warning]").yellow(),
+            Log::Error => ColoredString::from("[error]").red(),
+        };
     }
 }
