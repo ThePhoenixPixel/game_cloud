@@ -4,6 +4,7 @@ use crate::starting::Starting;
 use crate::sys_config::software_config::SoftwareConfig;
 use std::env;
 use std::path::PathBuf;
+use crate::cmd::logger::Logger;
 
 pub mod language;
 pub mod starting;
@@ -20,6 +21,8 @@ pub mod utils {
 pub mod cmd {
     pub mod cmd;
     pub mod command_manager;
+    pub mod log;
+    pub mod logger;
     pub mod command {
         pub mod command_task;
         //pub mod cmd_group;
@@ -54,7 +57,9 @@ fn main() {
 
     //start the cloud
     if Starting::start(exe_path) {
-
+        Logger::info("das ist eine kleine info");
+        Logger::warning("das ist eine kleine warning");
+        Logger::error("das ist eine kleine error");
         let mut cmd = Cmd::new();
         cmd.set_prefix(Config::get_prefix());
         cmd.start();
