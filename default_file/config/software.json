@@ -1,43 +1,68 @@
 {
-  "softwares": {
+  "software_type": {
     "server": {
-      "paper": {
-        "download": "https://api.papermc.io/v2/projects/paper/versions/1.20.1/builds/132/downloads/paper-1.20.1-132.jar",
-        "command": "java",
-        "connect": [
-          {
+      "software_name": [
+        {
+          "name": "paper",
+          "download": "https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/389/downloads/paper-1.20.4-389.jar",
+          "command": "java",
+          "max_ram": 1024,
+          "ip": {
             "path": "server.propeties",
-            "content": "server-ip=%ip%"
+            "content": "server-ip:%ip%"
           },
-          {
+          "port": {
             "path": "server.propeties",
-            "content": "server-port=%port%"
+            "content": "server-port:%port%"
           }
-        ],
-        "purpur": {
-          "download": "https://api.purpurmc.org/v2/purpur/1.20.2/latest/download",
+        },
+        {
+          "name": "purpur",
+          "download": "https://api.purpurmc.org/v2/purpur/1.20.4/latest/download",
           "command": "java",
-          "host": "service/purpur.yml-host=%ip%",
-          "port": "service/purpur.yml-port=%port%"
+          "max_ram": 1024,
+          "ip": {
+            "path": "server.propeties",
+            "content": "server-ip:%ip%"
+          },
+          "port": {
+            "path": "server.propeties",
+            "content": "server-port:%port%"
+          }
         }
-      },
-      "proxy": {
-        "velocity": {
-          "download": "https://api.papermc.io/v2/projects/velocity/versions/3.2.0-SNAPSHOT/builds/264/downloads/velocity-3.2.0-SNAPSHOT-264.jar",
+      ]
+    },
+    "proxy": {
+      "software_name": [
+        {
+          "name": "velocity",
+          "download": "https://api.papermc.io/v2/projects/velocity/versions/3.3.0-SNAPSHOT/builds/323/downloads/velocity-3.3.0-SNAPSHOT-323.jar",
           "command": "java",
-          "host": {
+          "max_ram": 512,
+          "ip": {
             "path": "velocity.toml",
-            "content": "bind: \"%ip%:\""
+            "content": "bind = \"%ip%:\""
           },
           "port": {
             "path": "velocity.toml",
-            "content": "bind: \":%port%\""
+            "content": "bind = \":%port%\""
           }
         },
-        "waterfall": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/536/downloads/waterfall-1.20-536.jar",
-        "bungeecord": "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar"
-      }
+        {
+          "name": "waterfall",
+          "download": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/562/downloads/waterfall-1.20-562.jar",
+          "command": "java",
+          "max_ram": 512,
+          "ip": {
+            "path": "config.yml",
+            "content": "listener = \"%ip%:\""
+          },
+          "port": {
+            "path": "server.propeties",
+            "content": "listener = \"%port%:\""
+          }
+        }
+      ]
     }
   }
 }
-

@@ -2,6 +2,22 @@
   "name": "Proxy-1",
   "status": "Start",
   "time": "2023-10-25T10:02:51.744765419+02:00",
-  "listener": "\"127.0.0.1\":5005",
-  "task": "Proxy"
+  "plugin_listener": "\"127.0.0.1\":5005",
+  "cloud_listener": "127.0.0.1:1420",
+  "task": {
+    "name": "Proxy",
+    "split": "-",
+    "delete_on_stop": true,
+    "static_service": false,
+    "nodes": [],
+    "software": {
+      "software_type": "proxy",
+      "name": "velocity"
+    },
+    "max_ram": 1024,
+    "start_port": 49.152,
+    "min_service_count": 0,
+    "groups": [],
+    "templates": []
+  }
 }

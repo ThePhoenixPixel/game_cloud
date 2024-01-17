@@ -1,8 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+use crate::cmd::logger::Logger;
+use crate::config::Config;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareConfig {
@@ -10,6 +13,30 @@ pub struct SoftwareConfig {
 }
 
 impl SoftwareConfig {
+    pub fn get() -> SoftwareConfig {
+        let path = Config::get_software_path();
+
+        // Versuche, den Inhalt der Datei zu lesen
+        let file_content = match fs::read_to_string(&path) {
+            Ok(file_content) => file_content,
+            Err(e) => {
+                Logger::warning("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
+                Logger::error(&e.to_string());
+                get_default_file()
+            }
+        };
+
+        // Versuche, den Inhalt der Datei zu deserialisieren
+        return match serde_json::from_str(&file_content) {
+            Ok(config) => config,
+            Err(e) => {
+                Logger::warning("Fehler beim Deserialisieren der Software-Dateikonfiguration");
+                Logger::error(&e.to_string());
+                panic!("The GameCloud has an fatal Error");
+            }
+        }
+    }
+
     fn new(software_type: HashMap<String, SoftwareType>) -> SoftwareConfig {
         SoftwareConfig { software_type }
     }
@@ -29,7 +56,7 @@ impl SoftwareConfig {
 
     pub fn test() {
         let mut software_name = Vec::new();
-        software_name.push(SoftwareName::new("paper", "http://paper.de", "java"));
+        software_name.push(SoftwareName::new("paper", "http://paper.de", "java", &1024, &IP::new("server.propeties", "server-ip:%ip%"), &Port::new("server.propeties", "server-port:%port%")));
 
         let software_type_1 = SoftwareType::new(software_name);
         let mut software_type = HashMap::new();
@@ -71,14 +98,20 @@ pub struct SoftwareName {
     name: String,
     download: String,
     command: String,
+    max_ram: u32,
+    ip: IP,
+    port: Port,
 }
 
 impl SoftwareName {
-    fn new(name: &str, download: &str, command: &str) -> SoftwareName {
+    fn new(name: &str, download: &str, command: &str, ram: &u32, ip: &IP, port: &Port) -> SoftwareName {
         SoftwareName {
             name: name.to_string(),
             download: download.to_string(),
             command: command.to_string(),
+            max_ram: ram.clone(),
+            ip: ip.clone(),
+            port: port.clone(),
         }
     }
 
@@ -105,6 +138,75 @@ impl SoftwareName {
     pub fn set_command(&mut self, command: &String) {
         self.command = command.clone();
     }
+
+    pub fn get_ip(&self) -> IP {
+        self.ip.clone()
+    }
+
+    pub fn get_port(&self) -> Port {
+        self.port.clone()
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct IP {
+    path: String,
+    content: String,
+}
+
+impl IP {
+    pub fn new(path: &str, content: &str) -> IP {
+        IP {
+            path: path.to_string(),
+            content: content.to_string()
+        }
+    }
+
+    pub fn get_path(&self) -> String {
+        self.path.clone()
+    }
+
+    pub fn get_content(&self) -> String {
+        self.content.clone()
+    }
+
+    pub fn set_path(&mut self, path: &str) {
+        self.path = path.to_string()
+    }
+
+    pub fn set_content(&mut self, content: &str) {
+        self.content = content.to_string()
+    }
+}
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Port {
+    path: String,
+    content: String,
+}
+
+impl Port {
+    pub fn new(path: &str, content: &str) -> Port {
+        Port {
+            path: path.to_string(),
+            content: content.to_string()
+        }
+    }
+
+    pub fn get_path(&self) -> String {
+        self.path.clone()
+    }
+
+    pub fn get_content(&self) -> String {
+        self.content.clone()
+    }
+
+    pub fn set_path(&mut self, path: &str) {
+        self.path = path.to_string()
+    }
+
+    pub fn set_content(&mut self, content: &str) {
+        self.content = content.to_string()
+    }
 }
 
 fn save_to_file(
@@ -121,4 +223,31 @@ fn save_to_file(
     file.write_all(json_str.as_bytes())?;
 
     Ok(())
+}
+
+fn get_default_file()  -> String {
+    let json_str = r#"
+    {
+      "software_type": {
+        "server": {
+          "software_name": [
+            {
+              "name": "paper",
+              "download": "http://paper.de",
+              "command": "java",
+              "ip": {
+                "path": "server.propeties",
+                "content": "server-ip:%ip%"
+              },
+              "port": {
+                "path": "server.propeties",
+                "content": "server-port:%port%"
+              }
+            }
+          ]
+        }
+      }
+    }
+    "#;
+    json_str.to_string()
 }

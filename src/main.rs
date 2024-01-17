@@ -5,6 +5,7 @@ use crate::starting::Starting;
 use crate::sys_config::software_config::SoftwareConfig;
 use std::env;
 use std::path::PathBuf;
+use chrono::Local;
 
 pub mod language;
 pub mod starting;
@@ -60,6 +61,7 @@ fn main() {
         Logger::info("das ist eine kleine info");
         Logger::warning("das ist eine kleine warning");
         Logger::error("das ist eine kleine error");
+
         let mut cmd = Cmd::new();
         cmd.set_prefix(Config::get_prefix());
         cmd.start();
