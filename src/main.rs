@@ -2,10 +2,8 @@ use crate::cmd::cmd::Cmd;
 use crate::cmd::logger::Logger;
 use crate::config::Config;
 use crate::starting::Starting;
-use crate::sys_config::software_config::SoftwareConfig;
 use std::env;
 use std::path::PathBuf;
-use chrono::Local;
 
 pub mod language;
 pub mod starting;
@@ -48,6 +46,24 @@ pub mod sys_config {
     pub mod software_config;
 }
 pub mod config;
+
+pub struct Main;
+
+impl Main {
+    pub fn get_exe_path() -> PathBuf {
+        return match env::current_exe() {
+            Ok(mut exe) => {
+                exe.pop();
+                exe
+            }
+            Err(e) => {
+                Logger::error("Error get the exe path");
+                Logger::error(e.to_string().as_str());
+                panic!("The GameCloud has an fatal Error")
+            }
+        }
+    }
+}
 
 fn main() {
     println!("Start Game Cloud...");

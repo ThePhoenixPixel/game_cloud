@@ -41,7 +41,11 @@ impl SoftwareConfig {
         SoftwareConfig { software_type }
     }
 
-    pub fn get_software_type(&self) -> HashMap<String, SoftwareType> {
+    pub fn get_software_type(&self, software_type: &str) -> Option<SoftwareType> {
+        self.software_type.get(software_type).cloned()
+    }
+
+    pub fn get_software_types(&self) -> HashMap<String, SoftwareType> {
         self.software_type.clone()
     }
 
@@ -79,7 +83,16 @@ impl SoftwareType {
         SoftwareType { software_name }
     }
 
-    pub fn get_software_name(&self) -> Vec<SoftwareName> {
+    pub fn get_software_name(&self, name: &str) -> Option<SoftwareName> {
+        for software in &self.software_name {
+            if software.get_name() == name {
+                return Some(software.clone())
+            }
+        }
+        None
+    }
+
+    pub fn get_software_names(&self) -> Vec<SoftwareName> {
         self.software_name.clone()
     }
 

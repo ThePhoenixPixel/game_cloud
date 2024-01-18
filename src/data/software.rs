@@ -1,8 +1,8 @@
 use crate::config::Config;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::path::{Path, PathBuf};
-use std::{env, fs};
+use crate::cmd::logger::Logger;
+use crate::sys_config::software_config::{SoftwareConfig, SoftwareType};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Software {
@@ -28,13 +28,20 @@ impl Software {
     }
 
     //name
-    pub fn get_name(&self) -> &String {
-        &self.name
+    pub fn get_name(&self) -> String {
+        self.name.clone()
     }
 
     pub fn get_name_with_ext(&self) -> String {
-        let name = &self.get_name();
-        let binding = &self.get_software_url().unwrap();
+        let name = self.get_name();
+        let binding = self.get_software_url();
+        let binding = match binding {
+            Some(binding) => binding,
+            None => {
+                Logger::error("Error in Software.rs can not get software url");
+                String::new()
+            }
+        };
         let link = Path::new(&binding);
         return if let Some(ext) = link.extension().and_then(|ext| ext.to_str()) {
             format!("{}.{}", name, ext)
@@ -48,84 +55,21 @@ impl Software {
         self.name = name.clone();
     }
 
-    pub fn get_host_path(&self) -> Option<PathBuf> {
-        let path = env::current_exe().expect("Error beim getten des exe path");
-        let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["host"]["path"]
-            .as_str()
-        {
-            Some(content) => Some(path.join(content)),
-            None => None,
-        }
-    }
-
-    pub fn get_port_path(&self) -> Option<PathBuf> {
-        let path = env::current_exe().expect("Error beim getten des exe path");
-        let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["path"]
-            .as_str()
-        {
-            Some(content) => Some(path.join(content)),
-            None => None,
-        }
-    }
-
-    pub fn get_host_content(&self) -> Option<String> {
-        let config = Software::get_config();
-
-        match config["software"][&self.get_software_type()][&self.get_name()]["host"]["content"]
-            .as_str()
-        {
-            Some(content) => Some(content.to_string()),
-            None => None,
-        }
-    }
-
-    pub fn get_port_content(&self) -> Option<String> {
-        let config = Software::get_config();
-        match config["software"][&self.get_software_type()][&self.get_name()]["port"]["content"]
-            .as_str()
-        {
-            Some(content) => Some(content.to_string()),
-            None => None,
-        }
-    }
-
     pub fn get_software_url(&self) -> Option<String> {
-        let software_path = Config::get_software_path();
-
-        let config_content =
-            fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
-        let config: Value = serde_json::from_str(&config_content)
-            .expect("Fehler beim Deserialisieren der Konfiguration");
-
-        if let Some(software) = config.get("software") {
-            for (_, software_type_value) in software.as_object().unwrap() {
-                if let Some(download_url) = software_type_value.get(self.get_name().as_str()) {
-                    if let Some(url) = download_url.as_str() {
-                        return Some(url.to_string());
-                    }
-                }
-            }
+        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type()) {
+            Some(software_type) => software_type,
+            None => return None,
+        };
+        return match software_type.get_software_name(&self.get_name()) {
+            Some(software) => Some(software.get_download()),
+            None => None,
         }
-
-        None // Software nicht gefunden
-    }
-
-    pub fn get_config() -> Value {
-        let software_path = Config::get_software_path();
-
-        let config_content =
-            fs::read_to_string(&software_path).expect("Fehler beim Lesen der Software Datei");
-        let config = serde_json::from_str(&config_content)
-            .expect("Fehler beim Deserialisieren der Konfiguration");
-        config
     }
 
     pub fn get_software_file_path(&self) -> PathBuf {
         let mut software_path = Config::get_software_files_path();
         software_path.push(&self.get_software_type());
-        software_path.push(format!("{}.jar", &self.get_name()));
+        software_path.push(self.get_name_with_ext());
         software_path
     }
 }

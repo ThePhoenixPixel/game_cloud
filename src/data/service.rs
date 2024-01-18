@@ -1,3 +1,4 @@
+use std::fs;
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::address::Address;
@@ -10,6 +11,7 @@ use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
+use crate::cmd::logger::Logger;
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -33,7 +35,7 @@ impl Service {
         );
         let cloud_listener = Config::get_node_listener();
 
-        Service {
+        let service = Service {
             name: format!(
                 "{}-{}",
                 task.get_name(),
@@ -44,7 +46,9 @@ impl Service {
             plugin_listener,
             cloud_listener,
             task: task.clone(),
-        }
+        };
+        service.save_to_file();
+        service
     }
 
     pub fn get_name(&self) -> String {
@@ -154,6 +158,14 @@ impl Service {
     }
 
     pub fn save_to_file(&self) {
+        let mut path = self.get_path_with_service_file();
+        path.pop();
+        Bx::create_path(&path);
+        if File::create(self.get_path_with_service_file()).is_err() {
+            Logger::error("Fehler beim erstellen der service config datei");
+            return;
+        }
+
         if let Ok(serialized) = serde_json::to_string_pretty(&self) {
             if let Ok(mut file) = File::create(self.get_path_with_service_file()) {
                 file.write_all(serialized.as_bytes())
@@ -220,11 +232,7 @@ impl Service {
         let mut next_number_to_check: u64 = 1;
         loop {
             let service_name = format!("{}-{}", task.get_name(), next_number_to_check);
-            let mut path = if task.get_static_service() {
-                Config::get_service_static_path()
-            } else {
-                Config::get_service_temp_path()
-            };
+            let mut path = task.get_service_path();
 
             path.push(service_name);
             path.push(".game_cloud");
@@ -273,6 +281,7 @@ impl Service {
         };
 
         //let server = Command::new();
+        //self.connect_to_proxy();
     }
 
     pub fn connect_to_proxy(&self) {}
@@ -280,7 +289,8 @@ impl Service {
     fn prepare_to_start(&mut self) {
         println!("in prepare to start");
         // create the service path to file
-        Bx::create_path(&self.get_path_with_service_file());
+        self.get_task().prepared_to_services();
+
         // the ports set
         self.find_new_free_plugin_listener();
         println!("nach check service sys_config");

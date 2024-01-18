@@ -8,6 +8,7 @@ use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+use crate::sys_config::software_config::SoftwareConfig;
 
 pub struct Starting;
 
@@ -123,6 +124,26 @@ impl Starting {
     }
 
     fn check_software(cmd_prefix: &ColoredString) {
+        let software_config = SoftwareConfig::get();
+
+        for (software_type_name, software_type) in software_config.get_software_types() {
+            for software_name in software_type.get_software_names() {
+                //create the software type folder
+                let install_dir_path = Config::get_software_files_path().join(&software_type_name);
+                Bx::create_path(&install_dir_path);
+
+                // install the server file
+                install_software(
+                    &software_name.get_download(),
+                    &software_name.get_name(),
+                    &software_type_name,
+                    cmd_prefix,
+                );
+            }
+        }
+    }
+
+        /*
         // Pfade und Verzeichnisse einrichten
         let install_dir = Config::get_software_files_path();
 
@@ -185,7 +206,7 @@ impl Starting {
                 Config::get_prefix()
             );
         }
-    }
+        */
 
     fn check_config(exe_path: &PathBuf) -> Option<Value> {
         // sys_config.json
@@ -463,7 +484,6 @@ fn install_software(
 
             install_software_from_external_link(software_link, software_name, &external_file_path);
             // Führe die Installation von der externen Quelle durch und speichere sie in external_file_path
-            // Du kannst z.B. die reqwest-Bibliothek verwenden, um den Download durchzuführen
         }
     }
 }
