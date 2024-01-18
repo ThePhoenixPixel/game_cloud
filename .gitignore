@@ -4,5 +4,3 @@ target/
 alt/
 Cargo.lock
 game_cloud.iml
-server_stderr.log
-server_stdout.log
