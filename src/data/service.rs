@@ -10,8 +10,10 @@ use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use crate::cmd::logger::Logger;
+use crate::lib::thread_manager::ThreadManager;
+use crate::sys_config::software_config::SoftwareName;
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -47,6 +49,7 @@ impl Service {
             cloud_listener,
             task: task.clone(),
         };
+        service.get_task().prepared_to_services();
         service.save_to_file();
         service
     }
@@ -102,14 +105,25 @@ impl Service {
 
     pub fn get_path(&self) -> PathBuf {
         let mut path = self.get_task().get_service_path();
-        path.push(self.get_task().get_name());
+        path.push(self.get_name());
         path
+    }
+
+    pub fn get_path_server_file(&self) -> PathBuf {
+        self.get_path().join(self.get_task().get_software().get_name_with_ext())
     }
 
     pub fn get_path_stdout_file(&self) -> PathBuf {
         let mut path = self.get_path_with_service_file();
         path.pop();
         path.push("server_stdout.log");
+        path
+    }
+
+    pub fn get_path_stdin_file(&self) -> PathBuf {
+        let mut path = self.get_path_with_service_file();
+        path.pop();
+        path.push("server_stdin.log");
         path
     }
 
@@ -266,21 +280,81 @@ impl Service {
 
         let stdout_file = match File::create(self.get_path_stdout_file()) {
             Ok(file) => file,
-            Err(err) => {
-                println!("{}", err);
+            Err(e) => {
+                Logger::error(e.to_string().as_str());
+                return;
+            }
+        };
+
+        let stdin_file = match File::create(self.get_path_stdin_file()) {
+            Ok(file) => file,
+            Err(e) => {
+                Logger::error(e.to_string().as_str());
                 return;
             }
         };
 
         let stderr_file = match File::create(self.get_path_stderr_file()) {
             Ok(file) => file,
-            Err(err) => {
-                println!("{}", err);
+            Err(e) => {
+                Logger::error(e.to_string().as_str());
                 return;
             }
         };
 
-        //let server = Command::new();
+        let software = match self.get_task().get_software().get_software_from_software_config() {
+            Some(software) => software,
+            None => {
+                Logger::error(format!("Can not find the Software for the service {}", self.get_name()).as_str());
+                return;
+            }
+        };
+        let server_file_path = match self.get_path_server_file().to_str() {
+            Some(server_file_path) => server_file_path,
+            None => {
+                Logger::error("Can not server file path to string change");
+                return;
+            }
+        }.to_string();
+
+        let server_path = match self.get_path().to_str() {
+            Some(server_file_path) => server_file_path,
+            None => {
+                Logger::error("Can not server path to string change");
+                return;
+            }
+        }.to_string();
+
+        let stdin_file = File::open("/dev/null").expect("Fehler beim Öffnen der Standardeingabe");
+
+        println!("{}", server_file_path);
+        println!("{}", software.get_command());
+
+        let mut thread_manager = ThreadManager::new();
+
+        // Daten kopieren
+        let software_clone = software.clone();
+        let stdout_file_clone = stdout_file.try_clone().expect("Failed to clone stdout file");
+        let stderr_file_clone = stderr_file.try_clone().expect("Failed to clone stderr file");
+        let stdin_file_clone = stdin_file.try_clone().expect("Failed to clone stdin file");
+        let max_ram = self.get_task().get_max_ram();
+        // ThreadManager erstellen und Thread starten
+        thread_manager.spawn(move || {
+            start_server(
+                software_clone,
+                server_file_path,
+                max_ram,
+                stdout_file_clone,
+                stderr_file_clone,
+                stdin_file_clone,
+                server_path,
+            );
+        });
+
+        println!("start the server");
+
+        thread_manager.shutdown_all();
+
         //self.connect_to_proxy();
     }
 
@@ -289,10 +363,35 @@ impl Service {
     fn prepare_to_start(&mut self) {
         println!("in prepare to start");
         // create the service path to file
-        self.get_task().prepared_to_services();
+
+
 
         // the ports set
         self.find_new_free_plugin_listener();
         println!("nach check service sys_config");
     }
 }
+
+fn start_server<'a>(
+    software: SoftwareName,  // Software als Kopie übergeben
+    server_file_path: String,
+    max_ram: u32,
+    stdout_file: File,
+    stderr_file: File,
+    stdin_file: File,
+    service_path: String,  // Service-Pfad ebenfalls übergeben
+) {
+    let server = Command::new(software.get_command())
+        .args(&[
+            format!("-Xmx{}M", max_ram),
+            "-jar".to_string(),
+            server_file_path,
+        ])
+        .current_dir(service_path)
+        .stdout(Stdio::from(stdout_file))
+        .stderr(Stdio::from(stderr_file))
+        .stdin(Stdio::from(stdin_file))
+        .spawn()
+        .expect("Fehler beim Starten des Servers");
+}
+

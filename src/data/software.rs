@@ -2,7 +2,7 @@ use crate::config::Config;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use crate::cmd::logger::Logger;
-use crate::sys_config::software_config::{SoftwareConfig, SoftwareType};
+use crate::sys_config::software_config::{SoftwareConfig, SoftwareName, SoftwareType};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Software {
@@ -15,6 +15,17 @@ impl Software {
         Software {
             software_type: software_type.clone(),
             name: name.clone(),
+        }
+    }
+
+    pub fn get_software_from_software_config(&self) -> Option<SoftwareName> {
+        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type()) {
+            Some(software_type) => software_type,
+            None => return None,
+        };
+        return match software_type.get_software_name(&self.get_name()) {
+            Some(software) => Some(software),
+            None => None,
         }
     }
 

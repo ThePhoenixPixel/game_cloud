@@ -9,6 +9,7 @@ pub mod language;
 pub mod starting;
 pub mod lib {
     pub mod address;
+    pub mod thread_manager;
     pub mod bx;
 }
 
