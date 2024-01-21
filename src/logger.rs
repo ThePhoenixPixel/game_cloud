@@ -1,6 +1,6 @@
-use crate::cmd::log::Log;
 use crate::config::Config;
 use crate::lib::bx::Bx;
+use crate::log::Log;
 use chrono::Local;
 use colored::{ColoredString, Colorize};
 use std::env;

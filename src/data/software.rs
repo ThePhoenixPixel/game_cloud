@@ -1,5 +1,5 @@
-use crate::cmd::logger::Logger;
 use crate::config::Config;
+use crate::logger::Logger;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName, SoftwareType};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};

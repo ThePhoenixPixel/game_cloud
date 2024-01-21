@@ -1,6 +1,6 @@
 use crate::cmd::cmd::Cmd;
-use crate::cmd::logger::Logger;
 use crate::config::Config;
+use crate::logger::Logger;
 use crate::starting::Starting;
 use std::env;
 use std::path::PathBuf;
@@ -21,8 +21,7 @@ pub mod utils {
 pub mod cmd {
     pub mod cmd;
     pub mod command_manager;
-    pub mod log;
-    pub mod logger;
+
     pub mod command {
         pub mod command_task;
         //pub mod cmd_group;
@@ -48,6 +47,8 @@ pub mod sys_config {
     pub mod software_config;
 }
 pub mod config;
+pub mod log;
+pub mod logger;
 
 pub struct Main;
 
