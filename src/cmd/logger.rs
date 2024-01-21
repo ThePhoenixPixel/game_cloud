@@ -64,10 +64,9 @@ impl Logger {
             ColoredString::from(">>").blue(),
             msg
         )
-            .is_err()
+        .is_err()
         {
             eprintln!("Log System has an Error");
         }
     }
-
 }

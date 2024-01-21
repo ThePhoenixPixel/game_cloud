@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
+use crate::sys_config::software_config::SoftwareConfig;
 use colored::*;
 use reqwest::blocking::get;
 use serde_json::Value;
@@ -8,7 +9,6 @@ use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
-use crate::sys_config::software_config::SoftwareConfig;
 
 pub struct Starting;
 
@@ -143,70 +143,70 @@ impl Starting {
         }
     }
 
-        /*
-        // Pfade und Verzeichnisse einrichten
-        let install_dir = Config::get_software_files_path();
+    /*
+    // Pfade und Verzeichnisse einrichten
+    let install_dir = Config::get_software_files_path();
 
-        // JSON-Datei mit Software-Links öffnen
-        let software_path = Config::get_software_path();
+    // JSON-Datei mit Software-Links öffnen
+    let software_path = Config::get_software_path();
 
-        let mut software_file = File::open(&software_path).expect("Fehler beim Öffnen der Datei");
+    let mut software_file = File::open(&software_path).expect("Fehler beim Öffnen der Datei");
 
-        let mut json_str = String::new();
-        software_file
-            .read_to_string(&mut json_str)
-            .expect("Fehler beim Lesen der Datei");
+    let mut json_str = String::new();
+    software_file
+        .read_to_string(&mut json_str)
+        .expect("Fehler beim Lesen der Datei");
 
-        // JSON-String in ein JSON-Objekt (serde_json::Value) parsen
-        let json_value: Value =
-            serde_json::from_str(&json_str).expect("Fehler beim Deserialisieren des JSON-Strings");
+    // JSON-String in ein JSON-Objekt (serde_json::Value) parsen
+    let json_value: Value =
+        serde_json::from_str(&json_str).expect("Fehler beim Deserialisieren des JSON-Strings");
 
-        // Überprüfen, ob es sich um ein JSON-Objekt (eine Map) handelt
-        if let Some(software_categories) = json_value.get("software").and_then(|s| s.as_object()) {
-            // Iteriere durch die Software-Kategorien (server, proxy, self, usw.)
-            for (software_type, software_links) in software_categories {
-                // Überprüfe, ob es sich um ein JSON-Objekt (eine Map) mit Software-Links handelt
-                if let Some(links) = software_links.as_object() {
-                    // Iteriere durch die Links in dieser Kategorie (server, proxy, self, usw.)
-                    for (software_name, software_link_value) in links {
-                        // Überprüfe, ob der Link ein String ist
-                        if let Some(software_link) = software_link_value.as_str() {
-                            // Jetzt kannst du die Software installieren oder andere Aktionen durchführen
-                            let software_dir = install_dir.join(software_type);
+    // Überprüfen, ob es sich um ein JSON-Objekt (eine Map) handelt
+    if let Some(software_categories) = json_value.get("software").and_then(|s| s.as_object()) {
+        // Iteriere durch die Software-Kategorien (server, proxy, self, usw.)
+        for (software_type, software_links) in software_categories {
+            // Überprüfe, ob es sich um ein JSON-Objekt (eine Map) mit Software-Links handelt
+            if let Some(links) = software_links.as_object() {
+                // Iteriere durch die Links in dieser Kategorie (server, proxy, self, usw.)
+                for (software_name, software_link_value) in links {
+                    // Überprüfe, ob der Link ein String ist
+                    if let Some(software_link) = software_link_value.as_str() {
+                        // Jetzt kannst du die Software installieren oder andere Aktionen durchführen
+                        let software_dir = install_dir.join(software_type);
 
-                            // Überprüfen und Verzeichnisse erstellen
-                            if !software_dir.exists() {
-                                fs::create_dir_all(&software_dir)
-                                    .expect("Fehler beim Erstellen des Verzeichnisses");
-                            }
-
-                            install_software(
-                                software_link,
-                                software_name,
-                                software_type,
-                                cmd_prefix,
-                            );
-                        } else {
-                            println!(
-                                "{} Ungültiger Link für Software: {}",
-                                cmd_prefix, software_name
-                            );
+                        // Überprüfen und Verzeichnisse erstellen
+                        if !software_dir.exists() {
+                            fs::create_dir_all(&software_dir)
+                                .expect("Fehler beim Erstellen des Verzeichnisses");
                         }
+
+                        install_software(
+                            software_link,
+                            software_name,
+                            software_type,
+                            cmd_prefix,
+                        );
+                    } else {
+                        println!(
+                            "{} Ungültiger Link für Software: {}",
+                            cmd_prefix, software_name
+                        );
                     }
-                } else {
-                    println!(
-                        "{} Ungültige Links für Software-Typ: {}",
-                        cmd_prefix, software_type
-                    );
                 }
+            } else {
+                println!(
+                    "{} Ungültige Links für Software-Typ: {}",
+                    cmd_prefix, software_type
+                );
             }
-        } else {
-            println!(
-                "{} Die JSON-Datei enthält keine 'software'-Kategorie",
-                Config::get_prefix()
-            );
         }
-        */
+    } else {
+        println!(
+            "{} Die JSON-Datei enthält keine 'software'-Kategorie",
+            Config::get_prefix()
+        );
+    }
+    */
 
     fn check_config(exe_path: &PathBuf) -> Option<Value> {
         // sys_config.json

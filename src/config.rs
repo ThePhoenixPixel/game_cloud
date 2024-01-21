@@ -251,5 +251,4 @@ impl Config {
         let node_host = config["server_host"].as_str().unwrap_or("127.0.0.1");
         node_host.to_string()
     }
-
 }

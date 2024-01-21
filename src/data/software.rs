@@ -1,8 +1,8 @@
+use crate::cmd::logger::Logger;
 use crate::config::Config;
+use crate::sys_config::software_config::{SoftwareConfig, SoftwareName, SoftwareType};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use crate::cmd::logger::Logger;
-use crate::sys_config::software_config::{SoftwareConfig, SoftwareName, SoftwareType};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Software {
@@ -19,14 +19,15 @@ impl Software {
     }
 
     pub fn get_software_from_software_config(&self) -> Option<SoftwareName> {
-        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type()) {
+        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type())
+        {
             Some(software_type) => software_type,
             None => return None,
         };
         return match software_type.get_software_name(&self.get_name()) {
             Some(software) => Some(software),
             None => None,
-        }
+        };
     }
 
     //software type
@@ -67,14 +68,15 @@ impl Software {
     }
 
     pub fn get_software_url(&self) -> Option<String> {
-        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type()) {
+        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type())
+        {
             Some(software_type) => software_type,
             None => return None,
         };
         return match software_type.get_software_name(&self.get_name()) {
             Some(software) => Some(software.get_download()),
             None => None,
-        }
+        };
     }
 
     pub fn get_software_file_path(&self) -> PathBuf {

@@ -6,12 +6,14 @@ pub struct ThreadManager {
 
 impl ThreadManager {
     pub fn new() -> ThreadManager {
-        ThreadManager { threads: Vec::new() }
+        ThreadManager {
+            threads: Vec::new(),
+        }
     }
 
     pub fn spawn<F>(&mut self, func: F) -> &mut ThreadManager
-        where
-            F: FnOnce() + Send + 'static,
+    where
+        F: FnOnce() + Send + 'static,
     {
         let handle = thread::spawn(func);
         self.threads.push(handle);

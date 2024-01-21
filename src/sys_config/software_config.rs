@@ -1,11 +1,11 @@
+use crate::cmd::logger::Logger;
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use crate::cmd::logger::Logger;
-use crate::config::Config;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareConfig {
@@ -34,7 +34,7 @@ impl SoftwareConfig {
                 Logger::error(&e.to_string());
                 panic!("The GameCloud has an fatal Error");
             }
-        }
+        };
     }
 
     fn new(software_type: HashMap<String, SoftwareType>) -> SoftwareConfig {
@@ -60,7 +60,14 @@ impl SoftwareConfig {
 
     pub fn test() {
         let mut software_name = Vec::new();
-        software_name.push(SoftwareName::new("paper", "http://paper.de", "java", &1024, &IP::new("server.propeties", "server-ip:%ip%"), &Port::new("server.propeties", "server-port:%port%")));
+        software_name.push(SoftwareName::new(
+            "paper",
+            "http://paper.de",
+            "java",
+            &1024,
+            &IP::new("server.propeties", "server-ip:%ip%"),
+            &Port::new("server.propeties", "server-port:%port%"),
+        ));
 
         let software_type_1 = SoftwareType::new(software_name);
         let mut software_type = HashMap::new();
@@ -86,7 +93,7 @@ impl SoftwareType {
     pub fn get_software_name(&self, name: &str) -> Option<SoftwareName> {
         for software in &self.software_name {
             if software.get_name() == name {
-                return Some(software.clone())
+                return Some(software.clone());
             }
         }
         None
@@ -117,7 +124,14 @@ pub struct SoftwareName {
 }
 
 impl SoftwareName {
-    fn new(name: &str, download: &str, command: &str, ram: &u32, ip: &IP, port: &Port) -> SoftwareName {
+    fn new(
+        name: &str,
+        download: &str,
+        command: &str,
+        ram: &u32,
+        ip: &IP,
+        port: &Port,
+    ) -> SoftwareName {
         SoftwareName {
             name: name.to_string(),
             download: download.to_string(),
@@ -171,7 +185,7 @@ impl IP {
     pub fn new(path: &str, content: &str) -> IP {
         IP {
             path: path.to_string(),
-            content: content.to_string()
+            content: content.to_string(),
         }
     }
 
@@ -201,7 +215,7 @@ impl Port {
     pub fn new(path: &str, content: &str) -> Port {
         Port {
             path: path.to_string(),
-            content: content.to_string()
+            content: content.to_string(),
         }
     }
 
@@ -238,7 +252,7 @@ fn save_to_file(
     Ok(())
 }
 
-fn get_default_file()  -> String {
+fn get_default_file() -> String {
     let json_str = r#"
     {
       "software_type": {

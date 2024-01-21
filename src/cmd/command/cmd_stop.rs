@@ -1,6 +1,6 @@
 use crate::config::Config;
-use std::fs;
 use crate::lib::thread_manager::ThreadManager;
+use std::fs;
 
 pub struct CmdStop;
 

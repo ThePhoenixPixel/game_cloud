@@ -9,8 +9,8 @@ pub mod language;
 pub mod starting;
 pub mod lib {
     pub mod address;
-    pub mod thread_manager;
     pub mod bx;
+    pub mod thread_manager;
 }
 
 pub mod utils {
@@ -44,6 +44,7 @@ pub mod data {
 }
 
 pub mod sys_config {
+    pub mod cloud_config;
     pub mod software_config;
 }
 pub mod config;
@@ -62,7 +63,7 @@ impl Main {
                 Logger::error(e.to_string().as_str());
                 panic!("The GameCloud has an fatal Error")
             }
-        }
+        };
     }
 }
 
