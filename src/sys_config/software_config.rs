@@ -1,5 +1,5 @@
-use crate::cmd::logger::Logger;
 use crate::config::Config;
+use crate::logger::Logger;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

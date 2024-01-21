@@ -1,19 +1,21 @@
-use std::fs;
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::address::Address;
 use crate::lib::bx::Bx;
+use crate::lib::thread_manager::ThreadManager;
+use crate::logger::Logger;
+use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
+use crate::Main;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::fs;
 use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use crate::cmd::logger::Logger;
-use crate::lib::thread_manager::ThreadManager;
-use crate::sys_config::software_config::SoftwareName;
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -103,6 +105,39 @@ impl Service {
         self.save_to_file();
     }
 
+    pub fn set_server_address(&self) {
+        let address = Address::new(
+            &Config::get_server_host(),
+            &Address::find_next_port(&Address::new(
+                &Config::get_server_host(),
+                &self.get_task().get_start_port(),
+            )),
+        );
+        let software = self.get_task().get_software();
+        let software_type =
+            match SoftwareConfig::get().get_software_type(software.get_software_type()) {
+                Some(software_type) => software_type,
+                None => {
+                    Logger::error("Can not get the Software Type");
+                    return;
+                }
+            };
+
+        let software_name = match software_type.get_software_name(software.get_name().as_str()) {
+            Some(software_name) => software_name,
+            None => {
+                Logger::error("Can not get the Software Name");
+                return;
+            }
+        };
+        let mut path = self.get_path();
+        path.push(software_name.get_ip().get_path());
+
+        let file_to_string = fs::read_to_string(&path).expect("Error ganz blöd");
+        let file_content: Value =
+            serde_json::from_str(&file_to_string).expect("Error der blöd ist");
+    }
+
     pub fn get_path(&self) -> PathBuf {
         let mut path = self.get_task().get_service_path();
         path.push(self.get_name());
@@ -110,7 +145,8 @@ impl Service {
     }
 
     pub fn get_path_server_file(&self) -> PathBuf {
-        self.get_path().join(self.get_task().get_software().get_name_with_ext())
+        self.get_path()
+            .join(self.get_task().get_software().get_name_with_ext())
     }
 
     pub fn get_path_stdout_file(&self) -> PathBuf {
@@ -302,10 +338,20 @@ impl Service {
             }
         };
 
-        let software = match self.get_task().get_software().get_software_from_software_config() {
+        let software = match self
+            .get_task()
+            .get_software()
+            .get_software_from_software_config()
+        {
             Some(software) => software,
             None => {
-                Logger::error(format!("Can not find the Software for the service {}", self.get_name()).as_str());
+                Logger::error(
+                    format!(
+                        "Can not find the Software for the service {}",
+                        self.get_name()
+                    )
+                    .as_str(),
+                );
                 return;
             }
         };
@@ -315,7 +361,8 @@ impl Service {
                 Logger::error("Can not server file path to string change");
                 return;
             }
-        }.to_string();
+        }
+        .to_string();
 
         let server_path = match self.get_path().to_str() {
             Some(server_file_path) => server_file_path,
@@ -323,7 +370,8 @@ impl Service {
                 Logger::error("Can not server path to string change");
                 return;
             }
-        }.to_string();
+        }
+        .to_string();
 
         let stdin_file = File::open("/dev/null").expect("Fehler beim Öffnen der Standardeingabe");
 
@@ -334,8 +382,12 @@ impl Service {
 
         // Daten kopieren
         let software_clone = software.clone();
-        let stdout_file_clone = stdout_file.try_clone().expect("Failed to clone stdout file");
-        let stderr_file_clone = stderr_file.try_clone().expect("Failed to clone stderr file");
+        let stdout_file_clone = stdout_file
+            .try_clone()
+            .expect("Failed to clone stdout file");
+        let stderr_file_clone = stderr_file
+            .try_clone()
+            .expect("Failed to clone stderr file");
         let stdin_file_clone = stdin_file.try_clone().expect("Failed to clone stdin file");
         let max_ram = self.get_task().get_max_ram();
         // ThreadManager erstellen und Thread starten
@@ -362,24 +414,22 @@ impl Service {
 
     fn prepare_to_start(&mut self) {
         println!("in prepare to start");
-        // create the service path to file
-
-
-
         // the ports set
+        self.set_server_address();
+
         self.find_new_free_plugin_listener();
         println!("nach check service sys_config");
     }
 }
 
 fn start_server<'a>(
-    software: SoftwareName,  // Software als Kopie übergeben
+    software: SoftwareName, // Software als Kopie übergeben
     server_file_path: String,
     max_ram: u32,
     stdout_file: File,
     stderr_file: File,
     stdin_file: File,
-    service_path: String,  // Service-Pfad ebenfalls übergeben
+    service_path: String, // Service-Pfad ebenfalls übergeben
 ) {
     let server = Command::new(software.get_command())
         .args(&[
@@ -394,4 +444,3 @@ fn start_server<'a>(
         .spawn()
         .expect("Fehler beim Starten des Servers");
 }
-
