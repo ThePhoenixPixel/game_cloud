@@ -1,11 +1,17 @@
 {
   "name": "Node-1",
   "prefix": "[Game Cloud]",
-  "server_host": "127.0.0.1",
-  "node_host": "127.0.0.1",
   "language": "de",
-  "node_port": 5005,
+  "server_host": "127.0.0.1",
   "max_ram": 2028,
+  "node_host": {
+    "ip": "127.0.0.1",
+    "port": 5005
+  },
+  "rest_api": {
+    "ip": "127.0.0.1",
+    "port": 6006
+  },
   "path": {
     "task": "task",
     "template": "template",
@@ -15,8 +21,8 @@
     },
     "config": {
       "software": "config",
-      "system_plugins": "config/system_plugins",
       "default_task": "config",
+      "system_plugins": "config/system_plugins",
       "software_files": "config/software_files"
     }
   }

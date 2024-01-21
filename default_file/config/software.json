@@ -15,20 +15,6 @@
             "path": "server.propeties",
             "content": "server-port:%port%"
           }
-        },
-        {
-          "name": "purpur",
-          "download": "https://api.purpurmc.org/v2/purpur/1.20.4/latest/download",
-          "command": "java",
-          "max_ram": 1024,
-          "ip": {
-            "path": "server.propeties",
-            "content": "server-ip:%ip%"
-          },
-          "port": {
-            "path": "server.propeties",
-            "content": "server-port:%port%"
-          }
         }
       ]
     },
