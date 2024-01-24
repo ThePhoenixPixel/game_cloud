@@ -2,6 +2,9 @@ use crate::lib::address::Address;
 use crate::Main;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::fs::File;
+use std::io::Write;
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CloudConfig {
@@ -16,6 +19,60 @@ pub struct CloudConfig {
 }
 
 impl CloudConfig {
+
+    pub fn new(
+        name: &String,
+        prefix: &String,
+        language: &String,
+        server_host: &String,
+        max_ram: &u64,
+        node_host: &Address,
+        rest_api: &Address,
+        path: &CloudConfigPath,
+    ) -> CloudConfig {
+        CloudConfig {
+            name: name.clone(),
+            prefix: prefix.clone(),
+            language: language.clone(),
+            server_host: server_host.clone(),
+            max_ram: max_ram.clone(),
+            node_host: node_host.clone(),
+            rest_api: rest_api.clone(),
+            path: path.clone(),
+        }
+    }
+
+    pub fn get_name(&self) -> String {
+        self.name.clone()
+    }
+
+    pub fn get_prefix(&self) -> String {
+        self.prefix.clone()
+    }
+
+    pub fn get_language(&self) -> String {
+        self.language.clone()
+    }
+
+    pub fn get_server_host(&self) -> String {
+        self.server_host.clone()
+    }
+
+    pub fn get_max_ram(&self) -> u64 {
+        self.max_ram.clone()
+    }
+
+    pub fn get_node_host(&self) -> Address {
+        self.node_host.clone()
+    }
+
+    pub fn get_rest_api(&self) -> Address {
+        self.rest_api.clone()
+    }
+
+    pub fn get_path(&self) -> CloudConfigPath {
+        self.path.clone()
+    }
     pub fn get() -> CloudConfig {
         let path = Main::get_exe_path().join("config.json");
         // Versuche, den Inhalt der Datei zu lesen
@@ -38,58 +95,59 @@ impl CloudConfig {
         };
     }
 
-    pub fn new(
-        name: String,
-        prefix: String,
-        language: String,
-        server_host: String,
-        max_ram: u64,
-        node_host: Address,
-        rest_api: Address,
-        path: CloudConfigPath,
-    ) -> CloudConfig {
-        CloudConfig {
-            name,
-            prefix,
-            language,
-            server_host,
-            max_ram,
-            node_host,
-            rest_api,
-            path,
-        }
+    pub fn print(&self) {
+        println!("CloudConfig:");
+        println!("Name: {}", self.get_name());
+        println!("Prefix: {}", self.get_prefix());
+        println!("Language: {}", self.get_language());
+        println!("Server Host: {}", self.get_server_host());
+        println!("Max RAM: {}", self.get_max_ram());
+        println!("Node Host IP: {}", self.get_node_host().get_ip());
+        println!("Node Host PORT: {}", self.get_node_host().get_port());
+        println!("REST API IP: {}", self.get_rest_api().get_ip());
+        println!("REST API PORT: {}", self.get_rest_api().get_port());
+
+        let path = self.get_path();
+        println!("Path:");
+        println!("  Task Folder: {}", path.get_task_folder());
+        println!("  Template Folder: {}", path.get_template_folder());
+
+        let service_folder = path.get_service_folder();
+        println!("  Service Folder:");
+        println!("    Temp Folder: {}", service_folder.get_temp_folder());
+        println!("    Static Folder: {}", service_folder.get_static_folder());
+
+        let system_folder = path.get_system_folder();
+        println!("  System Folder:");
+        println!(
+            "    Software Config: {}",
+            system_folder.get_software_config()
+        );
+        println!("    Default Task: {}", system_folder.get_default_task());
+        println!(
+            "    System Plugins Folder: {}",
+            system_folder.get_system_plugins_folder()
+        );
+        println!(
+            "    Software Files Folder: {}",
+            system_folder.get_software_files_folder()
+        );
     }
 
-    pub fn get_name(&self) -> &String {
-        &self.name
-    }
+    fn save_to_file(
+        config: &CloudConfig,
+        file_path: &PathBuf,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        // Serialize CloudConfig to a JSON string
+        let json_str = serde_json::to_string_pretty(config)?;
 
-    pub fn get_prefix(&self) -> &String {
-        &self.prefix
-    }
+        // Open or create the file for writing
+        let mut file = File::create(file_path)?;
 
-    pub fn get_language(&self) -> &String {
-        &self.language
-    }
+        // Write the JSON string to the file
+        file.write_all(json_str.as_bytes())?;
 
-    pub fn get_server_host(&self) -> &String {
-        &self.server_host
-    }
-
-    pub fn get_max_ram(&self) -> u64 {
-        self.max_ram
-    }
-
-    pub fn get_node_host(&self) -> &Address {
-        &self.node_host
-    }
-
-    pub fn get_rest_api(&self) -> &Address {
-        &self.rest_api
-    }
-
-    pub fn get_path(&self) -> &CloudConfigPath {
-        &self.path
+        Ok(())
     }
 }
 
@@ -103,33 +161,33 @@ pub struct CloudConfigPath {
 
 impl CloudConfigPath {
     pub fn new(
-        task_folder: String,
-        template_folder: String,
-        service_folder: CloudConfigService,
-        system_folder: CloudConfigSystem,
+        task_folder: &String,
+        template_folder: &String,
+        service_folder: &CloudConfigService,
+        system_folder: &CloudConfigSystem,
     ) -> CloudConfigPath {
         CloudConfigPath {
-            task_folder,
-            template_folder,
-            service_folder,
-            system_folder,
+            task_folder: task_folder.clone(),
+            template_folder: template_folder.clone(),
+            service_folder: service_folder.clone(),
+            system_folder: system_folder.clone(),
         }
     }
 
-    pub fn get_task_folder(&self) -> &String {
-        &self.task_folder
+    pub fn get_task_folder(&self) -> String {
+        self.task_folder.clone()
     }
 
-    pub fn get_template_folder(&self) -> &String {
-        &self.template_folder
+    pub fn get_template_folder(&self) -> String {
+        self.template_folder.clone()
     }
 
-    pub fn get_service_folder(&self) -> &CloudConfigService {
-        &self.service_folder
+    pub fn get_service_folder(&self) -> CloudConfigService {
+        self.service_folder.clone()
     }
 
-    pub fn get_system_folder(&self) -> &CloudConfigSystem {
-        &self.system_folder
+    pub fn get_system_folder(&self) -> CloudConfigSystem {
+        self.system_folder.clone()
     }
 }
 
@@ -140,19 +198,19 @@ pub struct CloudConfigService {
 }
 
 impl CloudConfigService {
-    pub fn new(temp_folder: String, static_folder: String) -> CloudConfigService {
+    pub fn new(temp_folder: &String, static_folder: &String) -> CloudConfigService {
         CloudConfigService {
-            temp_folder,
-            static_folder,
+            temp_folder: temp_folder.clone(),
+            static_folder: static_folder.clone(),
         }
     }
 
-    pub fn get_temp_folder(&self) -> &String {
-        &self.temp_folder
+    pub fn get_temp_folder(&self) -> String {
+        self.temp_folder.clone()
     }
 
-    pub fn get_static_folder(&self) -> &String {
-        &self.static_folder
+    pub fn get_static_folder(&self) -> String {
+        self.static_folder.clone()
     }
 }
 
@@ -166,33 +224,33 @@ pub struct CloudConfigSystem {
 
 impl CloudConfigSystem {
     pub fn new(
-        software_config: String,
-        default_task: String,
-        system_plugins_folder: String,
-        software_files_folder: String,
+        software_config: &String,
+        default_task: &String,
+        system_plugins_folder: &String,
+        software_files_folder: &String,
     ) -> CloudConfigSystem {
         CloudConfigSystem {
-            software_config,
-            default_task,
-            system_plugins_folder,
-            software_files_folder,
+            software_config: software_config.clone(),
+            default_task: default_task.clone(),
+            system_plugins_folder: system_plugins_folder.clone(),
+            software_files_folder: software_files_folder.clone(),
         }
     }
 
-    pub fn get_software_config(&self) -> &String {
-        &self.software_config
+    pub fn get_software_config(&self) -> String {
+        self.software_config.clone()
     }
 
-    pub fn get_default_task(&self) -> &String {
-        &self.default_task
+    pub fn get_default_task(&self) -> String {
+        self.default_task.clone()
     }
 
-    pub fn get_system_plugins_folder(&self) -> &String {
-        &self.system_plugins_folder
+    pub fn get_system_plugins_folder(&self) -> String {
+        self.system_plugins_folder.clone()
     }
 
-    pub fn get_software_files_folder(&self) -> &String {
-        &self.software_files_folder
+    pub fn get_software_files_folder(&self) -> String {
+        self.software_files_folder.clone()
     }
 }
 
