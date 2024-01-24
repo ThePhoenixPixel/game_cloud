@@ -7,7 +7,7 @@ use reqwest::blocking::get;
 use serde_json::Value;
 use std::fs;
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::PathBuf;
 
 pub struct Starting;

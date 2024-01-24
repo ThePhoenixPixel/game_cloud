@@ -109,7 +109,7 @@ impl SoftwareType {
 
     pub fn remove_software_name(&mut self, software_name: &SoftwareName) {
         self.software_name
-            .insert((self.software_name.len() + 1), software_name.clone());
+            .insert(self.software_name.len() + 1, software_name.clone());
     }
 }
 //-------------------------------------------------------------

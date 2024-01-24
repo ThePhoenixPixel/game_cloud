@@ -21,4 +21,3 @@ impl Command for CommandTask {
             .collect()
     }
 }
-fn add(args: Vec<String>) {}

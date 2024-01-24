@@ -77,18 +77,16 @@ fn main() {
 
     //start the cloud
     if Starting::start(exe_path) {
-        Logger::info("das ist eine kleine info");
-        Logger::warning("das ist eine kleine warning");
-        Logger::error("das ist eine kleine error");
+        Logger::info("Game Cloud start");
 
         let mut cmd = Cmd::new();
         cmd.set_prefix(Config::get_prefix());
         cmd.start();
         //end
 
-        println!("{} BB", Config::get_prefix());
+        Logger::info(Config::get_prefix().to_string().as_str());
     }
 
-    println!("Game Cloud Stop");
-    println!("Good Bye");
+    Logger::info("Game Cloud Stop");
+    Logger::info("Good Bye");
 }

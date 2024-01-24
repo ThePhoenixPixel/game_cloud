@@ -7,7 +7,6 @@ use crate::logger::Logger;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
-use crate::Main;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -106,7 +105,7 @@ impl Service {
     }
 
     pub fn set_server_address(&self) {
-        let address = Address::new(
+        let _address = Address::new(
             &Config::get_server_host(),
             &Address::find_next_port(&Address::new(
                 &Config::get_server_host(),
@@ -134,7 +133,7 @@ impl Service {
         path.push(software_name.get_ip().get_path());
 
         let file_to_string = fs::read_to_string(&path).expect("Error ganz blöd");
-        let file_content: Value =
+        let _file_content: Value =
             serde_json::from_str(&file_to_string).expect("Error der blöd ist");
     }
 
@@ -322,7 +321,7 @@ impl Service {
             }
         };
 
-        let stdin_file = match File::create(self.get_path_stdin_file()) {
+        let _stdin_file = match File::create(self.get_path_stdin_file()) {
             Ok(file) => file,
             Err(e) => {
                 Logger::error(e.to_string().as_str());
@@ -431,7 +430,7 @@ fn start_server<'a>(
     stdin_file: File,
     service_path: String, // Service-Pfad ebenfalls übergeben
 ) {
-    let server = Command::new(software.get_command())
+    let _server = Command::new(software.get_command())
         .args(&[
             format!("-Xmx{}M", max_ram),
             "-jar".to_string(),

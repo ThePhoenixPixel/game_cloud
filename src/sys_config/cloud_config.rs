@@ -2,8 +2,6 @@ use crate::lib::address::Address;
 use crate::Main;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::fs::File;
-use std::io::Write;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -131,22 +129,6 @@ impl CloudConfig {
             "    Software Files Folder: {}",
             system_folder.get_software_files_folder()
         );
-    }
-
-    fn save_to_file(
-        config: &CloudConfig,
-        file_path: &PathBuf,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        // Serialize CloudConfig to a JSON string
-        let json_str = serde_json::to_string_pretty(config)?;
-
-        // Open or create the file for writing
-        let mut file = File::create(file_path)?;
-
-        // Write the JSON string to the file
-        file.write_all(json_str.as_bytes())?;
-
-        Ok(())
     }
 }
 
