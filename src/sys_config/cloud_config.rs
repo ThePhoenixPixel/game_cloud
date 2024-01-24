@@ -1,12 +1,9 @@
 use crate::lib::address::Address;
-use crate::lib::bx::Bx;
-use crate::utils::path::Path;
 use crate::Main;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::num::ParseFloatError;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -295,24 +292,24 @@ fn get_default_file() -> String {
       "max_ram": 2028,
       "node_host": {
         "ip": "127.0.0.1",
-        "port": 5005
+        "port": 5050
       },
       "rest_api": {
         "ip": "127.0.0.1",
-        "port": 6006
+        "port": 5051
       },
       "path": {
-        "task": "task",
-        "template": "template",
-        "service": {
-          "temp": "service/temp",
-          "static": "service/static"
+        "task_folder": "~task",
+        "template_folder": "~template",
+        "service_folder": {
+          "temp_folder": "~service/temp",
+          "static_folder": "~service/static"
         },
-        "config": {
-          "software": "config",
-          "default_task": "config",
-          "system_plugins": "config/system_plugins",
-          "software_files": "config/software_files"
+        "system_folder": {
+          "software_config": "~config",
+          "default_task": "~config",
+          "system_plugins_folder": "~config/system_plugins",
+          "software_files_folder": "~config/software_files"
         }
       }
     }
