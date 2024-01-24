@@ -13,17 +13,17 @@
     "port": 5051
   },
   "path": {
-    "task_folder": "task",
-    "template_folder": "template",
+    "task_folder": "~task",
+    "template_folder": "~template",
     "service_folder": {
-      "temp_folder": "service/temp",
-      "static_folder": "service/static"
+      "temp_folder": "~service/temp",
+      "static_folder": "~service/static"
     },
     "system_folder": {
-      "software_config": "config",
-      "default_task": "config",
-      "system_plugins_folder": "config/system_plugins",
-      "software_files_folder": "config/software_files"
+      "software_config": "~config",
+      "default_task": "~config",
+      "system_plugins_folder": "~config/system_plugins",
+      "software_files_folder": "~config/software_files"
     }
   }
 }

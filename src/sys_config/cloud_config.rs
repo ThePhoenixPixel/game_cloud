@@ -1,9 +1,12 @@
 use crate::lib::address::Address;
+use crate::lib::bx::Bx;
+use crate::utils::path::Path;
 use crate::Main;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
+use std::num::ParseFloatError;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -19,7 +22,6 @@ pub struct CloudConfig {
 }
 
 impl CloudConfig {
-
     pub fn new(
         name: &String,
         prefix: &String,
@@ -70,7 +72,7 @@ impl CloudConfig {
         self.rest_api.clone()
     }
 
-    pub fn get_path(&self) -> CloudConfigPath {
+    pub fn get_cloud_path(&self) -> CloudConfigPath {
         self.path.clone()
     }
     pub fn get() -> CloudConfig {
@@ -107,7 +109,7 @@ impl CloudConfig {
         println!("REST API IP: {}", self.get_rest_api().get_ip());
         println!("REST API PORT: {}", self.get_rest_api().get_port());
 
-        let path = self.get_path();
+        let path = self.get_cloud_path();
         println!("Path:");
         println!("  Task Folder: {}", path.get_task_folder());
         println!("  Template Folder: {}", path.get_template_folder());
@@ -178,8 +180,15 @@ impl CloudConfigPath {
         self.task_folder.clone()
     }
 
+    pub fn get_task_folder_path(&self) -> PathBuf {
+        get_path(&self.task_folder)
+    }
+
     pub fn get_template_folder(&self) -> String {
         self.template_folder.clone()
+    }
+    pub fn get_template_folder_path(&self) -> PathBuf {
+        get_path(&self.template_folder)
     }
 
     pub fn get_service_folder(&self) -> CloudConfigService {
@@ -209,8 +218,16 @@ impl CloudConfigService {
         self.temp_folder.clone()
     }
 
+    pub fn get_temp_folder_path(&self) -> PathBuf {
+        get_path(&self.temp_folder)
+    }
+
     pub fn get_static_folder(&self) -> String {
         self.static_folder.clone()
+    }
+
+    pub fn get_static_folder_path(&self) -> PathBuf {
+        get_path(&self.static_folder)
     }
 }
 
@@ -241,16 +258,30 @@ impl CloudConfigSystem {
         self.software_config.clone()
     }
 
+    pub fn get_software_config_path(&self) -> PathBuf {
+        get_path(&self.software_config)
+    }
+
     pub fn get_default_task(&self) -> String {
         self.default_task.clone()
     }
 
+    pub fn get_default_task_path(&self) -> PathBuf {
+        get_path(&self.default_task)
+    }
     pub fn get_system_plugins_folder(&self) -> String {
         self.system_plugins_folder.clone()
     }
 
+    pub fn get_system_plugins_folder_path(&self) -> PathBuf {
+        get_path(&self.system_plugins_folder)
+    }
     pub fn get_software_files_folder(&self) -> String {
         self.software_files_folder.clone()
+    }
+
+    pub fn get_software_files_folder_path(&self) -> PathBuf {
+        get_path(&self.software_files_folder)
     }
 }
 
@@ -287,4 +318,17 @@ fn get_default_file() -> String {
     }
     "#;
     json_str.to_string()
+}
+
+fn get_path(s: &String) -> PathBuf {
+    //check ob relativ '~'
+    // or windows C:/..
+    // linux zb /home or /opt
+    let mut path = PathBuf::new();
+
+    if s.find('~').is_some() {
+        path.push(Main::get_exe_path());
+    }
+    path.push(s.trim_matches('~'));
+    path
 }
