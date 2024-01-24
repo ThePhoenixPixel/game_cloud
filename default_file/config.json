@@ -6,24 +6,24 @@
   "max_ram": 2028,
   "node_host": {
     "ip": "127.0.0.1",
-    "port": 5005
+    "port": 5050
   },
   "rest_api": {
     "ip": "127.0.0.1",
-    "port": 6006
+    "port": 5051
   },
   "path": {
-    "task": "task",
-    "template": "template",
-    "service": {
-      "temp": "service/temp",
-      "static": "service/static"
+    "task_folder": "task",
+    "template_folder": "template",
+    "service_folder": {
+      "temp_folder": "service/temp",
+      "static_folder": "service/static"
     },
-    "config": {
-      "software": "config",
+    "system_folder": {
+      "software_config": "config",
       "default_task": "config",
-      "system_plugins": "config/system_plugins",
-      "software_files": "config/software_files"
+      "system_plugins_folder": "config/system_plugins",
+      "software_files_folder": "config/software_files"
     }
   }
 }
