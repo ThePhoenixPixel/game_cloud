@@ -1,8 +1,11 @@
 use crate::lib::address::Address;
-use crate::Main;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
+use reqwest::blocking::{get, Response};
+use crate::cloud::Cloud;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CloudConfig {
@@ -70,8 +73,38 @@ impl CloudConfig {
     pub fn get_cloud_path(&self) -> CloudConfigPath {
         self.path.clone()
     }
+
+    pub fn check() {
+        if !Cloud::get_exe_path().join("config.json").exists() {
+            CloudConfig::install();
+        }
+    }
+
+    pub fn install() {
+        // get the response from the download
+        let response = match get("http://download.codergames.de/game_cloud/v0.1/config.json") {
+            Ok(response) => response,
+            Err(e) => return,
+        };
+        // get the file to put in the response
+        let mut file = match File::create(Cloud::get_exe_path().join("config.json")) {
+            Ok(file) => file,
+            Err(e) => return,
+        };
+        // get the bytes from the response
+        let bytes = match response.bytes() {
+            Ok(bytes) => bytes,
+            Err(e) => return,
+        };
+        // write the download in the file put the bytes in the file
+        match file.write_all(&bytes) {
+            Ok(_) => return,
+            Err(e) => return,
+        };
+    }
+
     pub fn get() -> CloudConfig {
-        let path = Main::get_exe_path().join("config.json");
+        let path = Cloud::get_exe_path().join("config.json");
         // Versuche, den Inhalt der Datei zu lesen
         let file_content = match fs::read_to_string(&path) {
             Ok(file_content) => file_content,
@@ -306,7 +339,7 @@ fn get_path(s: &String) -> PathBuf {
     let mut path = PathBuf::new();
 
     if s.find('~').is_some() {
-        path.push(Main::get_exe_path());
+        path.push(Cloud::get_exe_path());
     }
     path.push(s.trim_matches('~'));
     path
