@@ -92,7 +92,7 @@ impl Bx {
             .next()
             .ok_or("Konnte keinen Dateinamen aus der URL extrahieren")?;
 
-        let file_path = format!("{}/{}", folder_path.to_str()?, filename);
+        let file_path = folder_path.join(filename);
 
         let mut file = File::create(&file_path)?;
 
