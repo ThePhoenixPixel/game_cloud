@@ -1,5 +1,8 @@
 use crate::config::Config;
+use crate::lib::bx::Bx;
 use crate::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
+use reqwest::blocking::get;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -14,10 +17,20 @@ pub struct SoftwareConfig {
 
 impl SoftwareConfig {
     pub fn get() -> SoftwareConfig {
-        let path = Config::get_software_path();
+        println!(
+            "{:?}",
+            CloudConfig::get()
+                .get_cloud_path()
+                .get_system_folder()
+                .get_software_config_path()
+        );
 
-        // Versuche, den Inhalt der Datei zu lesen
-        let file_content = match fs::read_to_string(&path) {
+        let file_content = match fs::read_to_string(
+            &CloudConfig::get()
+                .get_cloud_path()
+                .get_system_folder()
+                .get_software_config_path(),
+        ) {
             Ok(file_content) => file_content,
             Err(e) => {
                 Logger::warning("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
@@ -58,25 +71,35 @@ impl SoftwareConfig {
         self.software_type.remove(name);
     }
 
-    pub fn test() {
-        let mut software_name = Vec::new();
-        software_name.push(SoftwareName::new(
-            "paper",
-            "http://paper.de",
-            "java",
-            &1024,
-            &IP::new("server.propeties", "server-ip:%ip%"),
-            &Port::new("server.propeties", "server-port:%port%"),
-        ));
+    pub fn check() {
+        if !CloudConfig::get()
+            .get_cloud_path()
+            .get_system_folder()
+            .get_software_config_path()
+            .join("software.json")
+            .exists()
+        {
+            SoftwareConfig::install();
+        }
+    }
 
-        let software_type_1 = SoftwareType::new(software_name);
-        let mut software_type = HashMap::new();
-        software_type.insert("server".to_string(), software_type_1);
-
-        let software_config = SoftwareConfig::new(software_type);
-
-        save_to_file(&software_config, &PathBuf::from("software_config.json"))
-            .expect("Error sace to file");
+    pub fn install() {
+        let url = "http://download.codergames.de/game_cloud/v0.1/config/software.json";
+        let mut folder_path = CloudConfig::get()
+            .get_cloud_path()
+            .get_system_folder()
+            .get_software_config_path();
+        println!("{:?}", &folder_path);
+        folder_path.pop();
+        match Bx::download_file(url, &folder_path) {
+            Ok(_) => Logger::info(
+                format!("Successfully download the Software Config from {}", url).as_str(),
+            ),
+            Err(e) => {
+                Logger::error(&e.to_string());
+                panic!("Game Cloud has an fatal Error");
+            }
+        }
     }
 }
 // -----------------------------------------------------------

@@ -1,11 +1,11 @@
+use crate::cloud::Cloud;
 use crate::lib::address::Address;
+use reqwest::blocking::{get, Response};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use reqwest::blocking::{get, Response};
-use crate::cloud::Cloud;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CloudConfig {
@@ -267,11 +267,11 @@ impl CloudConfigSystem {
     }
 
     pub fn get_software_config(&self) -> String {
-        self.software_config.clone()
+        format!("{}software.json", self.software_config)
     }
 
     pub fn get_software_config_path(&self) -> PathBuf {
-        get_path(&self.software_config)
+        get_path(&self.software_config).join("software.json")
     }
 
     pub fn get_default_task(&self) -> String {

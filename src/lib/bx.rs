@@ -77,7 +77,10 @@ impl Bx {
         String::new()
     }
 
-    pub fn download_file(url: &str, folder_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn download_file(
+        url: &str,
+        folder_path: &PathBuf,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         // get http
         let response = reqwest::blocking::get(url)?;
 
@@ -100,5 +103,4 @@ impl Bx {
 
         Ok(())
     }
-
 }
