@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 
 pub struct Bx;
 
@@ -81,13 +82,6 @@ impl Bx {
         url: &str,
         folder_path: &PathBuf,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        // get http
-        let response = reqwest::blocking::get(url)?;
-
-        // check ob response 2xx
-        if !response.status().is_success() {
-            return Err("Error response from Server".into());
-        }
 
         // Extrakt file name from url
         let filename = url
@@ -96,6 +90,20 @@ impl Bx {
             .ok_or("Konnte keinen Dateinamen aus der URL extrahieren")?;
 
         let file_path = folder_path.join(filename);
+
+        if file_path.exists() {
+            Ok(())
+        }
+
+        let client = reqwest::blocking::Client::builder()
+            .timeout(Duration::from_secs(30))
+            .no_brotli()
+            .build()?;
+        let response = client.get(url).send()?;
+        // check ob response 2xx
+        if !response.status().is_success() {
+            return Err("Error response from Server".into());
+        }
 
         let mut file = File::create(&file_path)?;
 
