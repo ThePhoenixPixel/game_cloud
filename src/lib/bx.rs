@@ -1,6 +1,9 @@
 use std::error::Error;
 use std::fs;
+use std::fs::File;
+use std::io::Write;
 use std::path::{Path, PathBuf};
+
 pub struct Bx;
 
 impl Bx {
@@ -73,4 +76,29 @@ impl Bx {
         }
         String::new()
     }
+
+    pub fn download_file(url: &str, folder_path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+        // get http
+        let response = reqwest::blocking::get(url)?;
+
+        // check ob response 2xx
+        if !response.status().is_success() {
+            return Err("Error response from Server".into());
+        }
+
+        // Extrakt file name from url
+        let filename = url
+            .rsplit('/')
+            .next()
+            .ok_or("Konnte keinen Dateinamen aus der URL extrahieren")?;
+
+        let file_path = format!("{}/{}", folder_path.to_str()?, filename);
+
+        let mut file = File::create(&file_path)?;
+
+        file.write_all(&response.bytes()?)?;
+
+        Ok(())
+    }
+
 }
