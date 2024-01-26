@@ -49,13 +49,11 @@ impl Bx {
         None
     }
 
-    pub fn extract_filename_from_url(url: &String) -> Option<String> {
-        if let Ok(url) = reqwest::Url::parse(url) {
-            if let Some(file_name) = url.path_segments().and_then(|segments| segments.last()) {
-                return Some(file_name.to_string());
-            }
-        }
-        None
+    pub fn extract_filename_from_url(url: &str) -> Option<&str> {
+        return Option::from(match url.rsplit('/').next() {
+            Some(file_name) => file_name,
+            None => None,
+        })
     }
 
     pub fn extract_filename_from_pathbuf(path: &PathBuf) -> Option<String> {
