@@ -171,6 +171,15 @@ impl Cloud {
             Bx::create_path(&software_path);
 
             for software in software_type.get_software_names() {
+                let file_name =
+                    match Bx::extract_filename_from_url(&software.get_download().as_str()) {
+                        Some(file_name) => file_name,
+                        None => return,
+                    };
+                if software_path.join(&file_name).exists() {
+                    break;
+                }
+                Logger::info(format!("Download Software {}", software.get_name()).as_str());
                 match Bx::download_file(software.get_download().as_str(), &software_path) {
                     Ok(_) => {
                         Logger::info(

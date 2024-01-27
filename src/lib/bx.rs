@@ -49,11 +49,14 @@ impl Bx {
         None
     }
 
-    pub fn extract_filename_from_url(url: &str) -> Option<&str> {
-        return Option::from(match url.rsplit('/').next() {
-            Some(file_name) => file_name,
-            None => None,
-        })
+    pub fn extract_filename_from_url(url: &str) -> Option<String> {
+        return Option::from(
+            match url.rsplit('/').next() {
+                Some(file_name) => file_name,
+                None => return None,
+            }
+            .to_string(),
+        );
     }
 
     pub fn extract_filename_from_pathbuf(path: &PathBuf) -> Option<String> {
@@ -80,7 +83,6 @@ impl Bx {
         url: &str,
         folder_path: &PathBuf,
     ) -> Result<(), Box<dyn std::error::Error>> {
-
         // Extrakt file name from url
         let filename = url
             .rsplit('/')
@@ -90,7 +92,7 @@ impl Bx {
         let file_path = folder_path.join(filename);
 
         if file_path.exists() {
-            Ok(())
+            return Ok(());
         }
 
         let client = reqwest::blocking::Client::builder()

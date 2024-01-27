@@ -76,7 +76,6 @@ impl SoftwareConfig {
             .get_cloud_path()
             .get_system_folder()
             .get_software_config_path()
-            .join("software.json")
             .exists()
         {
             SoftwareConfig::install();
@@ -89,7 +88,7 @@ impl SoftwareConfig {
             .get_cloud_path()
             .get_system_folder()
             .get_software_config_path();
-        println!("{:?}", &folder_path);
+
         folder_path.pop();
         match Bx::download_file(url, &folder_path) {
             Ok(_) => Logger::info(

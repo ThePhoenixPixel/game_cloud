@@ -1,5 +1,7 @@
 use crate::cloud::Cloud;
 use crate::lib::address::Address;
+use crate::lib::bx::Bx;
+use crate::logger::Logger;
 use reqwest::blocking::{get, Response};
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -82,25 +84,16 @@ impl CloudConfig {
 
     pub fn install() {
         // get the response from the download
-        let response = match get("http://download.codergames.de/game_cloud/v0.1/config.json") {
-            Ok(response) => response,
-            Err(e) => return,
-        };
-        // get the file to put in the response
-        let mut file = match File::create(Cloud::get_exe_path().join("config.json")) {
-            Ok(file) => file,
-            Err(e) => return,
-        };
-        // get the bytes from the response
-        let bytes = match response.bytes() {
-            Ok(bytes) => bytes,
-            Err(e) => return,
-        };
-        // write the download in the file put the bytes in the file
-        match file.write_all(&bytes) {
-            Ok(_) => return,
-            Err(e) => return,
-        };
+        let url = "http://download.codergames.de/game_cloud/v0.1/config.json";
+        match Bx::download_file(url, &Cloud::get_exe_path()) {
+            Ok(_) => Logger::info(
+                format!("Successfully download the Software Config from {}", url).as_str(),
+            ),
+            Err(e) => {
+                Logger::error(&e.to_string());
+                panic!("Game Cloud has an fatal Error");
+            }
+        }
     }
 
     pub fn get() -> CloudConfig {
