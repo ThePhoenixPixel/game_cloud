@@ -17,14 +17,6 @@ pub struct SoftwareConfig {
 
 impl SoftwareConfig {
     pub fn get() -> SoftwareConfig {
-        println!(
-            "{:?}",
-            CloudConfig::get()
-                .get_cloud_path()
-                .get_system_folder()
-                .get_software_config_path()
-        );
-
         let file_content = match fs::read_to_string(
             &CloudConfig::get()
                 .get_cloud_path()

@@ -2,10 +2,10 @@ use crate::lib::bx::Bx;
 use crate::logger::Logger;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
-use colored::Colorize;
+use colored::{ColoredString, Colorize};
 use std::env;
-use std::fmt::format;
 use std::path::PathBuf;
+use crate::cmd::cmd::Cmd;
 
 pub struct Cloud;
 
@@ -25,6 +25,13 @@ impl Cloud {
 
         // check the software files
         Cloud::check_software();
+
+        // Cloud requier system ist finish
+
+        let mut cmd = Cmd::new();
+        cmd.set_prefix(ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
+        cmd.start();
+
     }
 
     pub fn disable() {}

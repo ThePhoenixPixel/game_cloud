@@ -2,11 +2,8 @@ use crate::cloud::Cloud;
 use crate::lib::address::Address;
 use crate::lib::bx::Bx;
 use crate::logger::Logger;
-use reqwest::blocking::{get, Response};
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::fs::File;
-use std::io::Write;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Clone)]

@@ -1,5 +1,4 @@
 use crate::cloud::Cloud;
-use crate::cmd::cmd::Cmd;
 use crate::config::Config;
 use crate::logger::Logger;
 use crate::starting::Starting;
@@ -7,6 +6,10 @@ use std::path::PathBuf;
 
 pub mod language;
 pub mod starting;
+
+pub mod rest_api {
+    pub mod api_main;
+}
 pub mod lib {
     pub mod address;
     pub mod bx;
@@ -69,9 +72,7 @@ fn alt_start(exe_path: &PathBuf) {
     if Starting::start(exe_path.clone()) {
         Logger::info("Game Cloud start");
 
-        let mut cmd = Cmd::new();
-        cmd.set_prefix(Config::get_prefix());
-        cmd.start();
+
         //end
 
         Logger::info(Config::get_prefix().to_string().as_str());
