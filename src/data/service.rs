@@ -4,6 +4,7 @@ use crate::lib::address::Address;
 use crate::lib::bx::Bx;
 use crate::lib::thread_manager::ThreadManager;
 use crate::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
@@ -36,7 +37,7 @@ impl Service {
                 &task.get_start_port(),
             )),
         );
-        let cloud_listener = Config::get_node_listener();
+        let cloud_listener = CloudConfig::get().get_node_host();
 
         let service = Service {
             name: format!(
@@ -106,9 +107,9 @@ impl Service {
 
     pub fn set_server_address(&self) {
         let _address = Address::new(
-            &Config::get_server_host(),
+            &CloudConfig::get().get_server_host(),
             &Address::find_next_port(&Address::new(
-                &Config::get_server_host(),
+                &CloudConfig::get().get_server_host(),
                 &self.get_task().get_start_port(),
             )),
         );
@@ -377,8 +378,6 @@ impl Service {
         println!("{}", server_file_path);
         println!("{}", software.get_command());
 
-        let mut thread_manager = ThreadManager::new();
-
         // Daten kopieren
         let software_clone = software.clone();
         let stdout_file_clone = stdout_file
@@ -390,21 +389,18 @@ impl Service {
         let stdin_file_clone = stdin_file.try_clone().expect("Failed to clone stdin file");
         let max_ram = self.get_task().get_max_ram();
         // ThreadManager erstellen und Thread starten
-        thread_manager.spawn(move || {
-            start_server(
-                software_clone,
-                server_file_path,
-                max_ram,
-                stdout_file_clone,
-                stderr_file_clone,
-                stdin_file_clone,
-                server_path,
-            );
-        });
+
+        start_server(
+            software_clone,
+            server_file_path,
+            max_ram,
+            stdout_file_clone,
+            stderr_file_clone,
+            stdin_file_clone,
+            server_path,
+        );
 
         println!("start the server");
-
-        thread_manager.shutdown_all();
 
         //self.connect_to_proxy();
     }

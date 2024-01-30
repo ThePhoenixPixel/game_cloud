@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::bx::Bx;
+use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
 use colored::*;
 use reqwest::blocking::get;
@@ -129,7 +130,11 @@ impl Starting {
         for (software_type_name, software_type) in software_config.get_software_types() {
             for software_name in software_type.get_software_names() {
                 //create the software type folder
-                let install_dir_path = Config::get_software_files_path().join(&software_type_name);
+                let install_dir_path = CloudConfig::get()
+                    .get_cloud_path()
+                    .get_system_folder()
+                    .get_software_files_folder_path()
+                    .join(&software_type_name);
                 Bx::create_path(&install_dir_path);
 
                 // install the server file
@@ -439,7 +444,10 @@ fn install_software(
     software_type: &str,
     cmd_prefix: &ColoredString,
 ) {
-    let install_dir = Config::get_software_files_path();
+    let install_dir = CloudConfig::get()
+        .get_cloud_path()
+        .get_system_folder()
+        .get_software_files_folder_path();
     if software_link.starts_with("local:") {
         // Die Software ist lokal verfügbar
         let local_path = &software_link[6..]; // Entferne das "local:" Präfix
@@ -494,7 +502,10 @@ fn install_software_from_external_link(
     target_path: &PathBuf,
 ) {
     let cmd_prefix = Config::get_prefix();
-    let install_dir = Config::get_software_files_path();
+    let install_dir = CloudConfig::get()
+        .get_cloud_path()
+        .get_system_folder()
+        .get_software_files_folder_path();
     let file_extension = software_link.rsplitn(2, '.').next().unwrap_or("dat"); // Wenn keine Dateiendung gefunden wurde, verwenden Sie "dat"
 
     let file_name = format!("{}.{}", software_name, file_extension);

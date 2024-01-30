@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -80,7 +81,10 @@ impl Software {
     }
 
     pub fn get_software_file_path(&self) -> PathBuf {
-        let mut software_path = Config::get_software_files_path();
+        let mut software_path = CloudConfig::get()
+            .get_cloud_path()
+            .get_system_folder()
+            .get_software_files_folder_path();
         software_path.push(&self.get_software_type());
         software_path.push(self.get_name_with_ext());
         software_path

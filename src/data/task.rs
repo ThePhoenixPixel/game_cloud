@@ -1,9 +1,12 @@
+use crate::cloud::Cloud;
 use crate::config::Config;
 use crate::data::installer::Installer;
 use crate::data::service::Service;
 use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;
+use crate::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -30,7 +33,10 @@ pub struct Task {
 
 impl Task {
     pub fn new() -> Task {
-        let default_task_path = Config::get_config_default_task_path();
+        let default_task_path = CloudConfig::get()
+            .get_cloud_path()
+            .get_system_folder()
+            .get_default_task_path();
 
         let default_task_content =
             fs::read_to_string(&default_task_path).unwrap_or_else(|_| "".to_string());
@@ -239,8 +245,26 @@ impl Task {
         }
     }
 
+    pub fn to_json(&self) -> Option<serde_json::Value> {
+        let json_string = match serde_json::to_string_pretty(self) {
+            Ok(json_string) => json_string,
+            Err(e) => {
+                Logger::error(e.to_string().as_str());
+                return None;
+            }
+        };
+
+        return match serde_json::from_str(json_string.as_str()) {
+            Ok(json) => Some(json),
+            Err(e) => {
+                Logger::error(e.to_string().as_str());
+                None
+            }
+        };
+    }
+
     pub fn get_task(name: String) -> Option<Task> {
-        let task_path = Config::get_task_path();
+        let task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
 
         // YAML-Dateien lesen
         let json_files = fs::read_dir(&task_path)
@@ -314,7 +338,7 @@ impl Task {
     }
 
     pub fn get_task_all() -> Vec<Task> {
-        let task_path = Config::get_task_path();
+        let task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
         let mut tasks: Vec<Task> = Vec::new();
 
         if task_path.exists() && task_path.is_dir() {
@@ -366,7 +390,10 @@ impl Task {
     pub fn save_to_file(&self) {
         let serialized_task =
             serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
-        let task_path = Config::get_task_path().join(format!("{}.json", self.get_name()));
+        let task_path = CloudConfig::get()
+            .get_cloud_path()
+            .get_task_folder_path()
+            .join(format!("{}.json", self.get_name()));
 
         if !task_path.exists() {
             Template::create_by_task(&self);
@@ -378,7 +405,7 @@ impl Task {
     }
 
     pub fn delete_as_file(&self) {
-        let mut task_path = Config::get_task_path();
+        let mut task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
         task_path.push(format!("{}.json", &self.name));
 
         fs::remove_file(task_path).expect("Error bei  removen der task datei");
@@ -409,14 +436,22 @@ impl Task {
         {
             //temp service
             let mut target_folder_name = format!("{}-1", &template.template);
-            let mut target_path = Config::get_service_temp_path().join(&target_folder_name);
+            let mut target_path = CloudConfig::get()
+                .get_cloud_path()
+                .get_service_folder()
+                .get_temp_folder_path()
+                .join(&target_folder_name);
 
             // Überprüfen, ob der Zielordner bereits existiert, und erhöhen Sie die Nummer, falls erforderlich
             let mut folder_number = 1;
             while target_path.exists() {
                 folder_number += 1;
                 target_folder_name = format!("{}-{}", &template.template, folder_number);
-                target_path = Config::get_service_temp_path().join(&target_folder_name);
+                target_path = CloudConfig::get()
+                    .get_cloud_path()
+                    .get_service_folder()
+                    .get_temp_folder_path()
+                    .join(&target_folder_name);
             }
 
             // Hier wird der Zielordner erstellt, wenn er nicht existiert
@@ -449,9 +484,15 @@ impl Task {
     //get temp or static for the service
     pub fn get_service_path(&self) -> PathBuf {
         let path = if self.static_service {
-            Config::get_service_static_path()
+            CloudConfig::get()
+                .get_cloud_path()
+                .get_service_folder()
+                .get_static_folder_path()
         } else {
-            Config::get_service_temp_path()
+            CloudConfig::get()
+                .get_cloud_path()
+                .get_service_folder()
+                .get_temp_folder_path()
         };
         path
     }
