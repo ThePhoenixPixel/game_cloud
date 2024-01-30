@@ -66,15 +66,3 @@ fn main() {
     println!("Game Cloud Stop");
     println!("Good Bye");
 }
-
-fn alt_start(exe_path: &PathBuf) {
-    //start the cloud
-    if Starting::start(exe_path.clone()) {
-        Logger::info("Game Cloud start");
-
-
-        //end
-
-        Logger::info(Config::get_prefix().to_string().as_str());
-    }
-}
