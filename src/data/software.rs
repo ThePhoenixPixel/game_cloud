@@ -1,4 +1,3 @@
-use crate::config::Config;
 use crate::logger::Logger;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};

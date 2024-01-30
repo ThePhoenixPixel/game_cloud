@@ -1,8 +1,6 @@
-use crate::config::Config;
 use crate::lib::bx::Bx;
 use crate::logger::Logger;
 use crate::sys_config::cloud_config::CloudConfig;
-use reqwest::blocking::get;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

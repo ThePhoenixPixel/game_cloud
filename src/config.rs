@@ -1,5 +1,3 @@
-use crate::lib::address::Address;
-use crate::sys_config::cloud_config::CloudConfig;
 use colored::{ColoredString, Colorize};
 use serde_json;
 use std::path::PathBuf;

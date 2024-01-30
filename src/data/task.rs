@@ -1,4 +1,3 @@
-use crate::cloud::Cloud;
 use crate::config::Config;
 use crate::data::installer::Installer;
 use crate::data::service::Service;
