@@ -55,4 +55,7 @@ impl Address {
             false
         }
     }
+    pub fn to_string(&self) -> String {
+        format!("{}:{}", self.get_ip(), self.get_port()).to_string()
+    }
 }

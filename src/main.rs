@@ -5,6 +5,7 @@ pub mod starting;
 
 pub mod rest_api {
     pub mod api_main;
+    pub mod get;
 }
 pub mod lib {
     pub mod address;
@@ -14,6 +15,7 @@ pub mod lib {
 
 pub mod utils {
     pub mod path;
+    pub mod serde;
     pub mod service_status;
 }
 
@@ -52,7 +54,6 @@ pub mod logger;
 
 fn main() {
     println!("Start Game Cloud...");
-
     //start the game cloud
     Cloud::enable();
 
