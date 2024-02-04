@@ -16,7 +16,7 @@ impl ApiMain {
             App::new()
                 .wrap(
                     Cors::permissive()
-                        .allowed_origin("http://127.0.0.1:5500")
+                        .allow_any_method()
                         .supports_credentials()
                         .allow_any_header(),
                 )

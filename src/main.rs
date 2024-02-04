@@ -6,6 +6,7 @@ pub mod starting;
 pub mod rest_api {
     pub mod api_main;
     pub mod get;
+    pub mod set;
 }
 pub mod lib {
     pub mod address;
