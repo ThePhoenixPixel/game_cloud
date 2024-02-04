@@ -10,6 +10,7 @@ pub mod rest_api {
 pub mod lib {
     pub mod address;
     pub mod bx;
+    pub mod webhook;
     pub mod thread_manager;
 }
 

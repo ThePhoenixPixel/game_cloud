@@ -36,7 +36,10 @@ impl Cloud {
         cmd.start();
     }
 
-    pub fn disable() {}
+    pub fn disable() {
+        Cloud::shutdown_service();
+
+    }
 
     pub fn get_exe_path() -> PathBuf {
         return match env::current_exe() {
@@ -207,4 +210,9 @@ impl Cloud {
             }
         }
     }
+
+    pub fn shutdown_service() {
+
+    }
+
 }
