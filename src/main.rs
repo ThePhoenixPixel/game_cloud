@@ -21,20 +21,6 @@ pub mod utils {
     pub mod service_status;
 }
 
-pub mod cmd {
-    pub mod cmd;
-    pub mod command_manager;
-
-    pub mod command {
-        pub mod command_task;
-        //pub mod cmd_group;
-        //pub mod cmd_node;
-        //pub mod cmd_software;
-        pub mod cmd_stop;
-        pub mod cmd_task;
-        pub mod cmd_template;
-    }
-}
 pub mod data {
     pub mod task;
     pub mod template;
