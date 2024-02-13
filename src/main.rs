@@ -11,8 +11,8 @@ pub mod rest_api {
 pub mod lib {
     pub mod address;
     pub mod bx;
-    pub mod webhook;
     pub mod thread_manager;
+    pub mod webhook;
 }
 
 pub mod utils {
@@ -35,6 +35,18 @@ pub mod sys_config {
     pub mod cloud_config;
     pub mod software_config;
 }
+
+pub mod terminal {
+    pub mod cmd;
+    pub mod command_manager;
+    pub mod command {
+        pub mod cmd_help;
+        pub mod cmd_service;
+        pub mod cmd_task;
+        pub mod cmd_template;
+    }
+}
+
 pub mod cloud;
 pub mod config;
 pub mod log;

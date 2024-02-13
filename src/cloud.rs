@@ -1,9 +1,10 @@
-use crate::cmd::cmd::Cmd;
 use crate::lib::bx::Bx;
 use crate::logger::Logger;
 use crate::rest_api::api_main::ApiMain;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
+use crate::terminal::cmd::Cmd;
+
 use colored::{ColoredString, Colorize};
 use std::env;
 use std::path::PathBuf;
@@ -28,17 +29,22 @@ impl Cloud {
         Cloud::check_software();
 
         // Cloud requier system ist finish
-        std::thread::spawn(move || {
-            let _ = ApiMain::start();
-        });
-        let mut cmd = Cmd::new();
-        cmd.set_prefix(ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
+        if false {
+            std::thread::spawn(move || {
+                let _ = ApiMain::start();
+            });
+        }
+
+        let mut cmd =
+            Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
         cmd.start();
     }
 
     pub fn disable() {
         Cloud::shutdown_service();
-
+        Logger::info("Cloud shutdown");
+        Logger::info("Bye Bye");
+        std::process::exit(0)
     }
 
     pub fn get_exe_path() -> PathBuf {
@@ -211,8 +217,5 @@ impl Cloud {
         }
     }
 
-    pub fn shutdown_service() {
-
-    }
-
+    pub fn shutdown_service() {}
 }
