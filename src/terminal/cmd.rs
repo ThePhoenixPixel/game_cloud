@@ -43,17 +43,17 @@ impl Cmd {
             .to_lowercase();
 
             // remove the command arg from the args list
-            args.remove(1);
+            args.remove(0);
 
             // check ob stop or exit execute in the input the stop the cloud
             if command == "exit" || command == "stop" {
-                Cloud::disable();
                 break;
             }
 
             // execute the commands
             Cmd::execute_command(command.as_str(), args)
         }
+        Cloud::disable();
     }
 
     pub fn execute_command(command: &str, args: Vec<&str>) {
