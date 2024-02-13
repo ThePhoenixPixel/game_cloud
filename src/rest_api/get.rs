@@ -35,9 +35,7 @@ impl ApiGet {
     }
 
     pub async fn services() -> HttpResponse {
-        let service_number = ServiceNumber {
-            service_number: 1,
-        };
+        let service_number = ServiceNumber { service_number: 1 };
 
         let json = match serde_json::to_value(&service_number) {
             Ok(json) => json,

@@ -1,16 +1,15 @@
-use std::thread;
-use std::time::Duration;
+use crate::logger::Logger;
 use reqwest::blocking::Client;
 use serde::Serialize;
-use crate::logger::Logger;
+use std::thread;
+use std::time::Duration;
 
 pub struct Webhook;
 
 impl Webhook {
-
     pub fn send<T>(data: T, url: &str) -> Result<(), reqwest::Error>
-        where
-            T: Serialize,
+    where
+        T: Serialize,
     {
         let duration = Duration::from_secs(1);
         thread::sleep(duration);
@@ -32,7 +31,10 @@ impl Webhook {
                     println!("Webhook-Anfrage erfolgreich gesendet.");
                     // Hier kannst du die Antwort des Java-Plugins verarbeiten, falls gewünscht.
                 } else {
-                    println!("Fehler beim Senden der Webhook-Anfrage: {:?}", response.status());
+                    println!(
+                        "Fehler beim Senden der Webhook-Anfrage: {:?}",
+                        response.status()
+                    );
                 }
             }
             Err(e) => {
@@ -42,5 +44,4 @@ impl Webhook {
 
         Ok(())
     }
-
 }
