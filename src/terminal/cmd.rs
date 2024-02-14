@@ -1,10 +1,10 @@
+use crate::cloud::Cloud;
 use crate::logger::Logger;
 use crate::terminal::command::cmd_help::CmdHelp;
 use crate::terminal::command::cmd_service::CmdService;
 use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
 use crate::terminal::command_manager::CommandManager;
-use crate::cloud::Cloud;
 
 use colored::ColoredString;
 use std::io;
@@ -41,9 +41,6 @@ impl Cmd {
                 None => String::new(),
             }
             .to_lowercase();
-
-            // remove the command arg from the args list
-            args.remove(0);
 
             // check ob stop or exit execute in the input the stop the cloud
             if command == "exit" || command == "stop" {
