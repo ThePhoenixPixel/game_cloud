@@ -248,7 +248,7 @@ impl Task {
         let json_string = match serde_json::to_string_pretty(self) {
             Ok(json_string) => json_string,
             Err(e) => {
-                Logger::error!(e.to_string().as_str());
+                log_error!(e.to_string().as_str());
                 return None;
             }
         };
@@ -256,7 +256,7 @@ impl Task {
         return match serde_json::from_str(json_string.as_str()) {
             Ok(json) => Some(json),
             Err(e) => {
-                Logger::error!(e.to_string().as_str());
+                log_error!(e.to_string().as_str());
                 None
             }
         };

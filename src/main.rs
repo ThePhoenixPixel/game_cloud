@@ -52,6 +52,9 @@ pub mod config;
 pub mod log;
 pub mod logger;
 
+#[macro_use]
+pub mod logger_macros;
+
 fn main() {
     println!("Start Game Cloud...");
     //start the game cloud

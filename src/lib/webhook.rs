@@ -20,7 +20,7 @@ impl Webhook {
         let json_data = match serde_json::to_value(&data) {
             Ok(json_data) => json_data,
             Err(e) => {
-                Logger::error(&e.to_string().as_str());
+                log_error!(&e.to_string().as_str());
                 return Ok(());
             }
         };

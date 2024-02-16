@@ -7,6 +7,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+use crate::{log_error, log_info};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareConfig {
@@ -23,8 +24,8 @@ impl SoftwareConfig {
         ) {
             Ok(file_content) => file_content,
             Err(e) => {
-                Logger::warning!("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
-                Logger::error!(&e.to_string());
+                log_warning!("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
+                log_error!("{}", &e.to_string());
                 get_default_file()
             }
         };
@@ -33,8 +34,8 @@ impl SoftwareConfig {
         return match serde_json::from_str(&file_content) {
             Ok(config) => config,
             Err(e) => {
-                Logger::warning!("Fehler beim Deserialisieren der Software-Dateikonfiguration");
-                Logger::error!(&e.to_string());
+                log_warning!("Fehler beim Deserialisieren der Software-Dateikonfiguration");
+                log_error!("{}", &e.to_string());
                 panic!("The GameCloud has an fatal Error");
             }
         };
@@ -81,11 +82,9 @@ impl SoftwareConfig {
 
         folder_path.pop();
         match Bx::download_file(url, &folder_path) {
-            Ok(_) => Logger::info!(
-                format!("Successfully download the Software Config from {}", url).as_str(),
-            ),
+            Ok(_) => log_info!("Successfully download the Software Config from {}", url),
             Err(e) => {
-                Logger::error!(&e.to_string());
+                log_error!("{}", e);
                 panic!("Game Cloud has an fatal Error");
             }
         }

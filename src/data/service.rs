@@ -15,6 +15,7 @@ use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use crate::log_error;
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -117,7 +118,7 @@ impl Service {
             match SoftwareConfig::get().get_software_type(software.get_software_type()) {
                 Some(software_type) => software_type,
                 None => {
-                    Logger::error!("Can not get the Software Type");
+                    log_error!("Can not get the Software Type");
                     return;
                 }
             };
@@ -125,7 +126,7 @@ impl Service {
         let software_name = match software_type.get_software_name(software.get_name().as_str()) {
             Some(software_name) => software_name,
             None => {
-                Logger::error!("Can not get the Software Name");
+                log_error!("Can not get the Software Name");
                 return;
             }
         };
@@ -211,7 +212,7 @@ impl Service {
         path.pop();
         Bx::create_path(&path);
         if File::create(self.get_path_with_service_file()).is_err() {
-            Logger::error!("Fehler beim erstellen der service config datei");
+            log_error!("Fehler beim erstellen der service config datei");
             return;
         }
 
@@ -316,7 +317,7 @@ impl Service {
         let stdout_file = match File::create(self.get_path_stdout_file()) {
             Ok(file) => file,
             Err(e) => {
-                Logger::error!(e.to_string().as_str());
+                log_error!("{}", e.to_string().as_str());
                 return;
             }
         };
@@ -324,7 +325,7 @@ impl Service {
         let _stdin_file = match File::create(self.get_path_stdin_file()) {
             Ok(file) => file,
             Err(e) => {
-                Logger::error!(e.to_string().as_str());
+                log_error!("{}", e.to_string().as_str());
                 return;
             }
         };
@@ -332,7 +333,7 @@ impl Service {
         let stderr_file = match File::create(self.get_path_stderr_file()) {
             Ok(file) => file,
             Err(e) => {
-                Logger::error!(e.to_string().as_str());
+                log_error!("{}", e);
                 return;
             }
         };
@@ -344,7 +345,7 @@ impl Service {
         {
             Some(software) => software,
             None => {
-                Logger::error!(
+                log_error!(
                     format!(
                         "Can not find the Software for the service {}",
                         self.get_name()
@@ -357,7 +358,7 @@ impl Service {
         let server_file_path = match self.get_path_server_file().to_str() {
             Some(server_file_path) => server_file_path,
             None => {
-                Logger::error!("Can not server file path to string change");
+                log_error!("Can not server file path to string change");
                 return;
             }
         }
@@ -366,7 +367,7 @@ impl Service {
         let server_path = match self.get_path().to_str() {
             Some(server_file_path) => server_file_path,
             None => {
-                Logger::error!("Can not server path to string change");
+                log_error!("Can not server path to string change");
                 return;
             }
         }

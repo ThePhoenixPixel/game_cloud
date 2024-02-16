@@ -5,6 +5,7 @@ use crate::logger::Logger;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use crate::{log_error, log_info};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CloudConfig {
@@ -83,11 +84,9 @@ impl CloudConfig {
         // get the response from the download
         let url = "http://download.codergames.de/game_cloud/v0.1/config.json";
         match Bx::download_file(url, &Cloud::get_exe_path()) {
-            Ok(_) => Logger::info!(
-                format!("Successfully download the Software Config from {}", url).as_str(),
-            ),
+            Ok(_) => log_info!("Successfully download the Software Config from {}", url),
             Err(e) => {
-                Logger::error!(&e.to_string());
+                log_error!("{}", &e.to_string());
                 panic!("Game Cloud has an fatal Error");
             }
         }

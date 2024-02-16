@@ -50,7 +50,7 @@ impl Software {
         let binding = match binding {
             Some(binding) => binding,
             None => {
-                Logger::error!("Error in Software.rs can not get software url");
+                log_error!("Error in Software.rs can not get software url");
                 String::new()
             }
         };

@@ -1,9 +1,6 @@
-use crate::data::service::Service;
 use crate::data::task::Task;
 use crate::logger::Logger;
-use crate::utils::serde::Serde;
 use actix_web::{web, HttpResponse};
-use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -17,7 +14,7 @@ impl ApiGet {
     pub async fn task(path: web::Path<String>) -> HttpResponse {
         let task_name = path.into_inner();
 
-        Logger::info!(format!("get Task Name {}", task_name).as_str());
+        log_info!(format!("get Task Name {}", task_name).as_str());
 
         let task = match Task::get_task(task_name) {
             Some(task) => task,
@@ -26,7 +23,7 @@ impl ApiGet {
             }
         };
 
-        Logger::info!(format!("task objekt {}", task.get_name()).as_str());
+        log_info!(format!("task objekt {}", task.get_name()).as_str());
 
         return match task.to_json() {
             Some(data) => HttpResponse::Ok().json(data),
@@ -40,7 +37,7 @@ impl ApiGet {
         let json = match serde_json::to_value(&service_number) {
             Ok(json) => json,
             Err(e) => {
-                Logger::error!(e.to_string().as_str());
+                log_error!(e.to_string().as_str());
                 return empty_json_response();
             }
         };
