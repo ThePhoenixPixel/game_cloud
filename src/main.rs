@@ -52,7 +52,6 @@ pub mod terminal {
 pub mod cloud;
 pub mod config;
 pub mod language;
-pub mod starting;
 
 fn main() {
     println!("Start Game Cloud...");
