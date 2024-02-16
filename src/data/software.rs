@@ -4,7 +4,7 @@ use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Software {
     pub software_type: String,
     pub name: String,
@@ -50,7 +50,7 @@ impl Software {
         let binding = match binding {
             Some(binding) => binding,
             None => {
-                Logger::error("Error in Software.rs can not get software url");
+                Logger::error!("Error in Software.rs can not get software url");
                 String::new()
             }
         };

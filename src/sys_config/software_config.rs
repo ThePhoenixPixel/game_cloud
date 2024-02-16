@@ -23,8 +23,8 @@ impl SoftwareConfig {
         ) {
             Ok(file_content) => file_content,
             Err(e) => {
-                Logger::warning("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
-                Logger::error(&e.to_string());
+                Logger::warning!("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
+                Logger::error!(&e.to_string());
                 get_default_file()
             }
         };
@@ -33,8 +33,8 @@ impl SoftwareConfig {
         return match serde_json::from_str(&file_content) {
             Ok(config) => config,
             Err(e) => {
-                Logger::warning("Fehler beim Deserialisieren der Software-Dateikonfiguration");
-                Logger::error(&e.to_string());
+                Logger::warning!("Fehler beim Deserialisieren der Software-Dateikonfiguration");
+                Logger::error!(&e.to_string());
                 panic!("The GameCloud has an fatal Error");
             }
         };
@@ -81,11 +81,11 @@ impl SoftwareConfig {
 
         folder_path.pop();
         match Bx::download_file(url, &folder_path) {
-            Ok(_) => Logger::info(
+            Ok(_) => Logger::info!(
                 format!("Successfully download the Software Config from {}", url).as_str(),
             ),
             Err(e) => {
-                Logger::error(&e.to_string());
+                Logger::error!(&e.to_string());
                 panic!("Game Cloud has an fatal Error");
             }
         }
