@@ -1,14 +1,16 @@
+use colored::ColoredString;
+use std::io;
+use std::io::Write;
+
+use crate::log_error;
 use crate::cloud::Cloud;
-use crate::logger::Logger;
+use crate::utils::logger::Logger;
 use crate::terminal::command::cmd_help::CmdHelp;
 use crate::terminal::command::cmd_service::CmdService;
 use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
 use crate::terminal::command_manager::CommandManager;
 
-use colored::ColoredString;
-use std::io;
-use std::io::Write;
 
 pub struct Cmd {
     prefix: ColoredString,
@@ -69,7 +71,7 @@ fn flush_buffer() {
         Ok(_) => return,
         Err(e) => {
             log_error!("Error by flushing the Buffer");
-            log_error!(e.to_string().as_str());
+            log_error!("{}", e.to_string());
         }
     }
 }
@@ -80,7 +82,7 @@ fn read_from_line() -> String {
         Ok(_) => input,
         Err(e) => {
             log_error!("Error by read the input");
-            log_error!(e.to_string().as_str());
+            log_error!("{}", e.to_string());
             String::new()
         }
     };

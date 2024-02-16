@@ -1,7 +1,7 @@
 use crate::cloud::Cloud;
 use crate::lib::address::Address;
 use crate::lib::bx::Bx;
-use crate::logger::Logger;
+use crate::utils::logger::Logger;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;

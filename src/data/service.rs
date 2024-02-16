@@ -1,21 +1,22 @@
-use crate::config::Config;
-use crate::data::task::Task;
-use crate::lib::address::Address;
-use crate::lib::bx::Bx;
-use crate::logger::Logger;
-use crate::sys_config::cloud_config::CloudConfig;
-use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
-use crate::utils::path::Path;
-use crate::utils::service_status::ServiceStatus;
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::fs;
 use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+
 use crate::log_error;
+use crate::config::Config;
+use crate::data::task::Task;
+use crate::lib::address::Address;
+use crate::lib::bx::Bx;
+use crate::utils::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
+use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
+use crate::utils::path::Path;
+use crate::utils::service_status::ServiceStatus;
+
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -133,7 +134,7 @@ impl Service {
         let mut path = self.get_path();
         path.push(software_name.get_ip().get_path());
 
-        let file_to_string = fs::read_to_string(&path).expect("Error ganz blöd");
+        let file_to_string = read_to_string(&path).expect("Error ganz blöd");
         let _file_content: Value =
             serde_json::from_str(&file_to_string).expect("Error der blöd ist");
     }
@@ -345,13 +346,7 @@ impl Service {
         {
             Some(software) => software,
             None => {
-                log_error!(
-                    format!(
-                        "Can not find the Software for the service {}",
-                        self.get_name()
-                    )
-                    .as_str(),
-                );
+                log_error!("Can not find the Software for the service {}", self.get_name());
                 return;
             }
         };

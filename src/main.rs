@@ -1,13 +1,11 @@
 use crate::cloud::Cloud;
 
-pub mod language;
-pub mod starting;
-
 pub mod rest_api {
     pub mod api_main;
     pub mod get;
     pub mod set;
 }
+
 pub mod lib {
     pub mod address;
     pub mod bx;
@@ -19,6 +17,10 @@ pub mod utils {
     pub mod path;
     pub mod serde;
     pub mod service_status;
+    pub mod log;
+    pub mod logger;
+    #[macro_use]
+    pub mod logger_macros;
 }
 
 pub mod data {
@@ -49,11 +51,8 @@ pub mod terminal {
 
 pub mod cloud;
 pub mod config;
-pub mod log;
-pub mod logger;
-
-#[macro_use]
-pub mod logger_macros;
+pub mod language;
+pub mod starting;
 
 fn main() {
     println!("Start Game Cloud...");

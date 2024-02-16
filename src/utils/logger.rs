@@ -1,30 +1,31 @@
-use crate::config::Config;
-use crate::lib::bx::Bx;
-use crate::log::Log;
 use chrono::Local;
 use colored::{ColoredString, Colorize};
 use std::env;
 use std::fs::OpenOptions;
 use std::io::Write;
 
+use crate::config::Config;
+use crate::lib::bx::Bx;
+use crate::utils::log::Log;
+
+
 pub struct Logger;
 
 impl Logger {
     fn log(args: std::fmt::Arguments, log_level: Log) {
-        // Erfasse die formatierten Argumente
-        let formatted_msg = format_args!(
+        let msg = format!("{}", format_args!(
             "{} {} {} {}",
             Config::get_prefix(),
             Log::get(log_level).to_string(),
             ColoredString::from(">>").blue(),
             args
-        );
+        ));
 
-        // Gib die formatierten Argumente auf der Konsole aus
-        println!("{}", formatted_msg);
+        // print the args in the cmd
+        println!("{}", &msg);
 
-        // Schreibe die formatierten Argumente in die Log-Datei
-        Logger::write_in_file(formatted_msg.to_string());
+        // write the cmd output in the log file
+        Logger::write_in_file(msg);
     }
 
     pub fn info(args: std::fmt::Arguments) {

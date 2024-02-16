@@ -1,17 +1,20 @@
-use crate::config::Config;
-use crate::data::installer::Installer;
-use crate::data::service::Service;
-use crate::data::software::Software;
-use crate::data::template::Template;
-use crate::lib::bx::Bx;
-use crate::logger::Logger;
-use crate::sys_config::cloud_config::CloudConfig;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+
+use crate::config::Config;
+use crate::data::installer::Installer;
+use crate::data::service::Service;
+use crate::data::software::Software;
+use crate::data::template::Template;
+use crate::lib::bx::Bx;
+use crate::log_error;
+use crate::utils::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
+
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Task {
@@ -248,7 +251,7 @@ impl Task {
         let json_string = match serde_json::to_string_pretty(self) {
             Ok(json_string) => json_string,
             Err(e) => {
-                log_error!(e.to_string().as_str());
+                log_error!("{}", e.to_string());
                 return None;
             }
         };
@@ -256,7 +259,7 @@ impl Task {
         return match serde_json::from_str(json_string.as_str()) {
             Ok(json) => Some(json),
             Err(e) => {
-                log_error!(e.to_string().as_str());
+                log_error!("{}", e.to_string());
                 None
             }
         };

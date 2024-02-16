@@ -1,6 +1,7 @@
 use crate::data::software::Software;
 use crate::data::task::Task;
-use crate::logger::Logger;
+use crate::{log_info, log_warning};
+use crate::utils::logger::Logger;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::command_manager::CommandManager;
 
@@ -30,7 +31,7 @@ impl CommandManager for CmdTask {
             }
         }
     }
-    fn tab_complete(args: Vec<&str>) -> Vec<String> {
+    fn tab_complete(_args: Vec<&str>) -> Vec<String> {
         todo!()
     }
 }
@@ -45,7 +46,7 @@ fn info(args: Vec<&str>) {
         }
     };
 
-    let task = match Task::get_task(task_name) {
+    let _task = match Task::get_task(task_name) {
         Some(task) => task,
         None => {
             log_warning!("Bitte gebe ein task namen an der exsistiert");
@@ -53,7 +54,7 @@ fn info(args: Vec<&str>) {
         }
     };
 
-    log_info!("test");
+    log_info!("print the task");
 }
 
 fn add(args: Vec<&str>) {
@@ -137,6 +138,6 @@ fn remove(args: Vec<&str>) {
 fn list() {
     log_info!("--------> Tasks <--------");
     for task in Task::get_task_all() {
-        log_info!(task.get_name().as_str());
+        log_info!("{}", task.get_name());
     }
 }

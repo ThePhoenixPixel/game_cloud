@@ -1,17 +1,18 @@
-use crate::data::task::Task;
-use crate::logger::Logger;
-use crate::rest_api::get::ApiGet;
-use crate::sys_config::cloud_config::CloudConfig;
 use actix_cors::Cors;
 use actix_web::{web, App, HttpResponse, HttpServer};
+
+use crate::data::task::Task;
+use crate::utils::logger::Logger;
+use crate::rest_api::get::ApiGet;
+use crate::sys_config::cloud_config::CloudConfig;
+use crate::{log_error, log_info, log_warning};
 
 pub struct ApiMain;
 
 impl ApiMain {
     #[actix_web::main]
     pub async fn start() {
-        Logger::info("Start the REST AIP Server");
-
+        log_info!("Start the REST AIP Server");
         let app_factory = || {
             App::new()
                 .wrap(
@@ -29,23 +30,17 @@ impl ApiMain {
         {
             Ok(http_server) => http_server,
             Err(e) => {
-                Logger::warning(
-                    format!(
-                        "Can not bind the REST API Server at {}",
-                        CloudConfig::get().get_rest_api().to_string()
-                    )
-                    .as_str(),
-                );
-                Logger::error(e.to_string().as_str());
+                log_warning!("Can not bind the REST API Server at {}", CloudConfig::get().get_rest_api().to_string());
+                log_error!("{}", e.to_string());
                 return;
             }
         };
 
         // start the server
         match http_server.run().await {
-            Ok(_) => Logger::info("Rest Api Server successfully start"),
+            Ok(_) => log_info!("Rest Api Server successfully start"),
             Err(e) => {
-                Logger::error(e.to_string().as_str());
+                log_error!("{}", e.to_string());
                 return;
             }
         }
@@ -69,7 +64,7 @@ impl ApiMain {
 async fn get_task(path: web::Path<(String)>) -> HttpResponse {
     let task_name = path.into_inner();
 
-    Logger::info(format!("get Task Name {}", task_name).as_str());
+    log_info!("get Task Name {}", task_name);
 
     let task = match Task::get_task(task_name) {
         Some(task) => task,
@@ -78,7 +73,7 @@ async fn get_task(path: web::Path<(String)>) -> HttpResponse {
         }
     };
 
-    Logger::info(format!("task objekt {}", task.get_name()).as_str());
+    log_info!("task objekt {}", task.get_name());
 
     return match task.to_json() {
         Some(data) => HttpResponse::Ok().json(data),

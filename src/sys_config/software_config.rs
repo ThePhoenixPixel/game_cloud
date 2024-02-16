@@ -1,13 +1,15 @@
-use crate::lib::bx::Bx;
-use crate::logger::Logger;
-use crate::sys_config::cloud_config::CloudConfig;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
-use crate::{log_error, log_info};
+
+use crate::lib::bx::Bx;
+use crate::utils::logger::Logger;
+use crate::sys_config::cloud_config::CloudConfig;
+use crate::{log_error, log_info, log_warning};
+
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareConfig {
@@ -74,7 +76,7 @@ impl SoftwareConfig {
     }
 
     pub fn install() {
-        let url = "http://download.codergames.de/game_cloud/v0.1/config/software.json";
+        let url = "https://download.codergames.de/game_cloud/v0.1/config/software.json";
         let mut folder_path = CloudConfig::get()
             .get_cloud_path()
             .get_system_folder()
@@ -271,7 +273,7 @@ fn get_default_file() -> String {
           "software_name": [
             {
               "name": "paper",
-              "download": "http://paper.de",
+              "download": "https://paper.de",
               "command": "java",
               "ip": {
                 "path": "server.propeties",

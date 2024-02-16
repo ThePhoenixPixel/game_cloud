@@ -1,8 +1,3 @@
-use crate::config::Config;
-use crate::data::task::Task;
-use crate::lib::bx::Bx;
-use crate::sys_config::cloud_config::CloudConfig;
-use crate::sys_config::software_config::SoftwareConfig;
 use colored::*;
 use reqwest::blocking::get;
 use serde_json::Value;
@@ -10,6 +5,13 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
+
+use crate::config::Config;
+use crate::data::task::Task;
+use crate::lib::bx::Bx;
+use crate::sys_config::cloud_config::CloudConfig;
+use crate::sys_config::software_config::SoftwareConfig;
+
 
 pub struct Starting;
 

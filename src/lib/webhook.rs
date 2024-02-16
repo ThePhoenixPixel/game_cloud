@@ -1,8 +1,11 @@
-use crate::logger::Logger;
+use crate::utils::logger::Logger;
 use reqwest::blocking::Client;
 use serde::Serialize;
 use std::thread;
 use std::time::Duration;
+
+use crate::log_error;
+
 
 pub struct Webhook;
 
@@ -20,7 +23,7 @@ impl Webhook {
         let json_data = match serde_json::to_value(&data) {
             Ok(json_data) => json_data,
             Err(e) => {
-                log_error!(&e.to_string().as_str());
+                log_error!("{}", e.to_string());
                 return Ok(());
             }
         };

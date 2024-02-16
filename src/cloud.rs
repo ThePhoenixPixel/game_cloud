@@ -1,13 +1,15 @@
+use colored::{ColoredString, Colorize};
+use std::env;
+use std::path::PathBuf;
+
+use crate::{log_error, log_info};
 use crate::lib::bx::Bx;
-use crate::logger::Logger;
-use crate::rest_api::api_main::ApiMain;
+use crate::utils::logger::Logger;
+//use crate::rest_api::api_main::ApiMain;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::cmd::Cmd;
 
-use colored::{ColoredString, Colorize};
-use std::env;
-use std::path::PathBuf;
 
 pub struct Cloud;
 
@@ -28,12 +30,13 @@ impl Cloud {
         // check the software files
         Cloud::check_software();
 
-        // Cloud requier system ist finish
-        if false {
-            std::thread::spawn(move || {
-                let _ = ApiMain::start();
-            });
-        }
+        // Cloud require system ist finish
+
+        /*
+        std::thread::spawn(move || {
+            let _ = ApiMain::start();
+        });
+        */
 
         let mut cmd =
             Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
@@ -197,19 +200,13 @@ impl Cloud {
                 if software_path.join(&file_name).exists() {
                     break;
                 }
-                log_info!(format!("Download Software {}", software.get_name()).as_str());
+                log_info!("Download Software {}", software.get_name());
                 match Bx::download_file(software.get_download().as_str(), &software_path) {
                     Ok(_) => {
-                        log_info!(
-                            format!(
-                                "Successfully download the Software from url {}",
-                                software.get_download()
-                            )
-                            .as_str(),
-                        );
+                        log_info!("Successfully download the Software from url {}", software.get_download());
                     }
                     Err(e) => {
-                        log_error!(&e.to_string());
+                        log_error!("{}", e.to_string());
                         panic!("Can not download the software {}", software.get_download());
                     }
                 }
