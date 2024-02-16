@@ -54,7 +54,6 @@ impl Cmd {
     }
 
     pub fn execute_command(command: &str, args: Vec<&str>) {
-        Logger::info(command);
         match command {
             "help" => CmdHelp::execute(args),
             "task" => CmdTask::execute(args),
@@ -69,8 +68,8 @@ fn flush_buffer() {
     match io::stdout().flush() {
         Ok(_) => return,
         Err(e) => {
-            Logger::error("Error by flushing the Buffer");
-            Logger::error(e.to_string().as_str());
+            Logger::error!("Error by flushing the Buffer");
+            Logger::error!(e.to_string().as_str());
         }
     }
 }
@@ -80,8 +79,8 @@ fn read_from_line() -> String {
     return match io::stdin().read_line(&mut input) {
         Ok(_) => input,
         Err(e) => {
-            Logger::error("Error by read the input");
-            Logger::error(e.to_string().as_str());
+            Logger::error!("Error by read the input");
+            Logger::error!(e.to_string().as_str());
             String::new()
         }
     };

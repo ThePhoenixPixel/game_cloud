@@ -10,37 +10,36 @@ use std::io::Write;
 pub struct Logger;
 
 impl Logger {
-    pub fn info(msg: &str) {
-        println!(
-            "{} {} {}",
+    fn log(args: std::fmt::Arguments, log_level: Log) {
+        // Erfasse die formatierten Argumente
+        let formatted_msg = format_args!(
+            "{} {} {} {}",
             Config::get_prefix(),
-            Log::get(Log::Info),
-            ColoredString::from(msg).green()
+            Log::get(log_level).to_string(),
+            ColoredString::from(">>").blue(),
+            args
         );
-        Logger::write_in_file(msg, Log::Info);
+
+        // Gib die formatierten Argumente auf der Konsole aus
+        println!("{}", formatted_msg);
+
+        // Schreibe die formatierten Argumente in die Log-Datei
+        Logger::write_in_file(formatted_msg.to_string());
     }
 
-    pub fn warning(msg: &str) {
-        println!(
-            "{} {} {}",
-            Config::get_prefix(),
-            Log::get(Log::Warning),
-            ColoredString::from(msg).yellow()
-        );
-        Logger::write_in_file(msg, Log::Warning);
+    pub fn info(args: std::fmt::Arguments) {
+        Logger::log(args, Log::Info);
     }
 
-    pub fn error(msg: &str) {
-        println!(
-            "{} {} {}",
-            Config::get_prefix(),
-            Log::get(Log::Error),
-            ColoredString::from(msg).red()
-        );
-        Logger::write_in_file(msg, Log::Error);
+    pub fn warning(args: std::fmt::Arguments) {
+        Logger::log(args, Log::Warning);
     }
 
-    fn write_in_file(msg: &str, log: Log) {
+    pub fn error(args: std::fmt::Arguments) {
+        Logger::log(args, Log::Error);
+    }
+
+    fn write_in_file(msg: String) {
         let mut log_path =
             env::current_exe().expect("Cloud Error can not get the exe path of the cloud system");
         log_path.pop();
@@ -56,16 +55,7 @@ impl Logger {
             .open(&log_path)
             .expect("Log system has an error and cannot create the log file");
 
-        if write!(
-            file,
-            "{} {} {} {}\n",
-            Config::get_prefix().to_string(),
-            Log::get(log).to_string(),
-            ColoredString::from(">>").blue(),
-            msg
-        )
-        .is_err()
-        {
+        if writeln!(file, "{}", msg).is_err() {
             eprintln!("Log System has an Error");
         }
     }

@@ -17,7 +17,7 @@ impl ApiGet {
     pub async fn task(path: web::Path<String>) -> HttpResponse {
         let task_name = path.into_inner();
 
-        Logger::info(format!("get Task Name {}", task_name).as_str());
+        Logger::info!(format!("get Task Name {}", task_name).as_str());
 
         let task = match Task::get_task(task_name) {
             Some(task) => task,
@@ -26,7 +26,7 @@ impl ApiGet {
             }
         };
 
-        Logger::info(format!("task objekt {}", task.get_name()).as_str());
+        Logger::info!(format!("task objekt {}", task.get_name()).as_str());
 
         return match task.to_json() {
             Some(data) => HttpResponse::Ok().json(data),
@@ -35,14 +35,12 @@ impl ApiGet {
     }
 
     pub async fn services() -> HttpResponse {
-        let service_number = ServiceNumber {
-            service_number: 1,
-        };
+        let service_number = ServiceNumber { service_number: 1 };
 
         let json = match serde_json::to_value(&service_number) {
             Ok(json) => json,
             Err(e) => {
-                Logger::error(e.to_string().as_str());
+                Logger::error!(e.to_string().as_str());
                 return empty_json_response();
             }
         };

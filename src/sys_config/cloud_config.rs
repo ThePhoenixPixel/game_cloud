@@ -83,11 +83,11 @@ impl CloudConfig {
         // get the response from the download
         let url = "http://download.codergames.de/game_cloud/v0.1/config.json";
         match Bx::download_file(url, &Cloud::get_exe_path()) {
-            Ok(_) => Logger::info(
+            Ok(_) => Logger::info!(
                 format!("Successfully download the Software Config from {}", url).as_str(),
             ),
             Err(e) => {
-                Logger::error(&e.to_string());
+                Logger::error!(&e.to_string());
                 panic!("Game Cloud has an fatal Error");
             }
         }

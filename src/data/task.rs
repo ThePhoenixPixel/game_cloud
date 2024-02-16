@@ -13,7 +13,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Task {
     // Task Struktur
     name: String,
@@ -248,7 +248,7 @@ impl Task {
         let json_string = match serde_json::to_string_pretty(self) {
             Ok(json_string) => json_string,
             Err(e) => {
-                Logger::error(e.to_string().as_str());
+                Logger::error!(e.to_string().as_str());
                 return None;
             }
         };
@@ -256,7 +256,7 @@ impl Task {
         return match serde_json::from_str(json_string.as_str()) {
             Ok(json) => Some(json),
             Err(e) => {
-                Logger::error(e.to_string().as_str());
+                Logger::error!(e.to_string().as_str());
                 None
             }
         };

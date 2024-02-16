@@ -42,8 +42,8 @@ impl Cloud {
 
     pub fn disable() {
         Cloud::shutdown_service();
-        Logger::info("Cloud shutdown");
-        Logger::info("Bye Bye");
+        Logger::info!("Cloud shutdown");
+        Logger::info!("Bye Bye");
         std::process::exit(0)
     }
 
@@ -197,10 +197,10 @@ impl Cloud {
                 if software_path.join(&file_name).exists() {
                     break;
                 }
-                Logger::info(format!("Download Software {}", software.get_name()).as_str());
+                Logger::info!(format!("Download Software {}", software.get_name()).as_str());
                 match Bx::download_file(software.get_download().as_str(), &software_path) {
                     Ok(_) => {
-                        Logger::info(
+                        Logger::info!(
                             format!(
                                 "Successfully download the Software from url {}",
                                 software.get_download()
@@ -209,7 +209,7 @@ impl Cloud {
                         );
                     }
                     Err(e) => {
-                        Logger::error(&e.to_string());
+                        Logger::error!(&e.to_string());
                         panic!("Can not download the software {}", software.get_download());
                     }
                 }

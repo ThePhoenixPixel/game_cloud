@@ -10,7 +10,7 @@ pub struct ApiMain;
 impl ApiMain {
     #[actix_web::main]
     pub async fn start() {
-        Logger::info("Start the REST AIP Server");
+        Logger::info!("Start the REST AIP Server");
 
         let app_factory = || {
             App::new()
@@ -29,23 +29,23 @@ impl ApiMain {
         {
             Ok(http_server) => http_server,
             Err(e) => {
-                Logger::warning(
+                Logger::warning!(
                     format!(
                         "Can not bind the REST API Server at {}",
                         CloudConfig::get().get_rest_api().to_string()
                     )
                     .as_str(),
                 );
-                Logger::error(e.to_string().as_str());
+                Logger::error!(e.to_string().as_str());
                 return;
             }
         };
 
         // start the server
         match http_server.run().await {
-            Ok(_) => Logger::info("Rest Api Server successfully start"),
+            Ok(_) => Logger::info!("Rest Api Server successfully start"),
             Err(e) => {
-                Logger::error(e.to_string().as_str());
+                Logger::error!(e.to_string().as_str());
                 return;
             }
         }
@@ -69,7 +69,7 @@ impl ApiMain {
 async fn get_task(path: web::Path<(String)>) -> HttpResponse {
     let task_name = path.into_inner();
 
-    Logger::info(format!("get Task Name {}", task_name).as_str());
+    Logger::info!(format!("get Task Name {}", task_name).as_str());
 
     let task = match Task::get_task(task_name) {
         Some(task) => task,
@@ -78,7 +78,7 @@ async fn get_task(path: web::Path<(String)>) -> HttpResponse {
         }
     };
 
-    Logger::info(format!("task objekt {}", task.get_name()).as_str());
+    Logger::info!(format!("task objekt {}", task.get_name()).as_str());
 
     return match task.to_json() {
         Some(data) => HttpResponse::Ok().json(data),
