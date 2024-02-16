@@ -50,7 +50,6 @@ pub mod terminal {
 }
 
 pub mod cloud;
-pub mod config;
 pub mod language;
 
 fn main() {

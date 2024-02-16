@@ -5,7 +5,6 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use crate::config::Config;
 use crate::data::installer::Installer;
 use crate::data::service::Service;
 use crate::data::software::Software;
@@ -426,7 +425,7 @@ impl Task {
         } else {
             println!(
                 "{} Kein Template gefunden für Task: {}",
-                Config::get_prefix(),
+                "GameCloud in task.rs fn prepare_to_service",
                 &self.get_name()
             );
             return;
@@ -478,7 +477,7 @@ impl Task {
 
             println!(
                 "{} Template wurde in Zielordner kopiert: {:?}",
-                Config::get_prefix(),
+                "GameCloud in task.rs fn prepare_to_service",
                 &target_path
             );
         }

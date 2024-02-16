@@ -7,7 +7,6 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 use crate::log_error;
-use crate::config::Config;
 use crate::data::task::Task;
 use crate::lib::address::Address;
 use crate::lib::bx::Bx;
@@ -235,7 +234,7 @@ impl Service {
         for task in task_all {
             println!(
                 "{} Task: {} Gestartete Service: {}",
-                Config::get_prefix(),
+                "GameCloud in service.rs fn prepare_to_service",
                 task.get_name(),
                 Service::get_starts_service_from_task(&task)
             );
@@ -252,7 +251,7 @@ impl Service {
                 }
                 println!(
                     "{} Service wird gestartet von task: {}",
-                    Config::get_prefix(),
+                    "GameCloud in service.rs",
                     task.get_name()
                 );
                 let mut service = Service::new(&task);

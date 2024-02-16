@@ -4,8 +4,8 @@ use std::env;
 use std::fs::OpenOptions;
 use std::io::Write;
 
-use crate::config::Config;
 use crate::lib::bx::Bx;
+use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::log::Log;
 
 
@@ -15,7 +15,7 @@ impl Logger {
     fn log(args: std::fmt::Arguments, log_level: Log) {
         let msg = format!("{}", format_args!(
             "{} {} {} {}",
-            Config::get_prefix(),
+            ColoredString::from(CloudConfig::get().get_prefix()),
             Log::get(log_level).to_string(),
             ColoredString::from(">>").blue(),
             args
