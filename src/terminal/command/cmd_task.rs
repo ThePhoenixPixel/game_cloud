@@ -46,7 +46,7 @@ fn info(args: Vec<&str>) {
         }
     };
 
-    let _task = match Task::get_task(task_name) {
+    let task = match Task::get_task(task_name) {
         Some(task) => task,
         None => {
             log_warning!("Bitte gebe ein task namen an der exsistiert");
@@ -54,7 +54,26 @@ fn info(args: Vec<&str>) {
         }
     };
 
-    log_info!("print the task");
+    log_info!("--------> Task Info <--------");
+    log_info!("name: {}", task.get_name());
+    log_info!("split: {}", task.get_split());
+    log_info!("delete_on_stop: {}", task.get_delete_on_stop());
+    log_info!("static_service: {}", task.get_static_service());
+    log_info!("nodes: {:?}", task.get_nodes());
+    log_info!("software: ");
+    log_info!("     software_type: {}", task.get_software().get_software_type());
+    log_info!("     name: {}", task.get_software().get_name());
+    log_info!("max_ram: {}", task.get_max_ram());
+    log_info!("start_port: {}", task.get_start_port());
+    log_info!("min_service_count: {}", task.get_min_service_count());
+    log_info!("groups: {:?}", task.get_groups());
+    log_info!("installer: {:?}", task.get_installer());
+    log_info!("templates: ");
+    for template in task.get_templates() {
+        log_info!("     template: {}", template.get_template());
+        log_info!("     name: {}", template.get_name());
+        log_info!("     priority: {}", template.get_priority());
+    }
 }
 
 fn add(args: Vec<&str>) {
