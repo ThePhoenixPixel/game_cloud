@@ -1,8 +1,8 @@
-use colored::ColoredString;
+use colored::{ColoredString, Colorize};
 use std::io;
 use std::io::Write;
 
-use crate::log_error;
+use crate::{log_error, log_info};
 use crate::cloud::Cloud;
 use crate::utils::logger::Logger;
 use crate::terminal::command::cmd_help::CmdHelp;
@@ -27,7 +27,7 @@ impl Cmd {
         //start the cmd system
         loop {
             // print the prefix
-            print!("{} ", self.prefix);
+            print!("{} ", ColoredString::from(format!("{} >>", &self.prefix)).blue());
 
             // flush the buffer
             flush_buffer();
