@@ -19,7 +19,7 @@ impl CommandManager for CmdTask {
         };
 
         match arg1 {
-            "add" => add(args),
+            "create" => create(args),
             "remove" => remove(args),
             "list" => list(),
             "info" => info(args),
@@ -63,7 +63,7 @@ fn setup(args: Vec<&str>) {
         }
     };
 
-    let task_atribut = match args.get(3) {
+    let task_atribut = match args.get(4) {
         Some(task_atribut) => task_atribut,
         None => {
             log_warning!("Bitte gebe task atribut an welches du verändern möchtest zb split oder den ram");
@@ -74,12 +74,36 @@ fn setup(args: Vec<&str>) {
     let new_wert = match args.get(5) {
         Some(new_wert) => new_wert,
         None => {
-            log_warning!("Bitte gebe ein neuen wert an")
+            log_warning!("Bitte gebe ein neuen wert an");
+            return;
         }
     };
 
+    match was_wilste_machen.to_lowercase().as_str() {
+        "add" => {
+            add(task, task_atribut, new_wert);
+        }
+        "set" => {
 
 
+        }
+        "remove" => {
+
+
+        }
+        "clear" => {
+
+        }
+        _ => {
+            log_warning!(
+                "Dies ist kein Gültiges argument verwende eins davon / add / set / remove / clear",
+            );
+            return;
+        }
+    }
+}
+
+fn add(task: Task, atribute: &str, new_wert: &str) {
 
 
 
@@ -129,8 +153,8 @@ fn info(args: Vec<&str>) {
     log_info!("-----------------------------");
 }
 
-fn add(args: Vec<&str>) {
-    // command: task add <name> <software_type> <software_name>
+fn create(args: Vec<&str>) {
+    // command: task create <name> <software_type> <software_name>
     let task_name = match args.get(2) {
         Some(task_name) => task_name.to_string(),
         None => {
