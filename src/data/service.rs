@@ -6,16 +6,15 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-use crate::log_error;
 use crate::data::task::Task;
 use crate::lib::address::Address;
 use crate::lib::bx::Bx;
-use crate::utils::logger::Logger;
+use crate::log_error;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
+use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
-
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -345,7 +344,10 @@ impl Service {
         {
             Some(software) => software,
             None => {
-                log_error!("Can not find the Software for the service {}", self.get_name());
+                log_error!(
+                    "Can not find the Software for the service {}",
+                    self.get_name()
+                );
                 return;
             }
         };
