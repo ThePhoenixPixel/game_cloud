@@ -8,18 +8,20 @@ use crate::lib::bx::Bx;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::log::Log;
 
-
 pub struct Logger;
 
 impl Logger {
     fn log(args: std::fmt::Arguments, log_level: Log) {
-        let msg = format!("{}", format_args!(
-            "{} {} {} {}",
-            ColoredString::from(CloudConfig::get().get_prefix()),
-            Log::get(log_level).to_string(),
-            ColoredString::from(">>").blue(),
-            args
-        ));
+        let msg = format!(
+            "{}",
+            format_args!(
+                "{} {} {} {}",
+                ColoredString::from(CloudConfig::get().get_prefix()),
+                Log::get(log_level).to_string(),
+                ColoredString::from(">>").blue(),
+                args
+            )
+        );
 
         // print the args in the cmd
         println!("{}", &msg);

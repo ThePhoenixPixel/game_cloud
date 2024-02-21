@@ -1,9 +1,9 @@
 use crate::data::software::Software;
 use crate::data::task::Task;
-use crate::{log_info, log_warning};
-use crate::utils::logger::Logger;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::command_manager::CommandManager;
+use crate::utils::logger::Logger;
+use crate::{log_info, log_warning};
 
 pub struct CmdTask;
 
@@ -61,7 +61,10 @@ fn info(args: Vec<&str>) {
     log_info!("static_service: {}", task.get_static_service());
     log_info!("nodes: {:?}", task.get_nodes());
     log_info!("software: ");
-    log_info!("     software_type: {}", task.get_software().get_software_type());
+    log_info!(
+        "     software_type: {}",
+        task.get_software().get_software_type()
+    );
     log_info!("     name: {}", task.get_software().get_name());
     log_info!("max_ram: {}", task.get_max_ram());
     log_info!("start_port: {}", task.get_start_port());

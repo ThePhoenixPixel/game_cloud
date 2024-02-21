@@ -2,14 +2,13 @@ use colored::{ColoredString, Colorize};
 use std::env;
 use std::path::PathBuf;
 
-use crate::{log_error, log_info};
 use crate::lib::bx::Bx;
-use crate::utils::logger::Logger;
 use crate::rest_api::api_main::ApiMain;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::cmd::Cmd;
-
+use crate::utils::logger::Logger;
+use crate::{log_error, log_info};
 
 pub struct Cloud;
 
@@ -32,11 +31,9 @@ impl Cloud {
 
         // Cloud require system ist finish
 
-
         std::thread::spawn(move || {
             let _ = ApiMain::start();
         });
-
 
         let mut cmd =
             Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
@@ -203,7 +200,10 @@ impl Cloud {
                 log_info!("Download Software {}", software.get_name());
                 match Bx::download_file(software.get_download().as_str(), &software_path) {
                     Ok(_) => {
-                        log_info!("Successfully download the Software from url {}", software.get_download());
+                        log_info!(
+                            "Successfully download the Software from url {}",
+                            software.get_download()
+                        );
                     }
                     Err(e) => {
                         log_error!("{}", e.to_string());

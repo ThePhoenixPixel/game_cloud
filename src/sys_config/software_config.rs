@@ -6,10 +6,9 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::lib::bx::Bx;
-use crate::utils::logger::Logger;
 use crate::sys_config::cloud_config::CloudConfig;
+use crate::utils::logger::Logger;
 use crate::{log_error, log_info, log_warning};
-
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareConfig {

@@ -1,8 +1,7 @@
 use actix_web::{web, HttpResponse};
 
-use crate::utils::logger::Logger;
 use crate::log_error;
-
+use crate::utils::logger::Logger;
 
 pub struct ApiSet;
 

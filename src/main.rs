@@ -14,11 +14,11 @@ pub mod lib {
 }
 
 pub mod utils {
+    pub mod log;
+    pub mod logger;
     pub mod path;
     pub mod serde;
     pub mod service_status;
-    pub mod log;
-    pub mod logger;
     #[macro_use]
     pub mod logger_macros;
 }

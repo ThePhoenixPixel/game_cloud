@@ -2,15 +2,14 @@ use colored::{ColoredString, Colorize};
 use std::io;
 use std::io::Write;
 
-use crate::{log_error, log_info};
 use crate::cloud::Cloud;
-use crate::utils::logger::Logger;
 use crate::terminal::command::cmd_help::CmdHelp;
 use crate::terminal::command::cmd_service::CmdService;
 use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
 use crate::terminal::command_manager::CommandManager;
-
+use crate::utils::logger::Logger;
+use crate::{log_error, log_info};
 
 pub struct Cmd {
     prefix: ColoredString,
@@ -27,7 +26,10 @@ impl Cmd {
         //start the cmd system
         loop {
             // print the prefix
-            print!("{} ", ColoredString::from(format!("{} >>", &self.prefix)).blue());
+            print!(
+                "{} ",
+                ColoredString::from(format!("{} >>", &self.prefix)).blue()
+            );
 
             // flush the buffer
             flush_buffer();

@@ -11,9 +11,8 @@ use crate::data::software::Software;
 use crate::data::template::Template;
 use crate::lib::bx::Bx;
 use crate::log_error;
-use crate::utils::logger::Logger;
 use crate::sys_config::cloud_config::CloudConfig;
-
+use crate::utils::logger::Logger;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Task {
@@ -477,8 +476,7 @@ impl Task {
 
             println!(
                 "{} Template wurde in Zielordner kopiert: {:?}",
-                "GameCloud in task.rs fn prepare_to_service",
-                &target_path
+                "GameCloud in task.rs fn prepare_to_service", &target_path
             );
         }
     }

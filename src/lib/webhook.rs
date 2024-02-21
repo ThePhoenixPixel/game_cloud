@@ -1,11 +1,10 @@
-use crate::utils::logger::Logger;
 use reqwest::blocking::Client;
 use serde::Serialize;
 use std::thread;
 use std::time::Duration;
 
+use crate::utils::logger::Logger;
 use crate::log_error;
-
 
 pub struct Webhook;
 

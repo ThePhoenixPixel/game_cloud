@@ -1,10 +1,10 @@
+use crate::cloud::Cloud;
+use crate::sys_config::cloud_config::CloudConfig;
 use colored::{ColoredString, Colorize};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
-use crate::cloud::Cloud;
-use crate::sys_config::cloud_config::CloudConfig;
 
 pub struct Language;
 
@@ -16,7 +16,11 @@ struct LanguageData {
 impl Language {
     pub fn translate(key: &str) -> ColoredString {
         // Deserialisiere die JSON-Daten in die Struktur
-        let lang_file_path = PathBuf::from(format!("{:?}{}", Cloud::get_exe_path(), CloudConfig::get().get_language()));
+        let lang_file_path = PathBuf::from(format!(
+            "{:?}{}",
+            Cloud::get_exe_path(),
+            CloudConfig::get().get_language()
+        ));
         let file_content = match fs::read_to_string(lang_file_path) {
             Ok(content) => content,
             Err(_) => Language::get_default_content(),
