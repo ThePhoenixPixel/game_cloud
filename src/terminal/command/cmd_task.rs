@@ -23,6 +23,7 @@ impl CommandManager for CmdTask {
             "remove" => remove(args),
             "list" => list(),
             "info" => info(args),
+            "setup" => {setup(args)},
             _ => {
                 log_warning!(
                     "Dies ist kein Gültiges argument verwende eins davon / add / remove / list",
@@ -34,6 +35,60 @@ impl CommandManager for CmdTask {
     fn tab_complete(_args: Vec<&str>) -> Vec<String> {
         todo!()
     }
+}
+
+fn setup(args: Vec<&str>) {
+    // command task setup <name> <set / add / remove / clear> <task_artibut> <new_wert>
+    let task_name = match args.get(2) {
+        Some(task_name) => task_name,
+        None => {
+            log_warning!("Bitte gebe ein Task namen an den du bearbeiten möchtest");
+            return;
+        }
+    };
+
+    let software_types = SoftwareConfig::get().get_software_types();
+
+    for (name, software_type) in software_types {
+        software_type.get
+    }
+
+    let task = match Task::get_task(task_name.to_string()) {
+        Some(task) => task,
+        None => {
+            log_warning!("Bitte gebe ein task an der exsistiert");
+            return;
+        }
+    };
+
+    let was_wilste_machen = match args.get(3) {
+        Some(wert) => wert,
+        None => {
+            log_warning!("Bitte gebe ein WErt an was du machen möchtest add / set / remove / clear");
+            return;
+        }
+    };
+
+    let task_atribut = match args.get(3) {
+        Some(task_atribut) => task_atribut,
+        None => {
+            log_warning!("Bitte gebe task atribut an welches du verändern möchtest zb split oder den ram");
+            return;
+        }
+    };
+
+    let new_wert = match args.get(5) {
+        Some(new_wert) => new_wert,
+        None => {
+            log_warning!("Bitte gebe ein neuen wert an")
+        }
+    };
+
+
+
+
+
+
 }
 
 fn info(args: Vec<&str>) {
