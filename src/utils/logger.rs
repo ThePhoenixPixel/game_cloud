@@ -16,7 +16,7 @@ impl Logger {
             "{}",
             format_args!(
                 "{} {} {} {}",
-                ColoredString::from(CloudConfig::get().get_prefix()),
+                ColoredString::from(CloudConfig::get().get_prefix()).blue(),
                 Log::get(log_level).to_string(),
                 ColoredString::from(">>").blue(),
                 args
