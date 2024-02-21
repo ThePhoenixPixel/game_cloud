@@ -1,5 +1,5 @@
-use crate::data::software::Software;
-use crate::data::task::Task;
+use crate::core::software::Software;
+use crate::core::task::Task;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;

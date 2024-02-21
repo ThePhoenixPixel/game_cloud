@@ -1,7 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{web, App, HttpResponse, HttpServer};
 
-use crate::data::task::Task;
+use crate::core::task::Task;
 use crate::rest_api::get::ApiGet;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;

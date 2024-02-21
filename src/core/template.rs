@@ -1,8 +1,9 @@
-use crate::data::task::Task;
-use crate::lib::bx::Bx;
-use crate::sys_config::cloud_config::CloudConfig;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+use crate::core::task::Task;
+use crate::lib::bx::Bx;
+use crate::sys_config::cloud_config::CloudConfig;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Template {

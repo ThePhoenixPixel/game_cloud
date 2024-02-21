@@ -5,10 +5,10 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use crate::data::installer::Installer;
-use crate::data::service::Service;
-use crate::data::software::Software;
-use crate::data::template::Template;
+use crate::core::installer::Installer;
+use crate::core::service::Service;
+use crate::core::software::Software;
+use crate::core::template::Template;
 use crate::lib::bx::Bx;
 use crate::log_error;
 use crate::sys_config::cloud_config::CloudConfig;

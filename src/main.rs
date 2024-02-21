@@ -23,7 +23,7 @@ pub mod utils {
     pub mod logger_macros;
 }
 
-pub mod data {
+pub mod core {
     pub mod task;
     pub mod template;
     //pub mod group;
