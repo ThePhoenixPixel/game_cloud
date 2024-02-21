@@ -47,12 +47,6 @@ fn setup(args: Vec<&str>) {
         }
     };
 
-    let software_types = SoftwareConfig::get().get_software_types();
-
-    for (name, software_type) in software_types {
-        software_type.get
-    }
-
     let task = match Task::get_task(task_name.to_string()) {
         Some(task) => task,
         None => {
@@ -132,6 +126,7 @@ fn info(args: Vec<&str>) {
         log_info!("     name: {}", template.get_name());
         log_info!("     priority: {}", template.get_priority());
     }
+    log_info!("-----------------------------");
 }
 
 fn add(args: Vec<&str>) {
