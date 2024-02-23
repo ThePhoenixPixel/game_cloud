@@ -1,6 +1,6 @@
 use crate::core::software::Software;
 use crate::core::task::Task;
-use crate::sys_config::software_config::SoftwareConfig;
+use crate::sys_config::software_config::{SoftwareConfig, SoftwareType};
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
 use crate::{log_info, log_warning};
@@ -23,7 +23,7 @@ impl CommandManager for CmdTask {
             "remove" => remove(args),
             "list" => list(),
             "info" => info(args),
-            "setup" => {setup(args)},
+            "setup" => setup(args),
             _ => {
                 log_warning!(
                     "Dies ist kein Gültiges argument verwende eins davon / add / remove / list",
@@ -58,7 +58,9 @@ fn setup(args: Vec<&str>) {
     let was_wilste_machen = match args.get(3) {
         Some(wert) => wert,
         None => {
-            log_warning!("Bitte gebe ein WErt an was du machen möchtest add / set / remove / clear");
+            log_warning!(
+                "Bitte gebe ein WErt an was du machen möchtest add / set / remove / clear"
+            );
             return;
         }
     };
@@ -66,7 +68,9 @@ fn setup(args: Vec<&str>) {
     let task_atribut = match args.get(4) {
         Some(task_atribut) => task_atribut,
         None => {
-            log_warning!("Bitte gebe task atribut an welches du verändern möchtest zb split oder den ram");
+            log_warning!(
+                "Bitte gebe task atribut an welches du verändern möchtest zb split oder den ram"
+            );
             return;
         }
     };
@@ -81,19 +85,11 @@ fn setup(args: Vec<&str>) {
 
     match was_wilste_machen.to_lowercase().as_str() {
         "add" => {
-            add(task, task_atribut, new_wert);
+            setup_add(task, task_atribut, new_wert);
         }
-        "set" => {
-
-
-        }
-        "remove" => {
-
-
-        }
-        "clear" => {
-
-        }
+        "set" => {}
+        "remove" => {}
+        "clear" => {}
         _ => {
             log_warning!(
                 "Dies ist kein Gültiges argument verwende eins davon / add / set / remove / clear",
@@ -102,11 +98,23 @@ fn setup(args: Vec<&str>) {
         }
     }
 }
+fn setup_set(task: Task, atrribut: &str, new_wert: &str) {
 
-fn add(task: Task, atribute: &str, new_wert: &str) {
+    match atrribut {
+        "" => {}
+        "" => {}
+        _ => {
 
+        }
+    }
 
+}
 
+fn setup_add(task: Task, atribute: &str, new_wert: &str) {
+    match atribute {
+        "" => {}
+        _ => {}
+    }
 }
 
 fn info(args: Vec<&str>) {
