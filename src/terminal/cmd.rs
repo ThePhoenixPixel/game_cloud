@@ -9,7 +9,7 @@ use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
-use crate::{log_error, log_info};
+use crate::{log_error, log_info, log_warning};
 
 pub struct Cmd {
     prefix: ColoredString,
@@ -63,7 +63,10 @@ impl Cmd {
             "task" => CmdTask::execute(args),
             "service" => CmdService::execute(args),
             "template" => CmdTemplate::execute(args),
-            _ => {}
+            "" => {}
+            _ => {
+                log_warning!("Bitte gebe ein gültigen command an");
+            }
         }
     }
 }
