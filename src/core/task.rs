@@ -151,6 +151,9 @@ impl Task {
         self.save_to_file();
     }
 
+    pub fn clear_nodes(&mut self) {
+        self.nodes.clear();
+    }
     // Getter and Setter for software
     pub fn get_software(&self) -> Software {
         self.software.clone()
