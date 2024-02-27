@@ -206,16 +206,8 @@ impl Task {
     }
 
     // Setter für installer
-    pub fn set_installer(&mut self, installer: &String) {
-        self.installer = match installer.as_str() {
-            "InstallAll" => Installer::InstallAll,
-            "InstallRandom" => Installer::InstallRandom,
-            "InstallRandomWithPriority" => Installer::InstallRandomWithPriority,
-            _ => {
-                // Hier kannst du eine Fehlerbehandlung hinzufügen, wenn ein unbekannter Wert übergeben wird.
-                panic!("Unbekannter Installer: {}", installer)
-            }
-        };
+    pub fn set_installer(&mut self, installer: &Installer) {
+        self.installer = installer.clone()
     }
 
     pub fn get_templates(&self) -> Vec<Template> {
