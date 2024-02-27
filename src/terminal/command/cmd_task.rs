@@ -1,6 +1,6 @@
 use crate::core::software::Software;
 use crate::core::task::Task;
-use crate::sys_config::software_config::{SoftwareConfig, SoftwareType};
+use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
 use crate::{log_info, log_warning};
@@ -87,9 +87,15 @@ fn setup(args: Vec<&str>) {
         "add" => {
             setup_add(task, task_atribut, new_wert);
         }
-        "set" => {}
-        "remove" => {}
-        "clear" => {}
+        "set" => {
+            setup_set(task, task_atribut, new_wert);
+        }
+        "remove" => {
+            setup_remove(task, task_atribut, new_wert);
+        }
+        "clear" => {
+            setup_clear(task, task_atribut, new_wert);
+        }
         _ => {
             log_warning!(
                 "Dies ist kein Gültiges argument verwende eins davon / add / set / remove / clear",
@@ -98,22 +104,86 @@ fn setup(args: Vec<&str>) {
         }
     }
 }
-fn setup_set(task: Task, atrribut: &str, new_wert: &str) {
 
-    match atrribut {
-        "" => {}
-        "" => {}
+fn setup_clear(task: Task, attribute: &str, new_wert: &str) {
+
+    match attribute {
+        "node" => {}
+        "group" => {}
+        "template" => {}
         _ => {
+            log_warning!("Bitte gebe ein gültigen atribut Wert an");
+            return;
+        }
+    }
+}
 
+fn setup_remove(task: Task, attribute: &str, new_wert: &str) {
+
+    match attribute {
+        "node" => {}
+        "group" => {}
+        "template" => {}
+        _ => {
+            log_warning!("Bitte gebe ein gültigen atribut Wert an");
+            return;
+        }
+    }
+}
+fn setup_set(task: Task, attribute: &str, new_wert: &str) {
+
+    match attribute {
+        "name" => {
+
+        }
+        "split" => {
+
+        }
+        "delete_on_stop" => {
+
+        }
+        "static_service" => {
+
+        }
+        "software" => {
+
+        }
+        "max_ram" => {
+
+        }
+        "start_port" => {
+
+        }
+        "min_service_count" => {
+
+        }
+        "installer" => {
+
+        }
+        _ => {
+            log_warning!("Bitte gebe ein gültigen atribut Wert an");
+            return;
         }
     }
 
 }
 
-fn setup_add(task: Task, atribute: &str, new_wert: &str) {
-    match atribute {
-        "" => {}
-        _ => {}
+fn setup_add(task: Task, attribute: &str, new_wert: &str) {
+
+    match attribute {
+        "node" => {
+
+        }
+        "group" => {
+
+        }
+        "template" => {
+
+        }
+        _ => {
+            log_warning!("Bitte gebe ein gültigen atribut Wert an");
+            return;
+        }
     }
 }
 
