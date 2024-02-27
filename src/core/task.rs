@@ -200,6 +200,10 @@ impl Task {
         self.save_to_file();
     }
 
+    pub fn clear_groups(&mut self) {
+        self.groups.clear();
+    }
+
     // Getter für installer
     pub fn get_installer(&self) -> &Installer {
         &self.installer
