@@ -207,6 +207,13 @@ impl Task {
         self.save_to_file();
     }
 
+    pub fn remove_group(&mut self, group: &String) {
+        if let Some(index) = self.templates.iter().position(|g| g.get_name() == &group) {
+            self.templates.remove(index);
+        }
+        self.save_to_file();
+    }
+
     pub fn clear_groups(&mut self) {
         self.groups.clear();
         self.save_to_file();
