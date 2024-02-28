@@ -301,13 +301,22 @@ fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) {
             log_info!("Group erfolgreich hinzugefügt");
         }
         "template" => {
+            let template_name = match args.get(6) {
+                Some(template_name) => template_name,
+                None => {
+                    log_warning!("Bitte gebe ein template Namen an");
+                    return;
+                }
+            };
+
             let mut template = Template::new();
             template.set_template(&new_wert.to_string());
-
-            log_warning!("Noch nicht implementiert hier wird args used");
+            template.set_name(&template_name.to_string());
+            task.add_template(template);
+            log_warning!("Template erfolgreich hinzugefügt");
         }
         _ => {
-            log_warning!("Bitte gebe ein gültigen atribut Wert an");
+            log_warning!("Bitte gebe ein gültigen attribut Wert an");
             return;
         }
     }
