@@ -357,7 +357,6 @@ impl Task {
     }
 
     pub fn save_to_file(&self) {
-        self.print();
         let serialized_task =
             serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
         let task_path = CloudConfig::get()
