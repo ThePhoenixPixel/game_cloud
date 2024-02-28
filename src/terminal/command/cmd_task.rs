@@ -1,9 +1,11 @@
+use crate::core::installer::Installer;
 use crate::core::software::Software;
 use crate::core::task::Task;
+use crate::core::template::Template;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
-use crate::{log_info, log_warning};
+use crate::{log_error, log_info, log_warning};
 
 pub struct CmdTask;
 
@@ -75,26 +77,18 @@ fn setup(args: Vec<&str>) {
         }
     };
 
-    let new_wert = match args.get(5) {
-        Some(new_wert) => new_wert,
-        None => {
-            log_warning!("Bitte gebe ein neuen wert an");
-            return;
-        }
-    };
-
     match was_wilste_machen.to_lowercase().as_str() {
         "add" => {
-            setup_add(task, task_atribut, new_wert);
+            setup_add(task, task_atribut, &args);
         }
         "set" => {
-            setup_set(task, task_atribut, new_wert);
+            setup_set(task, task_atribut, &args);
         }
         "remove" => {
-            setup_remove(task, task_atribut, new_wert);
+            setup_remove(task, task_atribut, &args);
         }
         "clear" => {
-            setup_clear(task, task_atribut, new_wert);
+            setup_clear(task, task_atribut);
         }
         _ => {
             log_warning!(
@@ -105,12 +99,20 @@ fn setup(args: Vec<&str>) {
     }
 }
 
-fn setup_clear(task: Task, attribute: &str, new_wert: &str) {
-
+fn setup_clear(mut task: Task, attribute: &str) {
     match attribute {
-        "node" => {}
-        "group" => {}
-        "template" => {}
+        "node" => {
+            task.clear_nodes();
+            log_info!("Erfoldgreich alle Nodes cleart");
+        }
+        "group" => {
+            task.clear_groups();
+            log_info!("Erfoldgreich alle Groups cleart");
+        }
+        "template" => {
+            task.clear_templates();
+            log_warning!("Alle Templates Gelöscht");
+        }
         _ => {
             log_warning!("Bitte gebe ein gültigen atribut Wert an");
             return;
@@ -118,67 +120,191 @@ fn setup_clear(task: Task, attribute: &str, new_wert: &str) {
     }
 }
 
-fn setup_remove(task: Task, attribute: &str, new_wert: &str) {
-
+fn setup_remove(mut task: Task, attribute: &str, args: &Vec<&str>) {
+    let wert = match args.get(5) {
+        Some(new_wert) => new_wert,
+        None => {
+            log_warning!("Bitte gebe ein neuen wert an");
+            return;
+        }
+    };
     match attribute {
-        "node" => {}
-        "group" => {}
-        "template" => {}
+        "node" => {
+            task.remove_node(&wert.to_string());
+        }
+        "group" => {
+            task.remove_group(&wert.to_string());
+        }
+        "template" => {
+            let template_name = match args.get(6) {
+                Some(template_name) => template_name,
+                None => {
+                    log_warning!("Bitte gebe ein template namen an");
+                    return;
+                }
+            };
+
+            let mut template = Template::new();
+            template.set_template(&wert.to_string());
+            template.set_name(&template_name.to_string());
+
+            task.remove_template(template)
+        }
         _ => {
             log_warning!("Bitte gebe ein gültigen atribut Wert an");
             return;
         }
     }
 }
-fn setup_set(task: Task, attribute: &str, new_wert: &str) {
+fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
+    let new_wert = match args.get(5) {
+        Some(new_wert) => new_wert,
+        None => {
+            log_warning!("Bitte gebe ein neuen wert an");
+            return;
+        }
+    };
 
     match attribute {
         "name" => {
-
+            task.change_name(new_wert.to_string());
+            log_info!("Task name erfolgreich geändert");
         }
         "split" => {
-
+            let new_wert: char = match new_wert.as_bytes().get(0).copied() {
+                Some(byte) => byte as char,
+                None => {
+                    log_warning!("Bitte gebe als split carakter nur ein zeichen an");
+                    return;
+                }
+            };
+            task.set_split(&new_wert);
+            log_info!("Split wurde geändert");
         }
         "delete_on_stop" => {
-
+            let delete_on_stop: bool = match new_wert.parse() {
+                Ok(delete_on_stop) => delete_on_stop,
+                Err(e) => {
+                    log_warning!("Bitte gebe true oder false nur an");
+                    log_error!("{}", e.to_string());
+                    return;
+                }
+            };
+            task.set_delete_on_stop(delete_on_stop);
+            log_info!("delete_on_stop wurde geändert");
         }
         "static_service" => {
-
+            let static_service: bool = match new_wert.parse() {
+                Ok(static_service) => static_service,
+                Err(e) => {
+                    log_warning!("Bitte gebe true oder false nur an");
+                    log_error!("{}", e.to_string());
+                    return;
+                }
+            };
+            task.set_static_service(static_service);
+            log_info!("static_service wurde geändert");
         }
         "software" => {
+            let software_name = match args.get(5) {
+                Some(new_wert) => new_wert,
+                None => {
+                    log_warning!("Bitte gebe ein neuen wert an");
+                    return;
+                }
+            };
 
+            let software_type = match SoftwareConfig::get().get_software_type(new_wert) {
+                Some(software_type) => software_type,
+                None => {
+                    log_warning!("Bitte gebe ein Software Type an der exsistiert");
+                    return;
+                }
+            };
+
+            let software_name = match software_type.get_software_name(software_name) {
+                Some(software) => software,
+                None => {
+                    log_warning!("");
+                    return;
+                }
+            };
+
+            let software = Software::new(&new_wert.to_string(), &software_name.get_name());
+            task.set_software(software);
+            log_info!("Software erfolgreich gesetzt");
         }
         "max_ram" => {
-
+            let max_ram: u32 = match new_wert.parse() {
+                Ok(n) => n,
+                Err(e) => {
+                    log_warning!("Bitte gebe eine ganze Zahl an");
+                    log_error!("{}", e.to_string());
+                    return;
+                }
+            };
+            task.set_max_ram(&max_ram);
+            log_info!("Max Ram wurde geändert");
         }
         "start_port" => {
-
+            let start_port: u32 = match new_wert.parse() {
+                Ok(start_port) => start_port,
+                Err(e) => {
+                    log_warning!("Bitte gebe eine ganze Zahl an");
+                    log_error!("{}", e.to_string());
+                    return;
+                }
+            };
+            task.set_start_port(start_port);
+            log_info!("Start Port wurde geändert");
         }
         "min_service_count" => {
-
+            let min_service_count: u32 = match new_wert.parse() {
+                Ok(min_service_count) => min_service_count,
+                Err(e) => {
+                    log_warning!("Bitte gebe eine ganze Zahl an");
+                    log_error!("{}", e.to_string());
+                    return;
+                }
+            };
+            task.set_min_service_count(min_service_count.clone());
+            println!("{}", min_service_count);
+            log_info!("min_service_count wurde geändert");
         }
         "installer" => {
-
+            task.set_installer(&Installer::from(new_wert));
+            log_info!("Installer erfolgreich gesetzt");
         }
         _ => {
             log_warning!("Bitte gebe ein gültigen atribut Wert an");
             return;
         }
     }
-
 }
 
-fn setup_add(task: Task, attribute: &str, new_wert: &str) {
+fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) {
+    let new_wert = match args.get(5) {
+        Some(new_wert) => new_wert,
+        None => {
+            log_warning!("Bitte gebe ein neuen wert an");
+            return;
+        }
+    };
 
     match attribute {
         "node" => {
-
+            task.add_node(new_wert.to_string());
+            log_info!("Erfoldgreich den Node hinzugefügt");
         }
         "group" => {
-
+            task.add_group(&new_wert.to_string());
+            log_info!("Group erfolgreich hinzugefügt");
         }
         "template" => {
+            let mut template = Template::new();
+            template.set_template(&new_wert.to_string());
 
+            log_warning!("Noch nicht implementiert hier wird args used");
         }
         _ => {
             log_warning!("Bitte gebe ein gültigen atribut Wert an");
@@ -197,38 +323,13 @@ fn info(args: Vec<&str>) {
         }
     };
 
-    let task = match Task::get_task(task_name) {
-        Some(task) => task,
+    match Task::get_task(task_name) {
+        Some(task) => task.print(),
         None => {
             log_warning!("Bitte gebe ein task namen an der exsistiert");
             return;
         }
     };
-
-    log_info!("--------> Task Info <--------");
-    log_info!("name: {}", task.get_name());
-    log_info!("split: {}", task.get_split());
-    log_info!("delete_on_stop: {}", task.get_delete_on_stop());
-    log_info!("static_service: {}", task.get_static_service());
-    log_info!("nodes: {:?}", task.get_nodes());
-    log_info!("software: ");
-    log_info!(
-        "     software_type: {}",
-        task.get_software().get_software_type()
-    );
-    log_info!("     name: {}", task.get_software().get_name());
-    log_info!("max_ram: {}", task.get_max_ram());
-    log_info!("start_port: {}", task.get_start_port());
-    log_info!("min_service_count: {}", task.get_min_service_count());
-    log_info!("groups: {:?}", task.get_groups());
-    log_info!("installer: {:?}", task.get_installer());
-    log_info!("templates: ");
-    for template in task.get_templates() {
-        log_info!("     template: {}", template.get_template());
-        log_info!("     name: {}", template.get_name());
-        log_info!("     priority: {}", template.get_priority());
-    }
-    log_info!("-----------------------------");
 }
 
 fn create(args: Vec<&str>) {
@@ -314,4 +415,5 @@ fn list() {
     for task in Task::get_task_all() {
         log_info!("{}", task.get_name());
     }
+    log_info!("--------------------------");
 }
