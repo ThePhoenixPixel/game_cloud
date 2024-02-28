@@ -8,8 +8,8 @@ pub enum Installer {
 }
 
 // Implementiere die From-Trait, um Installer in Task zu konvertieren
-impl From<&str> for Installer {
-    fn from(s: &str) -> Self {
+impl Installer {
+    pub fn from(s: &str) -> Self {
         match s {
             "InstallAll" => Installer::InstallAll,
             "InstallRandom" => Installer::InstallRandom,
