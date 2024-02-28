@@ -208,8 +208,8 @@ impl Task {
     }
 
     pub fn remove_group(&mut self, group: &String) {
-        if let Some(index) = self.templates.iter().position(|g| g.get_name() == &group) {
-            self.templates.remove(index);
+        if let Some(index) = self.groups.iter().position(|g| g == group) {
+            self.groups.remove(index);
         }
         self.save_to_file();
     }
