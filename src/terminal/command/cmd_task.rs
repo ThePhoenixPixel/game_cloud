@@ -22,7 +22,7 @@ impl CommandManager for CmdTask {
 
         match arg1 {
             "create" => create(args),
-            "remove" => remove(args),
+            "delete" => delete(args),
             "list" => list(),
             "info" => info(args),
             "setup" => setup(args),
@@ -396,10 +396,10 @@ fn create(args: Vec<&str>) {
     log_info!("Task Erfolgreich erstellt");
 }
 
-fn remove(args: Vec<&str>) {
+fn delete(args: Vec<&str>) {
     // command task remove <name>
 
-    let task_name = match args.get(1) {
+    let task_name = match args.get(2) {
         Some(task_name) => task_name.to_string(),
         None => {
             log_warning!("bitte gebe ein task namen an den du löschen möchtest");
