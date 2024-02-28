@@ -1,18 +1,19 @@
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::fs;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::PathBuf;
+use std::{fs, io};
 
 use crate::core::installer::Installer;
 use crate::core::service::Service;
 use crate::core::software::Software;
 use crate::core::template::Template;
 use crate::lib::bx::Bx;
-use crate::log_error;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
+use crate::utils::path::Path;
+use crate::{log_error, log_info};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Task {
@@ -269,78 +270,40 @@ impl Task {
         };
     }
 
+    // get task object from name
     pub fn get_task(name: String) -> Option<Task> {
-        let task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
+        let mut task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
 
-        // YAML-Dateien lesen
-        let json_files = fs::read_dir(&task_path)
-            .expect("Fehler beim Lesen des Task-Ordners")
-            .filter_map(|entry| {
-                let entry = entry.expect("Fehler beim Lesen des Verzeichniseintrags");
-                let file_path = entry.path();
-                if file_path.is_file() {
-                    Some(file_path)
-                } else {
-                    None
+        let files_name = Path::get_files_name_from_path(&task_path);
+
+        // iter list of files Name
+        for file_name in files_name {
+            let task = match Task::from_path(&task_path.join(&file_name)) {
+                Ok(task) => task,
+                Err(e) => {
+                    log_error!("{}", e.to_string());
+                    return None;
                 }
-            });
+            };
 
-        // Nach dem Task mit dem angegebenen Namen suchen
-        for file_path in json_files {
-            // Dateiinhalt lesen
-            let file_content =
-                fs::read_to_string(&file_path).expect("Fehler beim Lesen der Json-Datei");
-
-            let config: serde_json::Value = serde_json::from_str(&file_content)
-                .expect("Fehler beim Deserialisieren der JSON-Datei");
-
-            let task_name = config["name"].as_str();
-
-            if let Some(task_name_str) = task_name {
-                if task_name_str == name {
-                    let mut task = Task::new();
-
-                    // Setup-Methode aufrufen und die korrekten Parameter übergeben
-                    task.setup(
-                        name.to_string(),
-                        config["delete_on_stop"].as_bool().unwrap_or(true),
-                        config["static_service"].as_bool().unwrap_or(false),
-                        Vec::new(), // Hier können die Nodes aus der Config hinzugefügt werden
-                        Software {
-                            software_type: config["software"]["software_type"]
-                                .as_str()
-                                .unwrap_or("server")
-                                .to_string(),
-                            name: config["software"]["name"]
-                                .as_str()
-                                .unwrap_or("paper")
-                                .to_string(),
-                        },
-                        config["software"]["max_ram"].as_u64().unwrap_or(1024) as u32,
-                        config["start_port"].as_u64().unwrap_or(49152) as u32,
-                        config["min_service_count"].as_u64().unwrap_or(0) as u32,
-                        Vec::new(), // Hier können die Groups aus der Config hinzugefügt werden
-                        config["templates"]
-                            .as_array()
-                            .unwrap_or(&vec![]) // Hier werden die Templates aus der Config als Vektor von JSON-Objekten behandelt
-                            .iter()
-                            .map(|template| Template {
-                                // Hier wird jedes JSON-Objekt in ein Template-Objekt umgewandelt
-                                template: template["template"]
-                                    .as_str()
-                                    .unwrap_or("taskname")
-                                    .to_string(),
-                                name: template["name"].as_str().unwrap_or("default").to_string(),
-                                priority: template["priority"].as_u64().unwrap_or(1) as u32,
-                            })
-                            .collect::<Vec<Template>>(),
-                    );
-
-                    return Some(task);
-                }
+            // check name of the task is the same of the param name
+            if task.get_name() == name {
+                return Some(task);
             }
         }
-        None // Wenn kein passender Task gefunden wurde
+        None
+    }
+
+    // from path to task object
+    pub fn from_path(path: &PathBuf) -> io::Result<Task> {
+        let mut file = File::open(path)?;
+        let mut content = String::new();
+
+        file.read_to_string(&mut content)?;
+
+        let task: Task = serde_json::from_str(&content)?;
+
+        Ok(task)
     }
 
     pub fn get_task_all() -> Vec<Task> {
@@ -394,6 +357,7 @@ impl Task {
     }
 
     pub fn save_to_file(&self) {
+        self.print();
         let serialized_task =
             serde_json::to_string_pretty(&self).expect("Error beim Serialisieren der Task");
         let task_path = CloudConfig::get()
@@ -500,6 +464,34 @@ impl Task {
                 .get_temp_folder_path()
         };
         path
+    }
+
+    //print the task object in cmd
+    pub fn print(&self) {
+        log_info!("--------> Task Info <--------");
+        log_info!("name: {}", self.get_name());
+        log_info!("split: {}", self.get_split());
+        log_info!("delete_on_stop: {}", self.get_delete_on_stop());
+        log_info!("static_service: {}", self.get_static_service());
+        log_info!("nodes: {:?}", self.get_nodes());
+        log_info!("software: ");
+        log_info!(
+            "     software_type: {}",
+            self.get_software().get_software_type()
+        );
+        log_info!("     name: {}", self.get_software().get_name());
+        log_info!("max_ram: {}", self.get_max_ram());
+        log_info!("start_port: {}", self.get_start_port());
+        log_info!("min_service_count: {}", self.get_min_service_count());
+        log_info!("groups: {:?}", self.get_groups());
+        log_info!("installer: {:?}", self.get_installer());
+        log_info!("templates: ");
+        for template in self.get_templates() {
+            log_info!("     template: {}", template.get_template());
+            log_info!("     name: {}", template.get_name());
+            log_info!("     priority: {}", template.get_priority());
+        }
+        log_info!("-----------------------------");
     }
 }
 
