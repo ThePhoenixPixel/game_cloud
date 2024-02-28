@@ -102,7 +102,7 @@ impl Task {
 
     pub fn change_name(&mut self, name: String) {
         self.name = name;
-        //self.save_to_file();
+        self.save_to_file();
     }
 
     //getter und setter for split
@@ -111,7 +111,8 @@ impl Task {
     }
 
     pub fn set_split(&mut self, split: &char) {
-        self.split = split.clone()
+        self.split = split.clone();
+        self.save_to_file()
     }
 
     // Getter and Setter for delete_on_stop
@@ -153,6 +154,7 @@ impl Task {
 
     pub fn clear_nodes(&mut self) {
         self.nodes.clear();
+        self.save_to_file();
     }
     // Getter and Setter for software
     pub fn get_software(&self) -> Software {
@@ -171,6 +173,7 @@ impl Task {
 
     pub fn set_max_ram(&mut self, max_ram: &u32) {
         self.max_ram = max_ram.clone();
+        self.save_to_file();
     }
 
     // Getter and Setter for start_port
@@ -205,6 +208,7 @@ impl Task {
 
     pub fn clear_groups(&mut self) {
         self.groups.clear();
+        self.save_to_file();
     }
 
     // Getter für installer
@@ -214,7 +218,8 @@ impl Task {
 
     // Setter für installer
     pub fn set_installer(&mut self, installer: &Installer) {
-        self.installer = installer.clone()
+        self.installer = installer.clone();
+        self.save_to_file();
     }
 
     pub fn get_templates(&self) -> Vec<Template> {
@@ -222,19 +227,21 @@ impl Task {
     }
 
     pub fn add_template(&mut self, template: Template) {
-        self.templates.push(template)
+        self.templates.push(template);
+        self.save_to_file();
     }
 
     pub fn remove_template(&mut self, template: Template) {
         if let Some(index) = self.templates.iter().position(|t| t == &template) {
             self.templates.remove(index);
         }
+        self.save_to_file();
     }
 
     pub fn clear_templates(&mut self) {
-        self.templates.clear()
+        self.templates.clear();
+        self.save_to_file();
     }
-    //get_template(??????)
 
     pub fn is_exist(name: String) -> bool {
         if Task::get_task(name).is_some() {
