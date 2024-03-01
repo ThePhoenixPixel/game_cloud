@@ -5,98 +5,72 @@ use crate::core::template::Template;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
-use crate::{log_error, log_info, log_warning};
+use crate::{log_info, log_warning};
 
 pub struct CmdTask;
 
 impl CommandManager for CmdTask {
-    fn execute(args: Vec<&str>) {
+    fn execute(args: Vec<&str>) -> Result<(), String> {
         // get the first argument command task <arg1>
         let arg1 = match args.get(1) {
             Some(arg) => arg.clone(),
-            None => {
-                log_warning!("Bitte gebe ein ein der volgebedej  argumente an");
-                return;
-            }
+            None => return Err("Bitte gebe ein ein der volgebedej  argumente an".to_string()),
+
         };
 
         match arg1 {
-            "create" => create(args),
-            "delete" => delete(args),
-            "list" => list(),
-            "info" => info(args),
-            "setup" => setup(args),
-            _ => {
-                log_warning!(
-                    "Dies ist kein Gültiges argument verwende eins davon / add / remove / list",
-                );
-                return;
-            }
+            "create" => create(args)?,
+            "delete" => delete(args)?,
+            "list" => list()?,
+            "info" => info(args)?,
+            "setup" => setup(args)?,
+            _ => return Err("Dies ist kein Gültiges argument verwende eins davon / add / remove / list".to_string())
         }
+        Ok(())
     }
     fn tab_complete(_args: Vec<&str>) -> Vec<String> {
         todo!()
     }
 }
 
-fn setup(args: Vec<&str>) {
+fn setup(args: Vec<&str>) -> Result<(), String> {
     // command task setup <name> <set / add / remove / clear> <task_artibut> <new_wert>
     let task_name = match args.get(2) {
         Some(task_name) => task_name,
-        None => {
-            log_warning!("Bitte gebe ein Task namen an den du bearbeiten möchtest");
-            return;
-        }
+        None => return Err("Bitte gebe ein Task namen an den du bearbeiten möchtest".to_string()),
     };
 
     let task = match Task::get_task(task_name.to_string()) {
         Some(task) => task,
-        None => {
-            log_warning!("Bitte gebe ein task an der exsistiert");
-            return;
-        }
+        None => return Err("Bitte gebe ein task an der exsistiert".to_string()),
     };
 
     let was_wilste_machen = match args.get(3) {
         Some(wert) => wert,
-        None => {
-            log_warning!(
-                "Bitte gebe ein WErt an was du machen möchtest add / set / remove / clear"
-            );
-            return;
-        }
+        None => return Err("Bitte gebe ein WErt an was du machen möchtest add / set / remove / clear".to_string()),
     };
 
     let task_atribut = match args.get(4) {
         Some(task_atribut) => task_atribut,
-        None => {
-            log_warning!(
-                "Bitte gebe task atribut an welches du verändern möchtest zb split oder den ram"
-            );
-            return;
-        }
+        None => return Err("Bitte gebe task atribut an welches du verändern möchtest zb split oder den ram".to_string()),
     };
 
     match was_wilste_machen.to_lowercase().as_str() {
         "add" => {
-            setup_add(task, task_atribut, &args);
+            setup_add(task, task_atribut, &args)?;
         }
         "set" => {
-            setup_set(task, task_atribut, &args);
+            setup_set(task, task_atribut, &args)?;
         }
         "remove" => {
-            setup_remove(task, task_atribut, &args);
+            setup_remove(task, task_atribut, &args)?;
         }
         "clear" => {
             setup_clear(task, task_atribut);
         }
-        _ => {
-            log_warning!(
-                "Dies ist kein Gültiges argument verwende eins davon / add / set / remove / clear",
-            );
-            return;
-        }
+        _ => return Err("Dies ist kein Gültiges argument verwende eins davon / add / set / remove / clear".to_string()),
     }
+    Ok(())
 }
 
 fn setup_clear(mut task: Task, attribute: &str) {
@@ -120,13 +94,10 @@ fn setup_clear(mut task: Task, attribute: &str) {
     }
 }
 
-fn setup_remove(mut task: Task, attribute: &str, args: &Vec<&str>) {
+fn setup_remove(mut task: Task, attribute: &str, args: &Vec<&str>) -> Result<(), String> {
     let wert = match args.get(5) {
         Some(new_wert) => new_wert,
-        None => {
-            log_warning!("Bitte gebe ein neuen wert an");
-            return;
-        }
+        None => return Err("Bitte gebe ein neuen wert an".to_string()),
     };
     match attribute {
         "node" => {
@@ -138,10 +109,7 @@ fn setup_remove(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "template" => {
             let template_name = match args.get(6) {
                 Some(template_name) => template_name,
-                None => {
-                    log_warning!("Bitte gebe ein template namen an");
-                    return;
-                }
+                None => return Err("Bitte gebe ein template namen an".to_string()),
             };
 
             let mut template = Template::new();
@@ -150,19 +118,14 @@ fn setup_remove(mut task: Task, attribute: &str, args: &Vec<&str>) {
 
             task.remove_template(template)
         }
-        _ => {
-            log_warning!("Bitte gebe ein gültigen atribut Wert an");
-            return;
-        }
+        _ => return Err("Bitte gebe ein gültigen atribut Wert an".to_string()),
     }
+    Ok(())
 }
-fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
+fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) -> Result<(), String> {
     let new_wert = match args.get(5) {
         Some(new_wert) => new_wert,
-        None => {
-            log_warning!("Bitte gebe ein neuen wert an");
-            return;
-        }
+        None => return Err("Bitte gebe ein neuen wert an".to_string()),
     };
 
     match attribute {
@@ -173,10 +136,7 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "split" => {
             let new_wert: char = match new_wert.as_bytes().get(0).copied() {
                 Some(byte) => byte as char,
-                None => {
-                    log_warning!("Bitte gebe als split carakter nur ein zeichen an");
-                    return;
-                }
+                None => return Err("Bitte gebe als split carakter nur ein zeichen an".to_string()),
             };
             task.set_split(&new_wert);
             log_info!("Split wurde geändert");
@@ -184,11 +144,7 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "delete_on_stop" => {
             let delete_on_stop: bool = match new_wert.parse() {
                 Ok(delete_on_stop) => delete_on_stop,
-                Err(e) => {
-                    log_warning!("Bitte gebe true oder false nur an");
-                    log_error!("{}", e.to_string());
-                    return;
-                }
+                Err(e) => return Err(format!("Bitte gebe true oder false nur an \n {}", e.to_string())),
             };
             task.set_delete_on_stop(delete_on_stop);
             log_info!("delete_on_stop wurde geändert");
@@ -196,11 +152,7 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "static_service" => {
             let static_service: bool = match new_wert.parse() {
                 Ok(static_service) => static_service,
-                Err(e) => {
-                    log_warning!("Bitte gebe true oder false nur an");
-                    log_error!("{}", e.to_string());
-                    return;
-                }
+                Err(e) => return Err(format!("Bitte gebe true oder false nur an \n {}", e.to_string())),
             };
             task.set_static_service(static_service);
             log_info!("static_service wurde geändert");
@@ -208,26 +160,17 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "software" => {
             let software_name = match args.get(5) {
                 Some(new_wert) => new_wert,
-                None => {
-                    log_warning!("Bitte gebe ein neuen wert an");
-                    return;
-                }
+                None => return Err("Bitte gebe ein neuen wert an".to_string()),
             };
 
             let software_type = match SoftwareConfig::get().get_software_type(new_wert) {
                 Some(software_type) => software_type,
-                None => {
-                    log_warning!("Bitte gebe ein Software Type an der exsistiert");
-                    return;
-                }
+                None => return Err("Bitte gebe ein Software Type an der exsistiert".to_string()),
             };
 
             let software_name = match software_type.get_software_name(software_name) {
                 Some(software) => software,
-                None => {
-                    log_warning!("");
-                    return;
-                }
+                None => return Err("Bitte gebe ein Software Namen an der exsistiert".to_string()),
             };
 
             let software = Software::new(&new_wert.to_string(), &software_name.get_name());
@@ -237,11 +180,7 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "max_ram" => {
             let max_ram: u32 = match new_wert.parse() {
                 Ok(n) => n,
-                Err(e) => {
-                    log_warning!("Bitte gebe eine ganze Zahl an");
-                    log_error!("{}", e.to_string());
-                    return;
-                }
+                Err(e) => return Err(format!("Bitte gebe eine ganze Zahl an \n {}", e.to_string())),
             };
             task.set_max_ram(&max_ram);
             log_info!("Max Ram wurde geändert");
@@ -249,11 +188,7 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "start_port" => {
             let start_port: u32 = match new_wert.parse() {
                 Ok(start_port) => start_port,
-                Err(e) => {
-                    log_warning!("Bitte gebe eine ganze Zahl an");
-                    log_error!("{}", e.to_string());
-                    return;
-                }
+                Err(e) => return Err(format!("Bitte gebe eine ganze zahl an \n {}", e.to_string())),
             };
             task.set_start_port(start_port);
             log_info!("Start Port wurde geändert");
@@ -261,11 +196,7 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "min_service_count" => {
             let min_service_count: u32 = match new_wert.parse() {
                 Ok(min_service_count) => min_service_count,
-                Err(e) => {
-                    log_warning!("Bitte gebe eine ganze Zahl an");
-                    log_error!("{}", e.to_string());
-                    return;
-                }
+                Err(e) => return Err(format!("Bitte gebe eine ganze Zahl an \n {}", e.to_string())),
             };
             task.set_min_service_count(min_service_count.clone());
             println!("{}", min_service_count);
@@ -275,20 +206,15 @@ fn setup_set(mut task: Task, attribute: &str, args: &Vec<&str>) {
             task.set_installer(&Installer::from(new_wert));
             log_info!("Installer erfolgreich gesetzt");
         }
-        _ => {
-            log_warning!("Bitte gebe ein gültigen atribut Wert an");
-            return;
-        }
+        _ => return Err("Bitte gebe ein gültigen atribut Wert an".to_string()),
     }
+    Ok(())
 }
 
-fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) {
+fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) -> Result<(), String>{
     let new_wert = match args.get(5) {
         Some(new_wert) => new_wert,
-        None => {
-            log_warning!("Bitte gebe ein neuen wert an");
-            return;
-        }
+        None => return Err("Bitte gebe ein neuen wert an".to_string())
     };
 
     match attribute {
@@ -303,10 +229,7 @@ fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) {
         "template" => {
             let template_name = match args.get(6) {
                 Some(template_name) => template_name,
-                None => {
-                    log_warning!("Bitte gebe ein template Namen an");
-                    return;
-                }
+                None => return Err("Bitte gebe ein template Namen an".to_string()),
             };
 
             let mut template = Template::new();
@@ -315,11 +238,9 @@ fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) {
             task.add_template(template);
             log_warning!("Template erfolgreich hinzugefügt");
         }
-        _ => {
-            log_warning!("Bitte gebe ein gültigen attribut Wert an");
-            return;
-        }
+        _ => return Err("Bitte gebe ein gültigen attribut Wert an".to_string()),
     }
+    return Ok(())
 }
 
 fn info(args: Vec<&str>) {

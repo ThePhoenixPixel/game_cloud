@@ -4,7 +4,7 @@ use std::process::Command;
 pub struct CmdTemplate;
 
 impl CommandManager for CmdTemplate {
-    fn execute(args: Vec<&str>) {
+    fn execute(args: Vec<&str>) -> Result<(), String> {
         todo!()
     }
 

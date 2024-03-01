@@ -9,7 +9,7 @@ use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
-use crate::{log_error, log_info, log_warning};
+use crate::log_error;
 
 pub struct Cmd {
     prefix: ColoredString,
@@ -52,22 +52,24 @@ impl Cmd {
             }
 
             // execute the commands
-            Cmd::execute_command(command.as_str(), args)
+            match Cmd::execute_command(command.as_str(), args) {
+                Ok(_) => {},
+                Err(e) => log_error!("{}", e),
+            }
         }
         Cloud::disable();
     }
 
-    pub fn execute_command(command: &str, args: Vec<&str>) {
+    pub fn execute_command(command: &str, args: Vec<&str>) -> Result<(), String> {
         match command {
-            "help" => CmdHelp::execute(args),
-            "task" => CmdTask::execute(args),
-            "service" => CmdService::execute(args),
-            "template" => CmdTemplate::execute(args),
-            "" => {}
-            _ => {
-                log_warning!("Bitte gebe ein gültigen command an");
-            }
-        }
+            "help" => CmdHelp::execute(args)?,
+            "task" => CmdTask::execute(args)?,
+            "service" => CmdService::execute(args)?,
+            "template" => CmdTemplate::execute(args)?,
+            "" => Ok(()),
+            _ => Err("Bitte gebe ein gültigen command an".to_string()),
+        };
+        Ok(())
     }
 }
 
