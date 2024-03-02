@@ -3,13 +3,13 @@ use std::io;
 use std::io::Write;
 
 use crate::cloud::Cloud;
+use crate::log_error;
 use crate::terminal::command::cmd_help::CmdHelp;
 use crate::terminal::command::cmd_service::CmdService;
 use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
 use crate::terminal::command_manager::CommandManager;
 use crate::utils::logger::Logger;
-use crate::log_error;
 
 pub struct Cmd {
     prefix: ColoredString,
@@ -53,7 +53,7 @@ impl Cmd {
 
             // execute the commands
             match Cmd::execute_command(command.as_str(), args) {
-                Ok(_) => {},
+                Ok(_) => {}
                 Err(e) => log_error!("{}", e),
             }
         }
@@ -62,13 +62,13 @@ impl Cmd {
 
     pub fn execute_command(command: &str, args: Vec<&str>) -> Result<(), String> {
         match command {
-            "help" => CmdHelp::execute(args)?,
-            "task" => CmdTask::execute(args)?,
-            "service" => CmdService::execute(args)?,
-            "template" => CmdTemplate::execute(args)?,
+            "help" => CmdHelp::execute(args),
+            "task" => CmdTask::execute(args),
+            "service" => CmdService::execute(args),
+            "template" => CmdTemplate::execute(args),
             "" => Ok(()),
             _ => Err("Bitte gebe ein gültigen command an".to_string()),
-        };
+        }?;
         Ok(())
     }
 }
