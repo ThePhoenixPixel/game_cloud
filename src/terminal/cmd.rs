@@ -5,6 +5,7 @@ use std::io::Write;
 use crate::cloud::Cloud;
 use crate::log_error;
 use crate::terminal::command::cmd_help::CmdHelp;
+use crate::terminal::command::cmd_me::CmdMe;
 use crate::terminal::command::cmd_service::CmdService;
 use crate::terminal::command::cmd_task::CmdTask;
 use crate::terminal::command::cmd_template::CmdTemplate;
@@ -66,6 +67,7 @@ impl Cmd {
             "task" => CmdTask::execute(args),
             "service" => CmdService::execute(args),
             "template" => CmdTemplate::execute(args),
+            "me" => CmdMe::execute(args),
             "" => Ok(()),
             _ => Err("Bitte gebe ein gültigen command an".to_string()),
         };
