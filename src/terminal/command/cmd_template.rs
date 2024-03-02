@@ -1,14 +1,13 @@
 use crate::terminal::command_manager::CommandManager;
-use std::process::Command;
 
 pub struct CmdTemplate;
 
 impl CommandManager for CmdTemplate {
-    fn execute(args: Vec<&str>) -> Result<(), String> {
+    fn execute(_args: Vec<&str>) -> Result<(), String> {
         todo!()
     }
 
-    fn tab_complete(args: Vec<&str>) -> Vec<String> {
+    fn tab_complete(_args: Vec<&str>) -> Vec<String> {
         todo!()
     }
 }

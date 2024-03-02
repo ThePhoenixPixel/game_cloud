@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
 
 use crate::lib::bx::Bx;
 use crate::sys_config::cloud_config::CloudConfig;
@@ -40,10 +37,6 @@ impl SoftwareConfig {
                 panic!("The GameCloud has an fatal Error");
             }
         };
-    }
-
-    fn new(software_type: HashMap<String, SoftwareType>) -> SoftwareConfig {
-        SoftwareConfig { software_type }
     }
 
     pub fn get_software_type(&self, software_type: &str) -> Option<SoftwareType> {
@@ -98,10 +91,6 @@ pub struct SoftwareType {
 }
 
 impl SoftwareType {
-    fn new(software_name: Vec<SoftwareName>) -> SoftwareType {
-        SoftwareType { software_name }
-    }
-
     pub fn get_software_name(&self, name: &str) -> Option<SoftwareName> {
         for software in &self.software_name {
             if software.get_name() == name {
@@ -136,24 +125,6 @@ pub struct SoftwareName {
 }
 
 impl SoftwareName {
-    fn new(
-        name: &str,
-        download: &str,
-        command: &str,
-        ram: &u32,
-        ip: &IP,
-        port: &Port,
-    ) -> SoftwareName {
-        SoftwareName {
-            name: name.to_string(),
-            download: download.to_string(),
-            command: command.to_string(),
-            max_ram: ram.clone(),
-            ip: ip.clone(),
-            port: port.clone(),
-        }
-    }
-
     pub fn get_name(&self) -> String {
         self.name.clone()
     }
@@ -246,22 +217,6 @@ impl Port {
     pub fn set_content(&mut self, content: &str) {
         self.content = content.to_string()
     }
-}
-
-fn save_to_file(
-    config: &SoftwareConfig,
-    file_path: &PathBuf,
-) -> Result<(), Box<dyn std::error::Error>> {
-    // Serialize SoftwareConfig to a JSON string
-    let json_str = serde_json::to_string_pretty(config)?;
-
-    // Open or create the file for writing
-    let mut file = File::create(file_path)?;
-
-    // Write the JSON string to the file
-    file.write_all(json_str.as_bytes())?;
-
-    Ok(())
 }
 
 fn get_default_file() -> String {

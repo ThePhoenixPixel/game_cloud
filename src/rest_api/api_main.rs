@@ -1,7 +1,6 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpResponse, HttpServer};
+use actix_web::{web, App, HttpServer};
 
-use crate::core::task::Task;
 use crate::rest_api::get::ApiGet;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
@@ -64,6 +63,7 @@ impl ApiMain {
     */
 }
 
+/*
 async fn get_task(path: web::Path<(String)>) -> HttpResponse {
     let task_name = path.into_inner();
 
@@ -83,3 +83,4 @@ async fn get_task(path: web::Path<(String)>) -> HttpResponse {
         None => return HttpResponse::NoContent().finish(),
     };
 }
+*/

@@ -13,7 +13,7 @@ impl CommandManager for CmdTask {
     fn execute(args: Vec<&str>) -> Result<(), String> {
         // get the first argument command task <arg1>
         let arg1 = match args.get(1) {
-            Some(arg) => arg.clone(),
+            Some(arg) => *arg,
             None => return Err("Bitte gebe ein ein der volgebedej  argumente an".to_string()),
         };
 

@@ -279,7 +279,7 @@ impl Task {
 
     // get task object from name
     pub fn get_task(name: String) -> Option<Task> {
-        let mut task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
+        let task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
 
         let files_name = Path::get_files_name_from_path(&task_path);
 

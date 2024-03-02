@@ -35,8 +35,7 @@ impl Cloud {
             let _ = ApiMain::start();
         });
 
-        let mut cmd =
-            Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
+        let cmd = Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
         cmd.start();
     }
 

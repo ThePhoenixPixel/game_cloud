@@ -38,7 +38,7 @@ impl Cmd {
             let input = read_from_line();
 
             // trim the input
-            let mut args: Vec<&str> = input.trim().split_whitespace().collect();
+            let args: Vec<&str> = input.trim().split_whitespace().collect();
 
             let command = match args.first() {
                 Some(command) => command.to_string(),
