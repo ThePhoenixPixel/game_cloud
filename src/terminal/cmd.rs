@@ -61,15 +61,14 @@ impl Cmd {
     }
 
     pub fn execute_command(command: &str, args: Vec<&str>) -> Result<(), String> {
-        match command {
+        return match command {
             "help" => CmdHelp::execute(args),
             "task" => CmdTask::execute(args),
             "service" => CmdService::execute(args),
             "template" => CmdTemplate::execute(args),
             "" => Ok(()),
             _ => Err("Bitte gebe ein gültigen command an".to_string()),
-        }?;
-        Ok(())
+        };
     }
 }
 
