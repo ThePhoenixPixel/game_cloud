@@ -1,6 +1,7 @@
 use colored::{ColoredString, Colorize};
 use std::env;
 use std::path::PathBuf;
+use std::time::Duration;
 
 use crate::lib::bx::Bx;
 use crate::rest_api::api_main::ApiMain;
@@ -34,6 +35,9 @@ impl Cloud {
         std::thread::spawn(move || {
             let _ = ApiMain::start();
         });
+
+        // main thread wait for 1 sec
+        std::thread::sleep(Duration::from_secs(1));
 
         let cmd = Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
         cmd.start();
