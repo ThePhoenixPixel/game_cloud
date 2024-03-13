@@ -102,6 +102,7 @@ impl Task {
     }
 
     pub fn change_name(&mut self, name: String) {
+        self.delete_as_file();
         self.name = name;
         self.save_to_file();
     }
