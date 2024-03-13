@@ -96,6 +96,25 @@ impl Task {
         task
     }
 
+    pub fn create(name: &String, software: &Software) -> Task {
+        let task = Task {
+            name: name.to_string(),
+            split: '-',
+            delete_on_stop: true,
+            static_service: false,
+            nodes: Vec::new(),
+            software: software.clone(),
+            max_ram: 1024,
+            start_port: 40000,
+            min_service_count: 0,
+            groups: Vec::new(),
+            installer: Installer::InstallAll,
+            templates: vec![Template::new()],
+        };
+        task.save_to_file();
+        task
+    }
+
     // Getter and Setter for name
     pub fn get_name(&self) -> String {
         self.name.clone()
