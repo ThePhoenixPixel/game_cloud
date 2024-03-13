@@ -17,20 +17,17 @@ impl CommandManager for CmdTask {
             None => return Err("Bitte gebe ein ein der volgebedej  argumente an".to_string()),
         };
 
-        let _ = match arg1 {
-            "create" => create(args),
-            "delete" => delete(args),
-            "list" => list(),
-            "info" => info(args),
-            "setup" => setup(args)?,
-            _ => {
-                return Err(
-                    "Dies ist kein Gültiges argument verwende eins davon / add / remove / list"
-                        .to_string(),
-                )
-            }
-        };
-        Ok(())
+        match arg1 {
+            "create" => Ok(create(args)),
+            "delete" => Ok(delete(args)),
+            "list" => Ok(list()),
+            "info" => Ok(info(args)),
+            "setup" => setup(args),
+            _ => Err(
+                "Dies ist kein Gültiges argument verwende eins davon / add / remove / list"
+                    .to_string(),
+            ),
+        }
     }
     fn tab_complete(_args: Vec<&str>) -> Vec<String> {
         todo!()
@@ -352,11 +349,7 @@ fn create(args: Vec<&str>) {
         }
     }
 
-    let mut task = Task::new();
-    task.change_name(task_name.to_string());
-    task.set_software(Software::new(&software_type, &software_name));
-    task.save_to_file();
-
+    Task::create(&task_name, &Software::new(&software_type, &software_name));
     log_info!("Task Erfolgreich erstellt");
 }
 
