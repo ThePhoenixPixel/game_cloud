@@ -21,6 +21,16 @@ impl Template {
         }
     }
 
+    pub fn create(template: &String, name: &String, priority: &u32) -> Template {
+        let template = Template {
+            template: template.to_string(),
+            name: name.to_string(),
+            priority: *priority,
+        };
+        template.create_by_self();
+        template
+    }
+
     //template
     pub fn get_template(&self) -> &String {
         &self.template
