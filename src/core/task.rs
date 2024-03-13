@@ -33,69 +33,6 @@ pub struct Task {
 }
 
 impl Task {
-    pub fn new() -> Task {
-        let default_task_path = CloudConfig::get()
-            .get_cloud_path()
-            .get_system_folder()
-            .get_default_task_path();
-
-        let default_task_content =
-            fs::read_to_string(&default_task_path).unwrap_or_else(|_| "".to_string());
-        let default_task_config: serde_json::Value =
-            serde_json::from_str(&default_task_content).unwrap_or_else(|_| serde_json::Value::Null);
-
-        let name = default_task_config["name"]
-            .as_str()
-            .unwrap_or("taskname")
-            .to_string();
-        let mut split = '-';
-        let split_temp: String = default_task_config["split"]
-            .as_str()
-            .unwrap_or("-")
-            .to_string();
-        if split_temp.len() == 1 {
-            // Überprüfen, ob der String nur aus einem Zeichen besteht
-            split = split_temp.chars().next().unwrap();
-        } else {
-            println!("Fehler: Der 'split'-Wert ist kein einzelnes Zeichen.");
-        }
-
-        let delete_on_stop = default_task_config["delete_on_stop"]
-            .as_bool()
-            .unwrap_or(true);
-        let static_service = default_task_config["static_service"]
-            .as_bool()
-            .unwrap_or(false);
-        let max_ram = default_task_config["max_ram"].as_u64().unwrap_or(2048) as u32;
-        let start_port = default_task_config["start_port"].as_u64().unwrap_or(40000) as u32;
-        let min_service_count = default_task_config["min_service_count"]
-            .as_u64()
-            .unwrap_or(0) as u32;
-        // let installer = default_task_config["installer"].to_string();
-
-        let installer = Installer::InstallAll;
-        let groups = Vec::new();
-        let software = Software::new(&"server".to_string(), &"paper".to_string());
-        let templates = vec![Template::new()];
-
-        let task = Task {
-            name,
-            split,
-            delete_on_stop,
-            static_service,
-            nodes: Vec::new(),
-            software,
-            max_ram,
-            start_port,
-            min_service_count,
-            groups,
-            installer,
-            templates,
-        };
-
-        task
-    }
-
     pub fn create(name: &String, software: &Software) -> Task {
         let task = Task {
             name: name.to_string(),
