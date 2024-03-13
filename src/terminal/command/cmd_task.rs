@@ -272,10 +272,21 @@ fn setup_add(mut task: Task, attribute: &str, args: &Vec<&str>) -> Result<(), St
                 None => return Err("Bitte gebe ein template Namen an".to_string()),
             };
 
-            let mut template = Template::new();
-            template.set_template(&new_wert.to_string());
-            template.set_name(&template_name.to_string());
-            task.add_template(template);
+            let template_priority_str = match args.get(7) {
+                Some(template_priority) => template_priority,
+                None => return Err("Bitte gebe eine Template Priority an".to_string()),
+            };
+
+            let template_priority: u32 = match template_priority_str.parse() {
+                Ok(prio) => prio,
+                Err(_) => return Err("Bitte gebe eine ganze Zahl an".to_string()),
+            };
+
+            task.add_template(Template::create(
+                &new_wert.to_string(),
+                &template_name.to_string(),
+                &template_priority,
+            ));
             log_warning!("Template erfolgreich hinzugefügt");
         }
         _ => return Err("Bitte gebe ein gültigen attribut Wert an".to_string()),

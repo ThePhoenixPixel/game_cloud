@@ -46,7 +46,7 @@ impl Task {
             min_service_count: 0,
             groups: Vec::new(),
             installer: Installer::InstallAll,
-            templates: vec![Template::new()],
+            templates: vec![Template::create(name, &"default".to_string(), &1)],
         };
         task.save_to_file();
         task
