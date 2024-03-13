@@ -98,7 +98,7 @@ impl Task {
 
     // Getter and Setter for name
     pub fn get_name(&self) -> String {
-        self.name.parse().unwrap()
+        self.name.clone()
     }
 
     pub fn change_name(&mut self, name: String) {
