@@ -3,47 +3,35 @@ use serde::Serialize;
 use std::thread;
 use std::time::Duration;
 
-use crate::log_error;
-use crate::utils::logger::Logger;
-
 pub struct Webhook;
 
 impl Webhook {
-    pub fn send<T>(data: T, url: &str) -> Result<(), reqwest::Error>
+
+    //send a response on a server
+    pub fn send<T>(data: T, url: &str) -> Result<(), String>
     where
         T: Serialize,
     {
-        let duration = Duration::from_secs(1);
-        thread::sleep(duration);
+        thread::sleep(Duration::from_secs(1));
+
+        // change the generic object into a json object
+        let json_data = match serde_json::to_value(&data) {
+            Ok(json_data) => json_data,
+            Err(e) => return Err(e.to_string()),
+        };
 
         let client = Client::new();
 
-        // Wandele das generische Objekt in ein JSON-Objekt um
-        let json_data = match serde_json::to_value(&data) {
-            Ok(json_data) => json_data,
-            Err(e) => {
-                log_error!("{}", e.to_string());
-                return Ok(());
-            }
-        };
-
-        match client.post(url).form(&json_data).send() {
+        // send the response
+        return match client.post(url).form(&json_data).send() {
             Ok(response) => {
                 if response.status().is_success() {
-                    println!("Webhook-Anfrage erfolgreich gesendet.");
-                    // Hier kannst du die Antwort des Java-Plugins verarbeiten, falls gewünscht.
+                    Ok(())
                 } else {
-                    println!(
-                        "Fehler beim Senden der Webhook-Anfrage: {:?}",
-                        response.status()
-                    );
+                    Err(response.status().to_string())
                 }
             }
-            Err(e) => {
-                println!("Fehler beim Senden der Webhook-Anfrage: {:?}", e);
-            }
-        }
-
-        Ok(())
+            Err(e) => Err(e.to_string()),
+        };
     }
 }

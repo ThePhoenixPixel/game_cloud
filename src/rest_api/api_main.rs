@@ -1,32 +1,25 @@
-use std::sync::Mutex;
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer, Result, middleware, HttpRequest};
+use actix_web::{web, App, HttpServer};
 
 use crate::rest_api::get::ApiGet;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
 use crate::{log_error, log_info, log_warning};
 
-pub struct AppState {
-    token: String,
-}
-
 pub struct ApiMain;
 
 impl ApiMain {
     #[actix_web::main]
     pub async fn start() {
-        // init Zustand des Token
-        let app_token = web::Data::new(Mutex::new(AppState {
-            token: String::from("12345"),
-        }));
-
         log_info!("Start the REST AIP Server");
         let app_factory = || {
             App::new()
-                .app_data(app_token.clone()) // Teilen des Zustands zwischen Threads
-                .wrap(middleware::DefaultHeaders::new().header("Content-Type", "application/json")) // Standardheader setzen
-                .wrap_fn(|req, srv| validate_token(req, srv.data().clone())) // Verwendung der Closure
+                .wrap(
+                    Cors::permissive()
+                        .allow_any_method()
+                        .supports_credentials()
+                        .allow_any_header(),
+                )
                 .service(web::resource("cloud/get/task/{name}").route(web::get().to(ApiGet::task)))
         };
 
@@ -54,34 +47,6 @@ impl ApiMain {
             }
         }
     }
-}
-
-// Middleware-Funktion zur Überprüfung des Tokens
-async fn validate_token(
-    req: HttpRequest,
-    data: web::Data<Mutex<AppState>>,
-) -> Result<HttpRequest, actix_web::Error> {
-    // Überprüfen, ob der Token in den Anfragedaten vorhanden ist
-    match req.headers().get("Authorization") {
-        Some(auth_header) => {
-            if let Ok(auth_token) = auth_header.to_str() {
-                if auth_token == &data.lock().unwrap().token {
-                    Ok(req)
-                } else {
-                    Err(actix_web::error::ErrorUnauthorized("Invalid token!").into())
-                }
-            } else {
-                Err(actix_web::error::ErrorUnauthorized("Invalid authorization header!").into())
-            }
-        }
-        None => Err(actix_web::error::ErrorUnauthorized("Authorization header missing!").into()),
-    }
-}
-
-
-
-
-
     //alt
     /*
     HttpServer::new({
@@ -96,7 +61,7 @@ async fn validate_token(
     .await
     .unwrap()
     */
-
+}
 
 /*
 async fn get_task(path: web::Path<(String)>) -> HttpResponse {
