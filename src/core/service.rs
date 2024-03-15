@@ -9,12 +9,12 @@ use std::process::{Command, Stdio};
 use crate::core::task::Task;
 use crate::lib::address::Address;
 use crate::lib::bx::Bx;
-use crate::log_error;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
+use crate::{log_error, log_info};
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -254,7 +254,10 @@ impl Service {
                     task.get_name()
                 );
                 let mut service = Service::new(&task);
-                service.start();
+                match service.start() {
+                    Ok(_) => log_info!("Server Konnte getstartet werden"),
+                    Err(e) => log_error!("Server konnte nicht gestartet werden \n {}", e),
+                }
             }
         }
     }
@@ -308,33 +311,24 @@ impl Service {
         };
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self) -> Result<(), String> {
         println!("in der start fn");
         self.prepare_to_start();
         println!("nach prepare to start");
 
         let stdout_file = match File::create(self.get_path_stdout_file()) {
             Ok(file) => file,
-            Err(e) => {
-                log_error!("{}", e.to_string().as_str());
-                return;
-            }
+            Err(e) => return Err(e.to_string()),
         };
 
         let _stdin_file = match File::create(self.get_path_stdin_file()) {
             Ok(file) => file,
-            Err(e) => {
-                log_error!("{}", e.to_string().as_str());
-                return;
-            }
+            Err(e) => return Err(e.to_string()),
         };
 
         let stderr_file = match File::create(self.get_path_stderr_file()) {
             Ok(file) => file,
-            Err(e) => {
-                log_error!("{}", e);
-                return;
-            }
+            Err(e) => return Err(e.to_string()),
         };
 
         let software = match self
@@ -344,32 +338,34 @@ impl Service {
         {
             Some(software) => software,
             None => {
-                log_error!(
+                return Err(format!(
                     "Can not find the Software for the service {}",
                     self.get_name()
-                );
-                return;
+                ))
             }
         };
         let server_file_path = match self.get_path_server_file().to_str() {
             Some(server_file_path) => server_file_path,
-            None => {
-                log_error!("Can not server file path to string change");
-                return;
-            }
+            None => return Err("Can not server file path to string change".to_string()),
         }
         .to_string();
 
         let server_path = match self.get_path().to_str() {
             Some(server_file_path) => server_file_path,
-            None => {
-                log_error!("Can not server path to string change");
-                return;
-            }
+            None => return Err("Can not server path to string change".to_string()),
         }
         .to_string();
 
-        let stdin_file = File::open("/dev/null").expect("Fehler beim Öffnen der Standardeingabe");
+        let stdin_file = match File::open("/dev/null") {
+            Ok(file) => file,
+            Err(e) => {
+                return Err(format!(
+                    "Fehler beim Öffnen der Standardeingabe \n {}",
+                    e.to_string()
+                )
+                .to_string())
+            }
+        };
 
         println!("{}", server_file_path);
         println!("{}", software.get_command());
@@ -399,6 +395,7 @@ impl Service {
         println!("start the server");
 
         //self.connect_to_proxy();
+        Ok(())
     }
 
     pub fn connect_to_proxy(&self) {}
