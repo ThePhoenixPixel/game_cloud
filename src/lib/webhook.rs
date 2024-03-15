@@ -6,7 +6,6 @@ use std::time::Duration;
 pub struct Webhook;
 
 impl Webhook {
-
     //send a response on a server
     pub fn send<T>(data: T, url: &str) -> Result<(), String>
     where
