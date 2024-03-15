@@ -23,6 +23,7 @@ impl CommandManager for CmdTask {
             "list" => Ok(list()),
             "info" => Ok(info(args)),
             "setup" => setup(args),
+            "reload" => Ok(Task::reload()),
             _ => Err(
                 "Dies ist kein Gültiges argument verwende eins davon / add / remove / list"
                     .to_string(),
