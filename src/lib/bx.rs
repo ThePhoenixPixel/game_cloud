@@ -55,7 +55,7 @@ impl Bx {
                 Some(file_name) => file_name,
                 None => return None,
             }
-            .to_string(),
+                .to_string(),
         );
     }
 
@@ -81,16 +81,10 @@ impl Bx {
 
     pub fn download_file(
         url: &str,
-        folder_path: &PathBuf,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        // Extrakt file name from url
-        let filename = url
-            .rsplit('/')
-            .next()
-            .ok_or("Konnte keinen Dateinamen aus der URL extrahieren")?;
-
-        let file_path = folder_path.join(filename);
-
+        file_path: &PathBuf,
+    ) -> Result<(), Box<dyn Error>> {
+        // url = http://domain.com/test.download
+        // file_path = folder/file.test
         if file_path.exists() {
             return Ok(());
         }
