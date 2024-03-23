@@ -72,7 +72,8 @@ impl SoftwareConfig {
         let mut folder_path = CloudConfig::get()
             .get_cloud_path()
             .get_system_folder()
-            .get_software_config_path();
+            .get_software_config_path()
+            .join("software.json");
 
         folder_path.pop();
         match Bx::download_file(url, &folder_path) {
@@ -84,6 +85,7 @@ impl SoftwareConfig {
         }
     }
 }
+
 // -----------------------------------------------------------
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareType {
@@ -113,6 +115,7 @@ impl SoftwareType {
             .insert(self.software_name.len() + 1, software_name.clone());
     }
 }
+
 //-------------------------------------------------------------
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareName {
@@ -188,6 +191,7 @@ impl IP {
         self.content = content.to_string()
     }
 }
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Port {
     path: String,
