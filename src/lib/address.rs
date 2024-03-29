@@ -31,10 +31,11 @@ impl Address {
         self.port = port.clone();
     }
 
-    pub fn find_next_port(address: &Address) -> u32 {
+    pub fn find_next_port(address: &mut Address) -> u32 {
         let mut port = address.get_port();
         let max_port: u32 = 65535;
         while port <= max_port {
+            address.set_port(port);
             if Address::is_port_available(address) {
                 return port; // Verwende 'return' hier, um den gefundenen Port zurückzugeben
             }
