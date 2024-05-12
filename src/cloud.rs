@@ -1,42 +1,59 @@
+use std::time::Duration;
 use colored::{ColoredString, Colorize};
 use std::env;
 use std::path::PathBuf;
-use std::time::Duration;
 
 use crate::lib::bx::Bx;
-use crate::rest_api::api_main::ApiMain;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::cmd::Cmd;
 use crate::utils::logger::Logger;
 use crate::{log_error, log_info};
+use crate::core::network::node_host::NodeHost;
+
 
 pub struct Cloud;
 
 impl Cloud {
-    pub fn enable() {
+    pub fn enable(version: &str) {
+        // download link
+        let url = format!("http://download.codergames.de/minecloud/version/{}/", version);
+
         // print the logo
         Cloud::print_icon();
 
         //check the cloud config.json
-        CloudConfig::check();
+        CloudConfig::check(&url);
 
         // check folder
         Cloud::check_folder();
 
         // check software config file
-        SoftwareConfig::check();
+        SoftwareConfig::check(&url);
 
         // check the software files
         Cloud::check_software();
 
         // Cloud require system ist finish
 
+        /*
         std::thread::spawn(move || {
             let _ = ApiMain::start();
         });
 
         // main thread wait for 1 sec
+        std::thread::sleep(Duration::from_secs(1));
+
+        std::thread::spawn(move || {
+            let _ = ServiceConnect::start();
+        });
+
+        std::thread::sleep(Duration::from_secs(1));
+        */
+        std::thread::spawn(move || {
+            let _ = NodeHost::start();
+        });
+
         std::thread::sleep(Duration::from_secs(1));
 
         let cmd = Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());

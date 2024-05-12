@@ -74,16 +74,16 @@ impl CloudConfig {
         self.path.clone()
     }
 
-    pub fn check() {
+    pub fn check(url: &String) {
         if !Cloud::get_exe_path().join("config.json").exists() {
-            CloudConfig::install();
+            CloudConfig::install(url);
         }
     }
 
-    pub fn install() {
+    pub fn install(start_url: &String) {
         // get the response from the download
-        let url = "http://download.codergames.de/game_cloud/v0.1/config.json";
-        match Bx::download_file(url, &Cloud::get_exe_path().join("config.json")) {
+        let url = format!("{}/config.json", start_url);
+        match Bx::download_file(url.as_str(), &Cloud::get_exe_path().join("config.json")) {
             Ok(_) => log_info!("Successfully download the Software Config from {}", url),
             Err(e) => {
                 log_error!("{}", &e.to_string());

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Address {
     ip: String,
     port: u32,

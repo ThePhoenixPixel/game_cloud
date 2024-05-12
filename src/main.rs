@@ -24,6 +24,12 @@ pub mod utils {
 }
 
 pub mod core {
+    pub mod network {
+        pub mod node_host;
+        pub mod node_get;
+        pub mod node_post;
+    }
+
     pub mod task;
     pub mod template;
     //pub mod group;
@@ -41,6 +47,7 @@ pub mod sys_config {
 pub mod terminal {
     pub mod cmd;
     pub mod command_manager;
+
     pub mod command {
         pub mod cmd_help;
         pub mod cmd_me;
@@ -53,10 +60,12 @@ pub mod terminal {
 pub mod cloud;
 pub mod language;
 
+const VERSION: &str = "0.1";
+
 fn main() {
     println!("Start Game Cloud...");
     //start the game cloud
-    Cloud::enable();
+    Cloud::enable(VERSION);
 
     //disable the game cloud
     Cloud::disable();

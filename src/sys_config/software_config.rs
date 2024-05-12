@@ -14,19 +14,16 @@ pub struct SoftwareConfig {
 
 impl SoftwareConfig {
     pub fn get() -> SoftwareConfig {
-        let file_content = match fs::read_to_string(
+        let file_content = fs::read_to_string(
             &CloudConfig::get()
                 .get_cloud_path()
                 .get_system_folder()
                 .get_software_config_path(),
-        ) {
-            Ok(file_content) => file_content,
-            Err(e) => {
-                log_warning!("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
-                log_error!("{}", &e.to_string());
-                get_default_file()
-            }
-        };
+        ).unwrap_or_else(|e| {
+            log_warning!("Bitte gebe den richtigen Pfad zur Software-Dateikonfiguration an");
+            log_error!("{}", &e.to_string());
+            get_default_file()
+        });
 
         // Versuche, den Inhalt der Datei zu deserialisieren
         return match serde_json::from_str(&file_content) {
@@ -56,19 +53,19 @@ impl SoftwareConfig {
         self.software_type.remove(name);
     }
 
-    pub fn check() {
+    pub fn check(url: &String) {
         if !CloudConfig::get()
             .get_cloud_path()
             .get_system_folder()
             .get_software_config_path()
             .exists()
         {
-            SoftwareConfig::install();
+            SoftwareConfig::install(url);
         }
     }
 
-    pub fn install() {
-        let url = "https://download.codergames.de/game_cloud/v0.1/config/software.json";
+    pub fn install(start_url: &String) {
+        let url = format!("{}/config/software.json", start_url);
         let mut folder_path = CloudConfig::get()
             .get_cloud_path()
             .get_system_folder()
@@ -76,7 +73,7 @@ impl SoftwareConfig {
             .join("software.json");
 
         folder_path.pop();
-        match Bx::download_file(url, &folder_path) {
+        match Bx::download_file(url.as_str(), &folder_path) {
             Ok(_) => log_info!("Successfully download the Software Config from {}", url),
             Err(e) => {
                 log_error!("{}", e);
