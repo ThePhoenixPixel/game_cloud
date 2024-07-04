@@ -7,7 +7,7 @@ use crate::utils::logger::Logger;
 pub struct CmdMe;
 
 impl CommandManager for CmdMe {
-    fn execute(_args: Vec<&str>) -> Result<(), String> {
+    async fn execute(_args: Vec<&str>) -> Result<(), String> {
         let pid = Pid::from_u32(std::process::id());
 
         match System::new().process(pid) {

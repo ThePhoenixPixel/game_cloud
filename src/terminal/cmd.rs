@@ -23,7 +23,7 @@ impl Cmd {
         }
     }
 
-    pub fn start(&self) {
+    pub async fn start(&self) {
         //start the cmd system
         loop {
             // print the prefix
@@ -45,7 +45,7 @@ impl Cmd {
                 Some(command) => command.to_string(),
                 None => String::new(),
             }
-            .to_lowercase();
+                .to_lowercase();
 
             // check ob stop or exit execute in the input the stop the cloud
             if command == "exit" || command == "stop" {
@@ -53,7 +53,7 @@ impl Cmd {
             }
 
             // execute the commands
-            match Cmd::execute_command(command.as_str(), args) {
+            match Cmd::execute_command(command.as_str(), args).await {
                 Ok(_) => {}
                 Err(e) => log_error!("{}", e),
             }
@@ -61,13 +61,13 @@ impl Cmd {
         Cloud::disable();
     }
 
-    pub fn execute_command(command: &str, args: Vec<&str>) -> Result<(), String> {
+    pub async fn execute_command(command: &str, args: Vec<&str>) -> Result<(), String> {
         return match command {
-            "help" => CmdHelp::execute(args),
-            "task" => CmdTask::execute(args),
-            "service" => CmdService::execute(args),
-            "template" => CmdTemplate::execute(args),
-            "me" => CmdMe::execute(args),
+            "help" => CmdHelp::execute(args).await,
+            "task" => CmdTask::execute(args).await,
+            "service" => CmdService::execute(args).await,
+            "template" => CmdTemplate::execute(args).await,
+            "me" => CmdMe::execute(args).await,
             "" => Ok(()),
             _ => Err("Bitte gebe ein gültigen command an".to_string()),
         };

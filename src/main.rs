@@ -1,5 +1,6 @@
 use crate::cloud::Cloud;
 
+#[cfg(feature = "rest-api")]
 pub mod rest_api {
     pub mod api_main;
     pub mod get;
@@ -62,10 +63,11 @@ pub mod language;
 
 const VERSION: &str = "0.1";
 
-fn main() {
+#[tokio::main]
+async fn main() {
     println!("Start Game Cloud...");
     //start the game cloud
-    Cloud::enable(VERSION);
+    Cloud::enable(VERSION).await;
 
     //disable the game cloud
     Cloud::disable();

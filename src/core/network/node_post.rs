@@ -1,24 +1,32 @@
 use crate::core::service::Service;
-use crate::log_error;
+use crate::{log_info, log_warning};
 use crate::utils::logger::Logger;
 
 use actix_web::{HttpResponse, web};
+use serde::Deserialize;
 
+#[derive(Deserialize)]
+pub struct SetOnlineModeRequest {
+    name: String,
+}
 
 pub struct NodePost;
 
 impl NodePost {
-    pub async fn send_online_mode(path: web::Path<String>) -> HttpResponse {
-        let _service_name = match serde_json::from_str(path.into_inner().as_str()) {
-            Ok(service_name) => service_name,
-            Err(e) => {
-                log_error!("{}", e.to_string());
+    pub async fn set_online_mode(service_request: web::Json<SetOnlineModeRequest>) -> HttpResponse {
+        let service_name = &service_request.name;
+        // Get the service obj. from the name
+        let service = match Service::get_from_name(service_name) {
+            Some(service) => service,
+            None => {
+                log_warning!("Service nicht gefunden {}", service_name);
                 return HttpResponse::NoContent().finish();
             }
         };
-        let services = Service::get_all_service();
-        for service in services {
-            if service.get_name().starts_with("Proxy") {}
+
+        match service.connect_to_proxy().await {
+            Ok(_) => log_info!("Service | {} | connect to Proxy", service.get_name()),
+            Err(_e) => log_warning!("Service | {} | NOT connect to Proxy", service.get_name()),
         }
 
         HttpResponse::Ok().finish()

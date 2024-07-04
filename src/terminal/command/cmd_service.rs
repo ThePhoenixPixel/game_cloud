@@ -6,7 +6,7 @@ use crate::terminal::command_manager::CommandManager;
 pub struct CmdService;
 
 impl CommandManager for CmdService {
-    fn execute(args: Vec<&str>) -> Result<(), String> {
+    async fn execute(args: Vec<&str>) -> Result<(), String> {
         let arg1 = match args.get(1) {
             Some(arg1) => *arg1,
             None => return Err("bitte gebe ein argument an -> list /  an".to_string()),
@@ -14,6 +14,7 @@ impl CommandManager for CmdService {
 
         return match arg1 {
             "list" => list(args),
+            "reload" => reload().await,
             _ => {
                 Err("bitte gebe ein gültiges argument an -> list /  an".to_string())
             }
@@ -22,6 +23,15 @@ impl CommandManager for CmdService {
     fn tab_complete(_args: Vec<&str>) -> Vec<String> {
         todo!()
     }
+}
+
+async fn reload() -> Result<(), String> {
+    let services = Service::get_all_service();
+    for service in services {
+        service.connect_to_proxy().await?;
+    }
+    log_info!("Service neu reloaded");
+    Ok(())
 }
 
 fn list(args: Vec<&str>) -> Result<(), String> {

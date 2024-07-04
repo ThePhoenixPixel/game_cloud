@@ -10,7 +10,7 @@ use crate::{log_info, log_warning};
 pub struct CmdTask;
 
 impl CommandManager for CmdTask {
-    fn execute(args: Vec<&str>) -> Result<(), String> {
+    async fn execute(args: Vec<&str>) -> Result<(), String> {
         // get the first argument command task <arg1>
         let arg1 = match args.get(1) {
             Some(arg) => *arg,
@@ -23,7 +23,7 @@ impl CommandManager for CmdTask {
             "list" => Ok(list()),
             "info" => Ok(info(args)),
             "setup" => setup(args),
-            "reload" => Ok(Task::reload()),
+            "reload" => Ok(Task::reload().await),
             _ => Err(
                 "Dies ist kein Gültiges argument verwende eins davon / add / remove / list"
                     .to_string(),

@@ -2,11 +2,12 @@ use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
+use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use hyper::{Method, Request};
 use reqwest::Client;
-use serde_json::json;
 
 use crate::core::task::Task;
 use crate::lib::address::Address;
@@ -17,6 +18,20 @@ use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info, log_warning};
+
+#[derive(Serialize, Debug)]
+struct RegisterServer {
+    name: String,
+    ip: String,
+    port: u32,
+    try_to_connect: bool,
+}
+
+#[derive(Serialize, Debug)]
+struct ServiceRequest {
+    #[serde(rename = "registerServer")]
+    register_server: RegisterServer,
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -243,7 +258,7 @@ impl Service {
         self.get_status().is_start()
     }
 
-    pub fn reload() {
+    pub async fn reload() {
         let task_all = Task::get_task_all();
 
         for task in task_all {
@@ -255,7 +270,7 @@ impl Service {
                 continue;
             }
 
-            reload_start(min_service_count, &task);
+            reload_start(min_service_count, &task).await;
         }
     }
 
@@ -308,7 +323,7 @@ impl Service {
         };
     }
 
-    pub fn start(&mut self) -> Result<(), io::Error> {
+    pub async fn start(&mut self) -> Result<(), io::Error> {
         self.prepare_to_start()?;
 
         let stdout_file = File::create(self.get_path_stdout_file())?;
@@ -357,47 +372,29 @@ impl Service {
             server_path,
         );
 
-        match self.connect_to_proxy() {
+        match self.connect_to_proxy().await {
             Ok(_) => log_info!("Service [{}] connect to Proxy", &self.get_name()),
             Err(e) => log_warning!("{}", e),
         }
         Ok(())
     }
 
-    pub fn connect_to_proxy(&self) -> Result<(), String> {
-        if self.get_task().get_software().get_software_type() == "proxy" {
+    pub async fn connect_to_proxy(&self) -> Result<(), String> {
+        if self.get_task().get_software().get_software_type().to_lowercase() == "proxy" {
             return Err("The Service is a Proxy".to_string());
         }
 
-        let url = "http://127.0.0.1:25566/service/Proxy-1/registerService".to_string();
-        let client = Client::new();
-        let mut json_body = json!(
-            {
-              "registerServer": {
-                "name": "lobby",
-                "ip": "127.0.0.1",
-                "port": 30068,
-                "try_to_connect": true
-              }
-            }
-        );
+        let service_request = create_service_request(&self.get_name(), &self.get_server_address().get_ip(), &self.get_server_address().get_port(), &true);
+        let url = "http://127.0.0.1:25566/cloud/service/Proxy-1/registerService".to_string();
 
-        if let Some(register_server) = json_body.get_mut("registerServer") {
-            if let Some(name) = register_server.get_mut("name") {
-                *name = json!(self.get_name());
-            }
-            if let Some(ip) = register_server.get_mut("ip") {
-                *ip = json!(self.get_server_address().get_ip());
-            }
-            if let Some(port) = register_server.get_mut("port") {
-                *port = json!(self.get_server_address().get_port());
-            }
-        }
-        println!("[Debug] Service add to connect to proxy -> {:?}", json_body);
+        let client = Client::new();
+
+        println!("[Debug] URL -> {:?}", url);
+        println!("[Debug] Service add to connect to proxy -> {:?}", &service_request);
 
         let _ = client.post(url.to_string())
-            .json(&json_body)
-            .send();
+            .json(&service_request)
+            .send().await;
         Ok(())
     }
 
@@ -431,6 +428,11 @@ impl Service {
         }
         service_online_list
     }
+
+    pub fn get_from_name(name: &String) -> Option<Service> {
+        let mut path = CloudConfig::get().get_cloud_path().get_service_folder().get_temp_folder_path().join(&name);
+        return Service::get_from_path(&mut path);
+    }
 }
 
 fn start_server<'a>(
@@ -457,7 +459,7 @@ fn start_server<'a>(
         .expect("Error by start the Server");
 }
 
-fn reload_start(min_service_count: u64, task: &Task) {
+async fn reload_start(min_service_count: u64, task: &Task) {
     for _ in 0..min_service_count {
         if !(min_service_count > Service::get_starts_service_from_task(&task))
         {
@@ -468,9 +470,49 @@ fn reload_start(min_service_count: u64, task: &Task) {
             task.get_name()
         );
         let mut service = Service::new(&task);
-        match service.start() {
+        match service.start().await {
             Ok(_) => log_info!("Server [{}] successfully start :=)", service.get_name()),
             Err(e) => log_error!("Server [{}] cant start \n {}", service.get_name(), e),
         }
+    }
+}
+
+async fn post_json(url: &str, service_request: &RegisterServer) -> Result<(), Box<dyn Error>> {
+    // Erstellen Sie einen HTTP-Client
+    let client = Client::new();
+
+    // Serialisieren Sie die JSON-Daten
+    let json_body = serde_json::to_string(service_request)?;
+
+    // Erstellen Sie die POST-Anfrage
+    let req = Request::builder()
+        .method(Method::POST)
+        .uri(url)
+        .header("Content-Type", "application/json")
+        .body(json_body)?;
+
+    // Senden Sie die Anfrage
+    let res = client.request(req.method().clone(), url).send().await?;
+
+    // Überprüfen Sie den Statuscode der Antwort
+    if res.status().is_success() {
+        println!("Erfolgreich gesendet!");
+    } else {
+        println!("Fehler: {:?}", res.status());
+    }
+
+    Ok(())
+}
+
+fn create_service_request(name: &String, ip: &String, port: &u32, try_to_connect: &bool) -> ServiceRequest {
+    let register_server = RegisterServer {
+        name: name.clone(),
+        ip: ip.clone(),
+        port: port.clone(),
+        try_to_connect: try_to_connect.clone(),
+    };
+
+    ServiceRequest {
+        register_server,
     }
 }

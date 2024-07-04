@@ -3,7 +3,7 @@ use crate::terminal::command_manager::CommandManager;
 pub struct CmdHelp;
 
 impl CommandManager for CmdHelp {
-    fn execute(_args: Vec<&str>) -> Result<(), String> {
+    async fn execute(_args: Vec<&str>) -> Result<(), String> {
         todo!()
     }
 

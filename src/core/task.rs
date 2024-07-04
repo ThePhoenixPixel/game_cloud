@@ -344,8 +344,8 @@ impl Task {
         fs::remove_file(task_path).expect("Error bei  removen der task datei");
     }
 
-    pub fn reload() {
-        Service::reload();
+    pub async fn reload() {
+        Service::reload().await;
     }
 
     pub fn prepared_to_services(&self) {
@@ -353,8 +353,7 @@ impl Task {
         let select_template = select_template_with_priority(&templates);
 
         //check ob es template gibt
-        if select_template.is_some() {
-        } else {
+        if select_template.is_some() {} else {
             println!(
                 "{} Kein Template gefunden für Task: {}",
                 "GameCloud in task.rs fn prepare_to_service",
@@ -405,7 +404,7 @@ impl Task {
                 &self.get_software().get_software_file_path(),
                 &target_server_file_path,
             )
-            .expect("Erro beim copy der server datei");
+                .expect("Erro beim copy der server datei");
 
             println!(
                 "{} Template wurde in Zielordner kopiert: {:?}",

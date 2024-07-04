@@ -22,7 +22,7 @@ impl NodeHost {
                         .allow_any_header(),
                 )
                 .service(web::resource("cloud/api/get/onlineService").route(web::get().to(NodeGet::online_service)))
-                .service(web::resource("cloud/api/sendOnlineMode").route(web::post().to(NodePost::send_online_mode)))
+                .service(web::resource("cloud/api/service/setOnlineMode").route(web::post().to(NodePost::set_online_mode)))
         };
 
         // bind the address

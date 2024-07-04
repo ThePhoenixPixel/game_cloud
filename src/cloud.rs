@@ -11,11 +11,14 @@ use crate::utils::logger::Logger;
 use crate::{log_error, log_info};
 use crate::core::network::node_host::NodeHost;
 
+#[cfg(feature = "rest-api")]
+use crate::rest_api::api_main::ApiMain;
+
 
 pub struct Cloud;
 
 impl Cloud {
-    pub fn enable(version: &str) {
+    pub async fn enable(version: &str) {
         // download link
         let url = format!("http://download.codergames.de/minecloud/version/{}/", version);
 
@@ -36,20 +39,13 @@ impl Cloud {
 
         // Cloud require system ist finish
 
-        /*
+        #[cfg(feature = "rest-api")]
         std::thread::spawn(move || {
             let _ = ApiMain::start();
         });
 
-        // main thread wait for 1 sec
-        std::thread::sleep(Duration::from_secs(1));
+        tokio::time::sleep(Duration::from_secs(1)).await;
 
-        std::thread::spawn(move || {
-            let _ = ServiceConnect::start();
-        });
-
-        std::thread::sleep(Duration::from_secs(1));
-        */
         std::thread::spawn(move || {
             let _ = NodeHost::start();
         });
@@ -57,7 +53,7 @@ impl Cloud {
         std::thread::sleep(Duration::from_secs(1));
 
         let cmd = Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
-        cmd.start();
+        cmd.start().await;
     }
 
     pub fn disable() {
