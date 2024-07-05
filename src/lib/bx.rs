@@ -79,7 +79,7 @@ impl Bx {
         String::new()
     }
 
-    pub fn download_file(
+    pub async fn download_file(
         url: &str,
         file_path: &PathBuf,
     ) -> Result<(), Box<dyn Error>> {
@@ -89,11 +89,11 @@ impl Bx {
             return Ok(());
         }
 
-        let client = reqwest::blocking::Client::builder()
+        let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(30))
             .no_brotli()
             .build()?;
-        let response = client.get(url).send()?;
+        let response = client.get(url).send().await?;
         // check ob response 2xx
         if !response.status().is_success() {
             return Err("Error response from Server".into());
@@ -101,7 +101,7 @@ impl Bx {
 
         let mut file = File::create(&file_path)?;
 
-        file.write_all(&response.bytes()?)?;
+        file.write_all(&response.bytes().await?)?;
 
         Ok(())
     }
