@@ -74,16 +74,16 @@ impl CloudConfig {
         self.path.clone()
     }
 
-    pub fn check(url: &String) {
+    pub async fn check(url: &String) {
         if !Cloud::get_exe_path().join("config.json").exists() {
-            CloudConfig::install(url);
+            CloudConfig::install(url).await;
         }
     }
 
-    pub fn install(start_url: &String) {
+    pub async fn install(start_url: &String) {
         // get the response from the download
         let url = format!("{}/config.json", start_url);
-        match Bx::download_file(url.as_str(), &Cloud::get_exe_path().join("config.json")) {
+        match Bx::download_file(url.as_str(), &Cloud::get_exe_path().join("config.json")).await {
             Ok(_) => log_info!("Successfully download the Software Config from {}", url),
             Err(e) => {
                 log_error!("{}", &e.to_string());
@@ -95,13 +95,10 @@ impl CloudConfig {
     pub fn get() -> CloudConfig {
         let path = Cloud::get_exe_path().join("config.json");
         // Versuche, den Inhalt der Datei zu lesen
-        let file_content = match fs::read_to_string(&path) {
-            Ok(file_content) => file_content,
-            Err(e) => {
-                eprintln!("{}", &e.to_string());
-                get_default_file()
-            }
-        };
+        let file_content = fs::read_to_string(&path).unwrap_or_else(|e| {
+            eprintln!("{}", &e.to_string());
+            get_default_file()
+        });
 
         // Versuche, den Inhalt der Datei zu deserialisieren
         return match serde_json::from_str(&file_content) {

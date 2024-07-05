@@ -50,18 +50,18 @@ impl SoftwareConfig {
         self.software_type.remove(name);
     }
 
-    pub fn check(url: &String) {
+    pub async fn check(url: &String) {
         if !CloudConfig::get()
             .get_cloud_path()
             .get_system_folder()
             .get_software_config_path()
             .exists()
         {
-            SoftwareConfig::install(url);
+            SoftwareConfig::install(url).await;
         }
     }
 
-    pub fn install(start_url: &String) {
+    pub async fn install(start_url: &String) {
         let url = format!("{}/config/software.json", start_url);
         let mut folder_path = CloudConfig::get()
             .get_cloud_path()
@@ -70,7 +70,7 @@ impl SoftwareConfig {
             .join("software.json");
 
         folder_path.pop();
-        match Bx::download_file(url.as_str(), &folder_path) {
+        match Bx::download_file(url.as_str(), &folder_path).await {
             Ok(_) => log_info!("Successfully download the Software Config from {}", url),
             Err(e) => {
                 log_error!("{}", e);

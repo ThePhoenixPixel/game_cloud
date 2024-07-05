@@ -26,16 +26,16 @@ impl Cloud {
         Cloud::print_icon();
 
         //check the cloud config.json
-        CloudConfig::check(&url);
+        CloudConfig::check(&url).await;
 
         // check folder
         Cloud::check_folder();
 
         // check software config file
-        SoftwareConfig::check(&url);
+        SoftwareConfig::check(&url).await;
 
         // check the software files
-        Cloud::check_software();
+        Cloud::check_software().await;
 
         // Cloud require system ist finish
 
@@ -193,37 +193,71 @@ impl Cloud {
         );
     }
 
-    pub fn check_software() {
+    pub async fn check_software() {
         let software_types = SoftwareConfig::get().get_software_types();
 
         for (software_type_name, software_type) in software_types {
+            // create var paths
             let software_path = CloudConfig::get()
                 .get_cloud_path()
                 .get_system_folder()
                 .get_software_files_folder_path()
                 .join(&software_type_name);
-            Bx::create_path(&software_path);
+            let system_plugins_path = CloudConfig::get()
+                .get_cloud_path()
+                .get_system_folder()
+                .get_system_plugins_folder_path()
+                .join(&software_type_name);
 
+            // create the software types folder
+            Bx::create_path(&software_path);
+            Bx::create_path(&system_plugins_path);
+
+            // iter to software types
             for software in software_type.get_software_names() {
+                let system_plugins_path =
+                    match Bx::extract_extension_from_url(&software.get_system_plugin().get_download()) {
+                        Some(ext) => system_plugins_path.join(format!("MineCloud-{}.{}", software.get_name(), ext)),
+                        None => system_plugins_path.join(software.get_name()),
+                    };
+
                 let software_path =
                     match Bx::extract_extension_from_url(&software.get_download().to_string()) {
                         Some(ext) => software_path.join(format!("{}.{}", software.get_name(), ext)),
                         None => software_path.join(software.get_name()),
                     };
-                if software_path.exists() {
-                    break;
-                }
-                log_info!("Download Software {}", software.get_name());
-                match Bx::download_file(software.get_download().as_str(), &software_path) {
-                    Ok(_) => {
-                        log_info!(
+
+                // download software when software file does not exist
+                if !software_path.exists() {
+                    log_info!("Download Software {}", software.get_name());
+                    match Bx::download_file(software.get_download().as_str(), &software_path).await {
+                        Ok(_) => {
+                            log_info!(
                             "Successfully download the Software from url {}",
                             software.get_download()
                         );
+                        }
+                        Err(e) => {
+                            log_error!("{}", e.to_string());
+                            panic!("Can not download the software {}", software.get_download());
+                        }
                     }
-                    Err(e) => {
-                        log_error!("{}", e.to_string());
-                        panic!("Can not download the software {}", software.get_download());
+                }
+
+                // download system plugin when plugin file does not exist
+                if !software.get_system_plugin().is_local() && !system_plugins_path.exists() {
+                    log_info!("Download Software System Plugin {} Plugin", software.get_name());
+                    match Bx::download_file(software.get_system_plugin().get_download().as_str(), &system_plugins_path).await {
+                        Ok(_) => {
+                            log_info!(
+                        "Successfully download the Software System Plugin from url {}",
+                        software.get_system_plugin().get_download()
+                    );
+                        }
+                        Err(e) => {
+                            log_error!("{}", e.to_string());
+                            panic!("Can not download the Software System Plugin {}", software.get_system_plugin().get_download());
+                        }
                     }
                 }
             }
