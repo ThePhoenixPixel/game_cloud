@@ -45,10 +45,6 @@ impl SoftwareConfig {
         self.software_type.clone()
     }
 
-    pub fn add_software_type(&mut self, name: &String, software_type: &SoftwareType) {
-        self.software_type
-            .insert(name.to_string(), software_type.clone());
-    }
 
     pub fn remove_software_type(&mut self, name: &str) {
         self.software_type.remove(name);
@@ -104,10 +100,6 @@ impl SoftwareType {
         self.software_name.clone()
     }
 
-    pub fn add_software_name(&mut self, software_name: &SoftwareName) {
-        self.software_name.push(software_name.clone());
-    }
-
     pub fn remove_software_name(&mut self, software_name: &SoftwareName) {
         self.software_name
             .insert(self.software_name.len() + 1, software_name.clone());
@@ -119,6 +111,7 @@ impl SoftwareType {
 pub struct SoftwareName {
     name: String,
     download: String,
+    system_plugin: SystemPlugin,
     command: String,
     max_ram: u32,
     ip_path: String,
@@ -130,24 +123,12 @@ impl SoftwareName {
         self.name.clone()
     }
 
-    pub fn set_name(&mut self, name: &String) {
-        self.name = name.clone();
-    }
-
     pub fn get_download(&self) -> String {
         self.download.clone()
     }
 
-    pub fn set_download(&mut self, download: &String) {
-        self.download = download.clone();
-    }
-
     pub fn get_command(&self) -> String {
         self.command.clone()
-    }
-
-    pub fn set_command(&mut self, command: &String) {
-        self.command = command.clone();
     }
 
     pub fn get_ip_path(&self) -> String {
@@ -156,6 +137,10 @@ impl SoftwareName {
 
     pub fn get_port_path(&self) -> String {
         self.port_path.clone()
+    }
+
+    pub fn get_system_plugin(&self) -> SystemPlugin {
+        return self.system_plugin.clone();
     }
 }
 
@@ -181,27 +166,57 @@ impl SystemPlugin {
 
 fn get_default_file() -> String {
     let json_str = r#"
-    {
-      "software_type": {
-        "server": {
-          "software_name": [
-            {
-              "name": "paper",
-              "download": "https://paper.de",
-              "command": "java",
-              "ip": {
-                "path": "server.propeties",
-                "content": "server-ip:%ip%"
-              },
-              "port": {
-                "path": "server.propeties",
-                "content": "server-port:%port%"
-              }
-            }
-          ]
+{
+  "software_type": {
+    "server": {
+      "software_name": [
+        {
+          "name": "paper",
+          "download": "https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/389/downloads/paper-1.20.4-389.jar",
+          "system_plugin": {
+            "local": false,
+            "download": "http://download.codergames.de/minecloud/version/0.1/config/system_plugins/MineCloud-Paper.jar",
+            "path": "plugins/"
+          },
+          "command": "java",
+          "max_ram": 1024,
+          "ip_path": "server.properties",
+          "port_path": "server.properties"
         }
-      }
+      ]
+    },
+    "proxy": {
+      "software_name": [
+        {
+          "name": "velocity",
+          "download": "https://api.papermc.io/v2/projects/velocity/versions/3.3.0-SNAPSHOT/builds/323/downloads/velocity-3.3.0-SNAPSHOT-323.jar",
+          "system_plugin": {
+            "local": false,
+            "download": "http://download.codergames.de/minecloud/version/0.1/config/system_plugins/MineCloud-Velocity.jar",
+            "path": "plugins/"
+          },
+          "command": "java",
+          "max_ram": 512,
+          "ip_path": "velocity.toml",
+          "port_path": "velocity.toml"
+        },
+        {
+          "name": "waterfall",
+          "download": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/562/downloads/waterfall-1.20-562.jar",
+          "system_plugin": {
+            "local": false,
+            "download": "http://download.codergames.de/minecloud/version/0.1/config/system_plugins/MineCloud-Waterfall.jar",
+            "path": "plugins/"
+          },
+          "command": "java",
+          "max_ram": 512,
+          "ip_path": "config.yml",
+          "port_path": "config.yml"
+        }
+      ]
     }
+  }
+}
     "#;
     json_str.to_string()
 }
