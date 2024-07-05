@@ -50,7 +50,7 @@ impl Cloud {
             let _ = NodeHost::start();
         });
 
-        std::thread::sleep(Duration::from_secs(1));
+        tokio::time::sleep(Duration::from_secs(1)).await;
 
         let cmd = Cmd::new(&ColoredString::from(CloudConfig::get().get_prefix().as_str()).cyan());
         cmd.start().await;
