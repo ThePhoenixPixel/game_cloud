@@ -2,11 +2,9 @@ use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
-use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use hyper::{Method, Request};
 use reqwest::Client;
 
 use crate::core::task::Task;
@@ -475,33 +473,6 @@ async fn reload_start(min_service_count: u64, task: &Task) {
             Err(e) => log_error!("Server [{}] cant start \n {}", service.get_name(), e),
         }
     }
-}
-
-async fn post_json(url: &str, service_request: &RegisterServer) -> Result<(), Box<dyn Error>> {
-    // Erstellen Sie einen HTTP-Client
-    let client = Client::new();
-
-    // Serialisieren Sie die JSON-Daten
-    let json_body = serde_json::to_string(service_request)?;
-
-    // Erstellen Sie die POST-Anfrage
-    let req = Request::builder()
-        .method(Method::POST)
-        .uri(url)
-        .header("Content-Type", "application/json")
-        .body(json_body)?;
-
-    // Senden Sie die Anfrage
-    let res = client.request(req.method().clone(), url).send().await?;
-
-    // Überprüfen Sie den Statuscode der Antwort
-    if res.status().is_success() {
-        println!("Erfolgreich gesendet!");
-    } else {
-        println!("Fehler: {:?}", res.status());
-    }
-
-    Ok(())
 }
 
 fn create_service_request(name: &String, ip: &String, port: &u32, try_to_connect: &bool) -> ServiceRequest {
