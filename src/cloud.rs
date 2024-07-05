@@ -193,6 +193,7 @@ impl Cloud {
         );
     }
 
+    // check software && system plugins
     pub async fn check_software() {
         let software_types = SoftwareConfig::get().get_software_types();
 
