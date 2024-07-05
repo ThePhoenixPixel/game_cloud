@@ -155,13 +155,13 @@ impl Service {
         let path = self.get_path();
 
         // replace ip
-        let path_ip = path.join(software_name.get_ip().get_path());
+        let path_ip = path.join(software_name.get_ip_path());
         let file_content_ip = read_to_string(&path_ip)?;
         let edit_file_ip = file_content_ip.replace("%ip%", &*address.get_ip());
         fs::write(&path_ip, edit_file_ip)?;
 
         // replace port
-        let path_port = path.join(software_name.get_port().get_path());
+        let path_port = path.join(software_name.get_port_path());
         let file_content_port = read_to_string(&path_port)?;
         let edit_file_port = file_content_port.replace("%port%", address.get_port().to_string().as_str());
         fs::write(&path_port, edit_file_port)?;

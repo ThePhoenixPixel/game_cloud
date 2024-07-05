@@ -7,6 +7,7 @@ use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
 use crate::{log_error, log_info, log_warning};
 
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SoftwareConfig {
     software_type: HashMap<String, SoftwareType>,
@@ -120,8 +121,8 @@ pub struct SoftwareName {
     download: String,
     command: String,
     max_ram: u32,
-    ip: IP,
-    port: Port,
+    ip_path: String,
+    port_path: String,
 }
 
 impl SoftwareName {
@@ -149,74 +150,32 @@ impl SoftwareName {
         self.command = command.clone();
     }
 
-    pub fn get_ip(&self) -> IP {
-        self.ip.clone()
+    pub fn get_ip_path(&self) -> String {
+        self.ip_path.clone()
     }
 
-    pub fn get_port(&self) -> Port {
-        self.port.clone()
+    pub fn get_port_path(&self) -> String {
+        self.port_path.clone()
     }
 }
+
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct IP {
+pub struct SystemPlugin {
+    local: bool,
+    download: String,
     path: String,
-    content: String,
 }
 
-impl IP {
-    pub fn new(path: &str, content: &str) -> IP {
-        IP {
-            path: path.to_string(),
-            content: content.to_string(),
-        }
+impl SystemPlugin {
+    pub fn is_local(&self) -> bool {
+        return self.local;
     }
-
+    pub fn get_download(&self) -> String {
+        return self.download.clone();
+    }
     pub fn get_path(&self) -> String {
-        self.path.clone()
-    }
-
-    pub fn get_content(&self) -> String {
-        self.content.clone()
-    }
-
-    pub fn set_path(&mut self, path: &str) {
-        self.path = path.to_string()
-    }
-
-    pub fn set_content(&mut self, content: &str) {
-        self.content = content.to_string()
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Port {
-    path: String,
-    content: String,
-}
-
-impl Port {
-    pub fn new(path: &str, content: &str) -> Port {
-        Port {
-            path: path.to_string(),
-            content: content.to_string(),
-        }
-    }
-
-    pub fn get_path(&self) -> String {
-        self.path.clone()
-    }
-
-    pub fn get_content(&self) -> String {
-        self.content.clone()
-    }
-
-    pub fn set_path(&mut self, path: &str) {
-        self.path = path.to_string()
-    }
-
-    pub fn set_content(&mut self, content: &str) {
-        self.content = content.to_string()
+        return self.path.clone();
     }
 }
 
