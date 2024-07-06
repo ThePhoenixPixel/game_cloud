@@ -348,70 +348,40 @@ impl Task {
         Service::reload().await;
     }
 
-    pub fn prepared_to_services(&self) {
-        let templates = &self.templates;
-        let select_template = select_template_with_priority(&templates);
+    pub fn prepared_to_services(&self) -> Result<(), String> {
+        // create the next free service folder with the template
+        let target_path = &self.create_next_free_service_folder();
+        let templates = &self.get_templates();
+        let template = match select_template_with_priority(&templates) {
+            Some(template) => template,
+            None => return Err(format!("Kein Template gefunden für Task {}", &self.get_name()).to_string())
+        };
 
-        //check ob es template gibt
-        if select_template.is_some() {} else {
-            println!(
-                "{} Kein Template gefunden für Task: {}",
-                "GameCloud in task.rs fn prepare_to_service",
-                &self.get_name()
-            );
-            return;
-        }
-        //make option template to template
-        let template = select_template.unwrap();
+        println!("-1 {:?}", &template.get_path());
+        println!("-2 {:?}", &target_path);
 
-        //hier temp oder static
-        {
-            //temp service
-            let mut target_folder_name = format!("{}-1", &template.template);
-            let mut target_path = CloudConfig::get()
-                .get_cloud_path()
-                .get_service_folder()
-                .get_temp_folder_path()
-                .join(&target_folder_name);
-
-            // Überprüfen, ob der Zielordner bereits existiert, und erhöhen Sie die Nummer, falls erforderlich
-            let mut folder_number = 1;
-            while target_path.exists() {
-                folder_number += 1;
-                target_folder_name = format!("{}-{}", &template.template, folder_number);
-                target_path = CloudConfig::get()
-                    .get_cloud_path()
-                    .get_service_folder()
-                    .get_temp_folder_path()
-                    .join(&target_folder_name);
-            }
-
-            // Hier wird der Zielordner erstellt, wenn er nicht existiert
-            fs::create_dir_all(&target_path).expect("Fehler beim Erstellen des Zielordners");
-
-            //println!("{:?}", &template.get_path());
-            //println!("{:?}", &target_path);
-
-            // Jetzt kannst du den Inhalt aus dem Template-Pfad in den Zielordner kopieren
-            Bx::copy_folder_contents(&template.get_path(), &target_path)
-                .expect("Fehler beim Kopieren des Templates");
-
-            //println!("{:?}", &self.get_software().get_software_file_path());
-
-            let mut target_server_file_path = target_path.clone();
-            target_server_file_path.push(&self.get_software().get_name_with_ext());
-            fs::copy(
-                &self.get_software().get_software_file_path(),
-                &target_server_file_path,
-            )
-                .expect("Erro beim copy der server datei");
-
-            println!(
-                "{} Template wurde in Zielordner kopiert: {:?}",
-                "GameCloud in task.rs fn prepare_to_service", &target_path
-            );
-        }
+        // copy the template in the new service folder
+        return match Bx::copy_folder_contents(&template.get_path(), &target_path) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(format!("Error beim Copy the Template \n {}", e.to_string())),
+        };
     }
+
+    // create the next not exist service folder
+    fn create_next_free_service_folder(&self) -> PathBuf {
+        let mut folder_index: u32 = 1;
+        let mut target_base_path = self.get_service_path();
+        let mut target_service_folder_path = target_base_path.join(format!("{}-{}", &self.get_name(), folder_index));
+
+        while target_service_folder_path.exists() {
+            folder_index += 1;
+            target_service_folder_path = target_base_path.join(format!("{}-{}", &self.get_name(), folder_index));
+        }
+
+        Bx::create_path(&target_service_folder_path);
+        target_service_folder_path
+    }
+
     //get temp or static for the service
     pub fn get_service_path(&self) -> PathBuf {
         let path = if self.static_service {
