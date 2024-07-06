@@ -146,7 +146,7 @@ impl Service {
             )),
         );
         let software = self.get_task().get_software();
-        let software_type = match SoftwareConfig::get().get_software_type(software.get_software_type()) {
+        let software_type = match SoftwareConfig::get().get_software_type(&software.get_software_type()) {
             Some(software_type) => software_type,
             None => return Err(io::Error::new(io::ErrorKind::Other, "Can not get the Software Type")),
         };
@@ -370,17 +370,36 @@ impl Service {
         }
 
         let service_request = create_service_request(&self.get_name(), &self.get_server_address().get_ip(), &self.get_server_address().get_port(), &true);
-        let url = "http://127.0.0.1:25566/cloud/service/Proxy-1/registerService".to_string();
-
+        let service_proxy_list = Service::get_online_proxy_list();
         let client = Client::new();
+        for service_proxy in service_proxy_list {
+            let url = format!("http://{}/cloud/service/{}/registerService", service_proxy.get_plugin_listener().to_string(), service_proxy.get_name());
 
-        println!("[Debug] URL -> {:?}", url);
-        println!("[Debug] Service add to connect to proxy -> {:?}", &service_request);
+            println!("[Debug] URL -> {:?}", url);
+            println!("[Debug] Service add to connect to Proxy -> {:?}", &service_request);
 
-        let _ = client.post(url.to_string())
-            .json(&service_request)
-            .send().await;
+            match client.post(url.to_string())
+                .json(&service_request)
+                .send().await
+            {
+                Ok(_response) => log_info!("Antwort von {} -> Erfolgreich", service_proxy.get_name()),
+                Err(e) => log_error!("Error Antwort von {} -> {}", service_proxy.get_name(), e.to_string()),
+            }
+        }
+
         Ok(())
+    }
+
+    pub fn get_online_proxy_list() -> Vec<Service> {
+        let services = Service::get_online_service();
+        let mut service_proxy_list: Vec<Service> = Vec::new();
+
+        for service in services {
+            if service.get_software().get_software_type().to_lowercase().starts_with("proxy") {
+                service_proxy_list.push(service)
+            }
+        }
+        service_proxy_list
     }
 
     fn prepare_to_start(&mut self) -> Result<(), io::Error> {

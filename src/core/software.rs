@@ -21,7 +21,7 @@ impl Software {
     }
 
     pub fn get_software_from_software_config(&self) -> Option<SoftwareName> {
-        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type())
+        let software_type = match SoftwareConfig::get().get_software_type(&self.get_software_type())
         {
             Some(software_type) => software_type,
             None => return None,
@@ -33,8 +33,8 @@ impl Software {
     }
 
     //software type
-    pub fn get_software_type(&self) -> &String {
-        &self.software_type
+    pub fn get_software_type(&self) -> String {
+        self.software_type.clone()
     }
 
     pub fn set_software_type(&mut self, software_type: &String) {
@@ -70,7 +70,7 @@ impl Software {
     }
 
     pub fn get_software_url(&self) -> Option<String> {
-        let software_type = match SoftwareConfig::get().get_software_type(self.get_software_type())
+        let software_type = match SoftwareConfig::get().get_software_type(&self.get_software_type())
         {
             Some(software_type) => software_type,
             None => return None,
