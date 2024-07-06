@@ -2,6 +2,7 @@ use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
+use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -399,6 +400,7 @@ impl Service {
 
     fn prepare_to_start(&mut self) -> Result<(), io::Error> {
         // set the ports
+        self.install_software()?;
         self.install_system_plugin()?;
         self.set_server_address()?;
         self.find_new_free_plugin_listener();
@@ -433,6 +435,15 @@ impl Service {
         let mut path = CloudConfig::get().get_cloud_path().get_service_folder().get_temp_folder_path().join(&name);
         return Service::get_from_path(&mut path);
     }
+
+    pub fn install_software(&self) -> Result<(), io::Error> {
+        let target_path = self.get_path().join(&self.get_software().get_name_with_ext());
+        let software_path = self.get_software().get_software_file_path();
+
+        fs::copy(&software_path, &target_path)?;
+        Ok(())
+    }
+
     pub fn install_system_plugin(&self) -> Result<(), io::Error> {
         let software = match self.get_software().get_software_from_software_config() {
             Some(software) => software,
