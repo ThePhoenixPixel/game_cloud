@@ -106,7 +106,7 @@ impl Bx {
         Ok(())
     }
 
-    fn get_folders_with_prefix(path: &PathBuf, prefix: &str) -> Result<Vec<String>, io::Error> {
+    pub fn get_folders_with_prefix(path: &PathBuf, prefix: &str) -> Result<Vec<String>, io::Error> {
         let mut folders = Vec::new();
 
         for entry in fs::read_dir(path)? {
