@@ -60,13 +60,17 @@ impl Service {
             )),
         );
         let cloud_listener = CloudConfig::get().get_node_host();
+        let service_path = match task.prepared_to_service() {
+            Ok(path) => path,
+            Err(e) => {
+                return Err(format!("Es kann kein neuer Service erstellt werden \n {}", e))
+            }
+        };
+
+        let service_name = Bx::get_last_folder_name(&service_path);
 
         let service = Service {
-            name: format!(
-                "{}-{}",
-                task.get_name(),
-                Service::get_next_free_number(&task)
-            ),
+            name: service_name,
             status: ServiceStatus::Stop,
             start_time: Local::now(),
             server_address,
@@ -74,15 +78,9 @@ impl Service {
             cloud_listener,
             task: task.clone(),
         };
-        return match service.get_task().prepared_to_services() {
-            Ok(_) => {
-                service.save_to_file();
-                Ok(service)
-            }
-            Err(e) => {
-                Err(format!("Es kann kein neuer Service erstellt werden \n {}", e))
-            }
-        };
+
+        service.save_to_file();
+        return Ok(service);
     }
 
     pub fn get_name(&self) -> String {

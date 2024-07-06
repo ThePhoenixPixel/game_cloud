@@ -348,7 +348,7 @@ impl Task {
         Service::reload().await;
     }
 
-    pub fn prepared_to_services(&self) -> Result<(), String> {
+    pub fn prepared_to_service(&self) -> Result<PathBuf, String> {
         // create the next free service folder with the template
         let target_path = &self.create_next_free_service_folder();
         let templates = &self.get_templates();
@@ -359,7 +359,7 @@ impl Task {
 
         // copy the template in the new service folder
         return match Bx::copy_folder_contents(&template.get_path(), &target_path) {
-            Ok(_) => Ok(()),
+            Ok(_) => Ok(target_path.clone()),
             Err(e) => Err(format!("Error beim Copy the Template \n {}", e.to_string())),
         };
     }
