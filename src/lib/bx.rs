@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fs;
+use std::{fs, io};
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -104,5 +104,24 @@ impl Bx {
         file.write_all(&response.bytes().await?)?;
 
         Ok(())
+    }
+
+    fn get_folders_with_prefix(path: &PathBuf, prefix: &str) -> Result<Vec<String>, io::Error> {
+        let mut folders = Vec::new();
+
+        for entry in fs::read_dir(path)? {
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_dir() {
+                if let Some(file_name) = path.file_name().and_then(|name| name.to_str()) {
+                    if file_name.starts_with(prefix) {
+                        folders.push(file_name.to_string());
+                    }
+                }
+            }
+        }
+
+        Ok(folders)
     }
 }
