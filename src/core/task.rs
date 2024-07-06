@@ -357,9 +357,6 @@ impl Task {
             None => return Err(format!("Kein Template gefunden für Task {}", &self.get_name()).to_string())
         };
 
-        println!("-1 {:?}", &template.get_path());
-        println!("-2 {:?}", &target_path);
-
         // copy the template in the new service folder
         return match Bx::copy_folder_contents(&template.get_path(), &target_path) {
             Ok(_) => Ok(()),
@@ -370,7 +367,7 @@ impl Task {
     // create the next not exist service folder
     fn create_next_free_service_folder(&self) -> PathBuf {
         let mut folder_index: u32 = 1;
-        let mut target_base_path = self.get_service_path();
+        let target_base_path = self.get_service_path();
         let mut target_service_folder_path = target_base_path.join(format!("{}-{}", &self.get_name(), folder_index));
 
         while target_service_folder_path.exists() {

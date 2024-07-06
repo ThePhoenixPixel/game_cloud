@@ -2,7 +2,6 @@ use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
-use std::error::Error;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -45,7 +44,7 @@ pub struct Service {
 }
 
 impl Service {
-    pub fn new(task: &Task) -> Service {
+    pub fn new(task: &Task) -> Result<Service, String> {
         let server_address = Address::new(
             &CloudConfig::get().get_server_host(),
             &Address::find_next_port(&mut Address::new(
@@ -53,7 +52,6 @@ impl Service {
                 &task.get_start_port(),
             )),
         );
-
         let plugin_listener = Address::new(
             &"127.0.0.1".to_string(),
             &mut Address::find_next_port(&mut Address::new(
@@ -76,9 +74,15 @@ impl Service {
             cloud_listener,
             task: task.clone(),
         };
-        service.get_task().prepared_to_services();
-        service.save_to_file();
-        service
+        return match service.get_task().prepared_to_services() {
+            Ok(_) => {
+                service.save_to_file();
+                Ok(service)
+            }
+            Err(e) => {
+                Err(format!("Es kann kein neuer Service erstellt werden \n {}", e))
+            }
+        };
     }
 
     pub fn get_name(&self) -> String {
@@ -451,7 +455,7 @@ impl Service {
         };
         let system_plugin_path = self.get_task().get_software().get_system_plugin_path();
         let mut target_path = self.get_path().join(&software.get_system_plugin().get_path());
-        println!("{}", target_path.display());
+
         if !target_path.exists() {
             Bx::create_path(&target_path);
         }
@@ -463,7 +467,7 @@ impl Service {
             target_path,
         ) {
             Ok(_) => {
-                log_info!("Successfully install the system Plugin");
+                log_info!("Successfully install the System Plugin");
                 Ok(())
             }
             Err(e) => return Err(e),
@@ -509,7 +513,11 @@ async fn reload_start(min_service_count: u64, task: &Task) {
             "Service would be create from task: {}",
             task.get_name()
         );
-        let mut service = Service::new(&task);
+
+
+        let mut service = Service::new(&task).expect("RESAON");
+
+
         match service.start().await {
             Ok(_) => log_info!("Server [{}] successfully start :=)", service.get_name()),
             Err(e) => log_error!("Server [{}] cant start \n {}", service.get_name(), e),
