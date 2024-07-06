@@ -16,6 +16,7 @@ use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info, log_warning};
+use crate::core::software::Software;
 
 #[derive(Serialize, Debug)]
 struct RegisterServer {
@@ -398,6 +399,7 @@ impl Service {
 
     fn prepare_to_start(&mut self) -> Result<(), io::Error> {
         // set the ports
+        self.install_system_plugin()?;
         self.set_server_address()?;
         self.find_new_free_plugin_listener();
         Ok(())
@@ -430,6 +432,35 @@ impl Service {
     pub fn get_from_name(name: &String) -> Option<Service> {
         let mut path = CloudConfig::get().get_cloud_path().get_service_folder().get_temp_folder_path().join(&name);
         return Service::get_from_path(&mut path);
+    }
+    pub fn install_system_plugin(&self) -> Result<(), io::Error> {
+        let software = match self.get_software().get_software_from_software_config() {
+            Some(software) => software,
+            None => return Err(io::Error::other("Software wurde nicht gefunden um das System Plugin zu installieren")),
+        };
+        let system_plugin_path = self.get_task().get_software().get_system_plugin_path();
+        let mut target_path = self.get_path().join(&software.get_system_plugin().get_path());
+        println!("{}", target_path.display());
+        if !target_path.exists() {
+            Bx::create_path(&target_path);
+        }
+
+        target_path.push(self.get_software().get_system_plugin_name());
+
+        return match fs::copy(
+            system_plugin_path,
+            target_path,
+        ) {
+            Ok(_) => {
+                log_info!("Successfully install the system Plugin");
+                Ok(())
+            }
+            Err(e) => return Err(e),
+        };
+    }
+
+    pub fn get_software(&self) -> Software {
+        self.get_task().get_software()
     }
 }
 

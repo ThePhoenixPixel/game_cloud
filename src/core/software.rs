@@ -90,4 +90,20 @@ impl Software {
         software_path.push(self.get_name_with_ext());
         software_path
     }
+
+    pub fn get_system_plugin_path(&self) -> PathBuf {
+        let mut system_plugin_path = CloudConfig::get()
+            .get_cloud_path()
+            .get_system_folder()
+            .get_system_plugins_folder_path();
+
+        system_plugin_path.push(&self.get_software_type());
+        system_plugin_path.push(format!("MineCloud-{}", &self.get_name_with_ext()));
+        println!("{:?}", &system_plugin_path);
+        system_plugin_path
+    }
+
+    pub fn get_system_plugin_name(&self) -> String {
+        format!("MineCloud-{}", &self.get_name_with_ext())
+    }
 }
