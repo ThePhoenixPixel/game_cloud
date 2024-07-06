@@ -15,7 +15,7 @@ use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::{log_error, log_info};
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Task {
     // Task Struktur
     name: String,

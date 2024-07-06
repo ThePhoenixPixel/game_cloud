@@ -6,7 +6,7 @@ use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::logger::Logger;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Software {
     pub software_type: String,
     pub name: String,

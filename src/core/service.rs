@@ -5,6 +5,7 @@ use std::{fs, io};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::time::Duration;
 use reqwest::Client;
 
 use crate::core::task::Task;
@@ -259,6 +260,12 @@ impl Service {
     pub fn is_start(&self) -> bool {
         self.get_status().is_start()
     }
+    pub fn is_prepare(&self) -> bool {
+        self.get_status().is_prepare()
+    }
+    pub fn is_stop(&self) -> bool {
+        self.get_status().is_stop()
+    }
 
     pub async fn reload() {
         let task_all = Task::get_task_all();
@@ -292,30 +299,6 @@ impl Service {
             }
         }
         start_service
-    }
-
-    pub fn get_next_free_number(task: &Task) -> u64 {
-        let mut next_number_to_check: u64 = 1;
-        loop {
-            let service_name = format!("{}-{}", task.get_name(), next_number_to_check);
-            let mut path = task.get_service_path();
-
-            path.push(service_name);
-            path.push(".game_cloud");
-            path.push("service_config.json");
-
-            let service = match Service::get_from_path(&mut path) {
-                Some(service) => service,
-                None => return next_number_to_check,
-            };
-
-            // Check service ist started
-            if !service.is_start() {
-                return next_number_to_check;
-            }
-
-            next_number_to_check += 1;
-        }
     }
 
     pub fn is_service_start(path: &mut PathBuf) -> bool {
@@ -401,7 +384,8 @@ impl Service {
     }
 
     fn prepare_to_start(&mut self) -> Result<(), io::Error> {
-        // set the ports
+        self.set_status(&ServiceStatus::Prepare);
+        self.save_to_file();
         self.install_software()?;
         self.install_system_plugin()?;
         self.set_server_address()?;
@@ -431,6 +415,17 @@ impl Service {
             }
         }
         service_online_list
+    }
+
+    pub fn get_offline_service() -> Vec<Service> {
+        let mut service_offline_list: Vec<Service> = Vec::new();
+        let service_list = Service::get_all_service();
+        for service in service_list {
+            if service.is_stop() {
+                service_offline_list.push(service);
+            }
+        }
+        service_offline_list
     }
 
     pub fn get_from_name(name: &String) -> Option<Service> {
@@ -475,6 +470,21 @@ impl Service {
     pub fn get_software(&self) -> Software {
         self.get_task().get_software()
     }
+
+    pub fn get_next_stop_service(task: &Task) -> Result<Service, io::Error> {
+        let offline_services = Service::get_offline_service();
+        for offline_service in offline_services {
+            if !(offline_service.get_task() == task.clone()) {
+                continue;
+            }
+            return Ok(offline_service);
+        }
+
+        return match Service::new(&task) {
+            Ok(service) => Ok(service),
+            Err(e) => Err(io::Error::new(io::ErrorKind::Other, e)),
+        };
+    }
 }
 
 fn start_server<'a>(
@@ -507,19 +517,23 @@ async fn reload_start(min_service_count: u64, task: &Task) {
         {
             continue;
         }
-        println!(
+        log_info!(
             "Service would be create from task: {}",
             task.get_name()
         );
 
-
-        let mut service = Service::new(&task).expect("RESAON");
-
-
+        let mut service = match Service::get_next_stop_service(&task) {
+            Ok(service) => service,
+            Err(e) => {
+                log_error!("{}", e);
+                return;
+            }
+        };
         match service.start().await {
             Ok(_) => log_info!("Server [{}] successfully start :=)", service.get_name()),
-            Err(e) => log_error!("Server [{}] cant start \n {}", service.get_name(), e),
+            Err(e) => log_error!("Server [{}] can NOT Start \n {}", service.get_name(), e),
         }
+        tokio::time::sleep(Duration::from_secs(1)).await;
     }
 }
 
