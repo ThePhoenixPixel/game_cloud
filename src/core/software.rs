@@ -49,13 +49,10 @@ impl Software {
     pub fn get_name_with_ext(&self) -> String {
         let name = self.get_name();
         let binding = self.get_software_url();
-        let binding = match binding {
-            Some(binding) => binding,
-            None => {
-                log_error!("Error in Software.rs can not get software url");
-                String::new()
-            }
-        };
+        let binding = binding.unwrap_or_else(|| {
+            log_error!("Error in Software.rs can not get software url");
+            String::new()
+        });
         let link = Path::new(&binding);
         return if let Some(ext) = link.extension().and_then(|ext| ext.to_str()) {
             format!("{}.{}", name, ext)
@@ -99,7 +96,6 @@ impl Software {
 
         system_plugin_path.push(&self.get_software_type());
         system_plugin_path.push(format!("MineCloud-{}", &self.get_name_with_ext()));
-        println!("{:?}", &system_plugin_path);
         system_plugin_path
     }
 

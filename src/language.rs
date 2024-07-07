@@ -21,10 +21,7 @@ impl Language {
             Cloud::get_exe_path(),
             CloudConfig::get().get_language()
         ));
-        let file_content = match fs::read_to_string(lang_file_path) {
-            Ok(content) => content,
-            Err(_) => Language::get_default_content(),
-        };
+        let file_content = fs::read_to_string(lang_file_path).unwrap_or_else(|_| Language::get_default_content());
 
         //file content in die langstrukt pressen :))
         let language_data: LanguageData = match serde_json::from_str(file_content.as_str()) {

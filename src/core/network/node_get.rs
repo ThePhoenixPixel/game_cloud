@@ -1,3 +1,4 @@
+use std::time::Duration;
 use crate::core::service::Service;
 use crate::lib::address::Address;
 
@@ -26,8 +27,7 @@ impl NodeGet {
                 server_address,
             });
         }
-        println!("{:?}", &services_info);
-
+        tokio::time::sleep(Duration::from_millis(500)).await;
         return match serde_json::to_string(&services_info) {
             Ok(data) => HttpResponse::Ok().json(data),
             Err(_) => return HttpResponse::NoContent().finish(),

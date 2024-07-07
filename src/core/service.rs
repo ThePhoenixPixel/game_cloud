@@ -138,13 +138,8 @@ impl Service {
     }
 
     pub fn set_server_address(&mut self) -> Result<(), io::Error> {
-        let address = Address::new(
-            &CloudConfig::get().get_server_host(),
-            &Address::find_next_port(&mut Address::new(
-                &CloudConfig::get().get_server_host(),
-                &self.get_task().get_start_port(),
-            )),
-        );
+        let address = self.find_free_server_address();
+
         let software = self.get_task().get_software();
         let software_type = match SoftwareConfig::get().get_software_type(&software.get_software_type()) {
             Some(software_type) => software_type,
@@ -174,6 +169,29 @@ impl Service {
         Ok(())
     }
 
+    pub fn find_free_server_address(&self) -> Address {
+        let ports = Service::get_bind_ports();
+        let mut port = self.get_task().get_start_port();
+        let server_host = CloudConfig::get().get_server_host();
+
+        while ports.contains(&port) || !Address::is_port_available(&Address::new(&server_host, &port)) {
+            port = Address::find_next_port(&mut Address::new(&server_host, &(port + 1)));
+        }
+
+        Address::new(&server_host, &port)
+    }
+
+    pub fn find_free_plugin_address(&self) -> Address {
+        let ports = Service::get_bind_ports();
+        let mut port = self.get_server_address().get_port() + 1;
+        let server_host = CloudConfig::get().get_server_host();
+
+        while ports.contains(&port) || !Address::is_port_available(&Address::new(&server_host, &port)) {
+            port = Address::find_next_port(&mut Address::new(&server_host, &(port + 1)));
+        }
+
+        Address::new(&server_host, &port)
+    }
 
     pub fn get_path(&self) -> PathBuf {
         let mut path = self.get_task().get_service_path();
@@ -208,12 +226,8 @@ impl Service {
     }
 
     pub fn find_new_free_plugin_listener(&mut self) {
-        let mut address = Address::new(&self.get_plugin_listener().get_ip(), &(self.get_server_address().get_port() + 1));
-        if Address::is_port_available(&address) {
-            let _ = &self.set_plugin_listener(&address);
-        } else {
-            self.set_plugin_listener(&Address::new(&address.get_ip(), &Address::find_next_port(&mut address)));
-        }
+        let address = self.find_free_plugin_address();
+        self.set_plugin_listener(&address);
         self.save_to_file();
     }
 
@@ -360,19 +374,16 @@ impl Service {
     }
 
     fn prepare_to_start(&mut self) -> Result<(), io::Error> {
-        self.set_status(&ServiceStatus::Prepare);
-        self.save_to_file();
         self.install_software()?;
         self.install_system_plugin()?;
         self.set_server_address()?;
         self.find_new_free_plugin_listener();
+        self.set_status(&ServiceStatus::Prepare);
         Ok(())
     }
 
     pub async fn connect_to_proxy(&self) -> Result<(), String> {
-        println!("{}", self.get_software().get_software_type());
         if self.is_proxy() {
-            println!("thser ist a proxy");
             return Err("The Service is a Proxy".to_string());
         }
 
@@ -381,10 +392,10 @@ impl Service {
         let client = Client::new();
 
         for service_proxy in service_proxy_list {
-            let url = format!("http://{}/cloud/service/{}/registerService", service_proxy.get_plugin_listener().to_string(), service_proxy.get_name());
+            let url = format!("https://{}/cloud/service/{}/registerService", service_proxy.get_plugin_listener().to_string(), service_proxy.get_name());
 
-            println!("[Debug] URL -> {:?}", url);
-            println!("[Debug] Service add to connect to Proxy -> {:?}", &service_request);
+            log_info!("[Debug] URL -> {:?}", url);
+            log_info!("[Debug] Service add to connect to Proxy -> {:?}", &service_request);
 
             match client.post(url.to_string())
                 .json(&service_request)
@@ -394,7 +405,7 @@ impl Service {
                 Err(e) => log_error!("Error Antwort von {} -> {}", service_proxy.get_name(), e.to_string()),
             }
         }
-
+        tokio::time::sleep(Duration::from_secs(1)).await;
         Ok(())
     }
 
@@ -444,6 +455,16 @@ impl Service {
             }
         }
         service_online_list
+    }
+    pub fn get_prepare_service() -> Vec<Service> {
+        let mut service_prepare_list: Vec<Service> = Vec::new();
+        let service_list = Service::get_all_service();
+        for service in service_list {
+            if service.is_prepare() {
+                service_prepare_list.push(service);
+            }
+        }
+        service_prepare_list
     }
 
     pub fn get_offline_service() -> Vec<Service> {
@@ -518,6 +539,34 @@ impl Service {
             Err(e) => Err(io::Error::new(io::ErrorKind::Other, e)),
         };
     }
+
+    pub fn get_bind_ports() -> Vec<u32> {
+        let mut ports = Service::get_bind_server_ports();
+        ports.append(&mut Service::get_bind_plugin_ports());
+        ports
+    }
+
+    pub fn get_bind_server_ports() -> Vec<u32> {
+        let mut services = Service::get_online_service();
+        services.append(&mut Service::get_prepare_service());
+        let mut ports: Vec<u32> = Vec::new();
+
+        for service in services {
+            ports.push(service.get_server_address().get_port())
+        }
+        ports
+    }
+
+    pub fn get_bind_plugin_ports() -> Vec<u32> {
+        let mut services = Service::get_online_service();
+        services.append(&mut Service::get_prepare_service());
+        let mut ports: Vec<u32> = Vec::new();
+
+        for service in services {
+            ports.push(service.get_plugin_listener().get_port())
+        }
+        ports
+    }
 }
 
 fn start_server<'a>(
@@ -554,7 +603,7 @@ async fn reload_start(min_service_count: u64, task: &Task) {
             "Service would be create from task: {}",
             task.get_name()
         );
-
+        log_info!("---------------------------------------------------------------");
         let mut service = match Service::get_next_stop_service(&task) {
             Ok(service) => service,
             Err(e) => {
