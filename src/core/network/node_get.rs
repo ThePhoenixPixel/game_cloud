@@ -15,7 +15,7 @@ pub(crate) struct ServiceInfo {
 
 impl NodeGet {
     pub async fn online_service() -> HttpResponse {
-        let online_service = Service::get_online_service();
+        let online_service = Service::get_online_backend_server();
 
         let mut services_info: Vec<ServiceInfo> = Vec::new();
         for service in online_service {

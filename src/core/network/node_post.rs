@@ -26,7 +26,8 @@ impl NodePost {
         };
 
         service.set_status(&ServiceStatus::Start);
-
+        println!("Antwort von: {}", service.get_name());
+        
         match service.connect_to_proxy().await {
             Ok(_) => log_info!("Service | {} | connect to Proxy", service.get_name()),
             Err(_e) => log_warning!("Service | {} | NOT connect to Proxy", service.get_name()),

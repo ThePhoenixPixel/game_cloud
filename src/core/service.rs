@@ -16,7 +16,7 @@ use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
-use crate::{log_error, log_info, log_warning};
+use crate::{log_error, log_info};
 use crate::core::software::Software;
 
 #[derive(Serialize, Debug)]
@@ -356,22 +356,30 @@ impl Service {
             stdin_file_clone,
             server_path,
         );
+        Ok(())
+    }
 
-        match self.connect_to_proxy().await {
-            Ok(_) => log_info!("Service [{}] connect to Proxy", &self.get_name()),
-            Err(e) => log_warning!("{}", e),
-        }
+    fn prepare_to_start(&mut self) -> Result<(), io::Error> {
+        self.set_status(&ServiceStatus::Prepare);
+        self.save_to_file();
+        self.install_software()?;
+        self.install_system_plugin()?;
+        self.set_server_address()?;
+        self.find_new_free_plugin_listener();
         Ok(())
     }
 
     pub async fn connect_to_proxy(&self) -> Result<(), String> {
-        if self.get_task().get_software().get_software_type().to_lowercase() == "proxy" {
+        println!("{}", self.get_software().get_software_type());
+        if self.is_proxy() {
+            println!("thser ist a proxy");
             return Err("The Service is a Proxy".to_string());
         }
 
         let service_request = create_service_request(&self.get_name(), &self.get_server_address().get_ip(), &self.get_server_address().get_port(), &true);
-        let service_proxy_list = Service::get_online_proxy_list();
+        let service_proxy_list = Service::get_online_proxy_server();
         let client = Client::new();
+
         for service_proxy in service_proxy_list {
             let url = format!("http://{}/cloud/service/{}/registerService", service_proxy.get_plugin_listener().to_string(), service_proxy.get_name());
 
@@ -390,26 +398,28 @@ impl Service {
         Ok(())
     }
 
-    pub fn get_online_proxy_list() -> Vec<Service> {
+    pub fn get_online_proxy_server() -> Vec<Service> {
         let services = Service::get_online_service();
-        let mut service_proxy_list: Vec<Service> = Vec::new();
+        let mut proxy_server_list: Vec<Service> = Vec::new();
 
         for service in services {
-            if service.get_software().get_software_type().to_lowercase().starts_with("proxy") {
-                service_proxy_list.push(service)
+            if service.is_proxy() {
+                proxy_server_list.push(service)
             }
         }
-        service_proxy_list
+        proxy_server_list
     }
 
-    fn prepare_to_start(&mut self) -> Result<(), io::Error> {
-        self.set_status(&ServiceStatus::Prepare);
-        self.save_to_file();
-        self.install_software()?;
-        self.install_system_plugin()?;
-        self.set_server_address()?;
-        self.find_new_free_plugin_listener();
-        Ok(())
+    pub fn get_online_backend_server() -> Vec<Service> {
+        let services = Service::get_online_service();
+        let mut backend_server_list: Vec<Service> = Vec::new();
+
+        for service in services {
+            if !service.is_proxy() {
+                backend_server_list.push(service)
+            }
+        }
+        backend_server_list
     }
 
     pub fn get_all_service() -> Vec<Service> {
@@ -488,6 +498,10 @@ impl Service {
 
     pub fn get_software(&self) -> Software {
         self.get_task().get_software()
+    }
+
+    pub fn is_proxy(&self) -> bool {
+        self.get_software().get_software_type().to_lowercase() == "proxy"
     }
 
     pub fn get_next_stop_service(task: &Task) -> Result<Service, io::Error> {
