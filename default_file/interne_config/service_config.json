@@ -1,9 +1,19 @@
 {
   "name": "Proxy-1",
   "status": "Start",
-  "time": "2023-10-25T10:02:51.744765419+02:00",
-  "plugin_listener": "\"127.0.0.1\":5005",
-  "cloud_listener": "127.0.0.1:1420",
+  "start_time": "2024-07-07T19:15:36.921815660+02:00",
+  "server_address": {
+    "ip": "127.0.0.1",
+    "port": 25565
+  },
+  "plugin_listener": {
+    "ip": "127.0.0.1",
+    "port": 25566
+  },
+  "cloud_listener": {
+    "ip": "127.0.0.1",
+    "port": 5050
+  },
   "task": {
     "name": "Proxy",
     "split": "-",
@@ -15,9 +25,16 @@
       "name": "velocity"
     },
     "max_ram": 1024,
-    "start_port": 49.152,
-    "min_service_count": 0,
+    "start_port": 25565,
+    "min_service_count": 1,
     "groups": [],
-    "templates": []
+    "installer": "InstallAll",
+    "templates": [
+      {
+        "template": "Proxy",
+        "name": "default",
+        "priority": 1
+      }
+    ]
   }
 }

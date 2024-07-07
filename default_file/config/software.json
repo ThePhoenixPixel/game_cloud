@@ -5,16 +5,15 @@
         {
           "name": "paper",
           "download": "https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/389/downloads/paper-1.20.4-389.jar",
+          "system_plugin": {
+            "local": false,
+            "download": "http://download.codergames.de/minecloud/version/0.1/config/system_plugins/MineCloud-Paper.jar",
+            "path": "plugins/"
+          },
           "command": "java",
           "max_ram": 1024,
-          "ip": {
-            "path": "server.propeties",
-            "content": "server-ip:%ip%"
-          },
-          "port": {
-            "path": "server.propeties",
-            "content": "server-port:%port%"
-          }
+          "ip_path": "server.properties",
+          "port_path": "server.properties"
         }
       ]
     },
@@ -23,30 +22,28 @@
         {
           "name": "velocity",
           "download": "https://api.papermc.io/v2/projects/velocity/versions/3.3.0-SNAPSHOT/builds/323/downloads/velocity-3.3.0-SNAPSHOT-323.jar",
+          "system_plugin": {
+            "local": false,
+            "download": "http://download.codergames.de/minecloud/version/0.1/config/system_plugins/MineCloud-Velocity.jar",
+            "path": "plugins/"
+          },
           "command": "java",
           "max_ram": 512,
-          "ip": {
-            "path": "velocity.toml",
-            "content": "bind = \"%ip%:\""
-          },
-          "port": {
-            "path": "velocity.toml",
-            "content": "bind = \":%port%\""
-          }
+          "ip_path": "velocity.toml",
+          "port_path": "velocity.toml"
         },
         {
           "name": "waterfall",
           "download": "https://api.papermc.io/v2/projects/waterfall/versions/1.20/builds/562/downloads/waterfall-1.20-562.jar",
+          "system_plugin": {
+            "local": true,
+            "download": "http://download.codergames.de/minecloud/version/0.1/config/system_plugins/MineCloud-Waterfall.jar",
+            "path": "plugins/"
+          },
           "command": "java",
           "max_ram": 512,
-          "ip": {
-            "path": "config.yml",
-            "content": "listener = \"%ip%:\""
-          },
-          "port": {
-            "path": "server.propeties",
-            "content": "listener = \"%port%:\""
-          }
+          "ip_path": "config.yml",
+          "port_path": "config.yml"
         }
       ]
     }
