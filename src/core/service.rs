@@ -382,6 +382,10 @@ impl Service {
         Ok(())
     }
 
+    pub fn get_service_url(&self) -> String {
+        format!("https://{}/cloud/service/{}/", self.get_plugin_listener().to_string(), self.get_name())
+    }
+
     pub async fn connect_to_proxy(&self) -> Result<(), String> {
         if self.is_proxy() {
             return Err("The Service is a Proxy".to_string());
@@ -392,7 +396,7 @@ impl Service {
         let client = Client::new();
 
         for service_proxy in service_proxy_list {
-            let url = format!("https://{}/cloud/service/{}/registerService", service_proxy.get_plugin_listener().to_string(), service_proxy.get_name());
+            let url = format!("{}registerService", service_proxy.get_service_url());
 
             log_info!("[Debug] URL -> {:?}", url);
             log_info!("[Debug] Service add to connect to Proxy -> {:?}", &service_request);
@@ -567,6 +571,8 @@ impl Service {
         }
         ports
     }
+
+    pub async fn shutdown(&self) {}
 }
 
 fn start_server<'a>(
