@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
 use std::io::Write;
+use std::ops::Add;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
@@ -18,6 +19,7 @@ use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info};
 use crate::core::software::Software;
+use crate::lib::url::Url;
 
 #[derive(Serialize, Debug)]
 struct RegisterServer {
@@ -382,8 +384,8 @@ impl Service {
         Ok(())
     }
 
-    pub fn get_service_url(&self) -> String {
-        format!("https://{}/cloud/service/{}/", self.get_plugin_listener().to_string(), self.get_name())
+    pub fn get_service_url(&self) -> Url {
+        Url::new(&format!("https://{}/cloud/service/{}", self.get_plugin_listener().to_string(), self.get_name()).to_string())
     }
 
     pub async fn connect_to_proxy(&self) -> Result<(), String> {
@@ -396,9 +398,9 @@ impl Service {
         let client = Client::new();
 
         for service_proxy in service_proxy_list {
-            let url = format!("{}registerService", service_proxy.get_service_url());
+            let url = service_proxy.get_service_url().join("registerService");
 
-            log_info!("[Debug] URL -> {:?}", url);
+            log_info!("[Debug] URL -> {:?}", url.to_string());
             log_info!("[Debug] Service add to connect to Proxy -> {:?}", &service_request);
 
             match client.post(url.to_string())
