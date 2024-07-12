@@ -16,20 +16,9 @@ use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info};
+use crate::core::network::requests::register_server::RegisterServer;
 use crate::core::software::Software;
 use crate::lib::url::Url;
-
-#[derive(Serialize, Debug)]
-struct RegisterServer {
-    name: String,
-    address: Address,
-    try_to_connect: bool,
-}
-
-#[derive(Serialize, Debug)]
-struct ServiceRequest {
-    register_server: RegisterServer,
-}
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -379,12 +368,11 @@ impl Service {
             return Err("The Service is a Proxy".to_string());
         }
 
-        let request = create_service_request(&self.get_name(), &self.get_server_address(), &true);
         let service_proxy_list = Service::get_online_proxy_server();
 
         for service_proxy in service_proxy_list {
             println!("url -> {}", service_proxy.get_service_url().join("registerService").to_string());
-            match service_proxy.get_service_url().join("registerService").post(&request).await {
+            match service_proxy.get_service_url().join("registerService").post(&RegisterServer::create_request(&self, &true)).await {
                 Ok(_) => log_info!("erfolgreich connect to ...."),
                 Err(e) => log_info!("{}", e.to_string()),
             }
@@ -601,17 +589,5 @@ async fn reload_start(min_service_count: u64, task: &Task) {
             Err(e) => log_error!("Server [{}] can NOT Start \n {}", service.get_name(), e),
         }
         tokio::time::sleep(Duration::from_secs(1)).await;
-    }
-}
-
-fn create_service_request(name: &String, address: &Address, try_to_connect: &bool) -> ServiceRequest {
-    let register_server = RegisterServer {
-        name: name.clone(),
-        address: address.clone(),
-        try_to_connect: try_to_connect.clone(),
-    };
-
-    ServiceRequest {
-        register_server,
     }
 }

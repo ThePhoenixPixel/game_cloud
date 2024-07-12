@@ -27,6 +27,9 @@ pub mod utils {
 
 pub mod core {
     pub mod network {
+        pub mod requests {
+            pub mod register_server;
+        }
         pub mod node_host;
         pub mod node_get;
         pub mod node_post;
