@@ -1,3 +1,6 @@
+use reqwest::{Client, Error, Response};
+use serde::Serialize;
+
 pub struct Url {
     url: String,
 }
@@ -21,5 +24,12 @@ impl Url {
         Url {
             url: format!("{}/{}", self.url, str)
         }
+    }
+
+    pub async fn post<T: Serialize>(&self, body: &T) -> Result<Response, Error> {
+        let client = Client::new();
+        return client.post(&self.url)
+            .json(&body)
+            .send().await;
     }
 }

@@ -3,11 +3,9 @@ use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
 use std::io::Write;
-use std::ops::Add;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
-use reqwest::Client;
 
 use crate::core::task::Task;
 use crate::lib::address::Address;
@@ -24,8 +22,7 @@ use crate::lib::url::Url;
 #[derive(Serialize, Debug)]
 struct RegisterServer {
     name: String,
-    ip: String,
-    port: u32,
+    address: Address,
     try_to_connect: bool,
 }
 
@@ -385,7 +382,7 @@ impl Service {
     }
 
     pub fn get_service_url(&self) -> Url {
-        Url::new(&format!("https://{}/cloud/service/{}", self.get_plugin_listener().to_string(), self.get_name()).to_string())
+        Url::new(&format!("http://{}/cloud/service/{}", self.get_plugin_listener().to_string(), self.get_name()).to_string())
     }
 
     pub async fn connect_to_proxy(&self) -> Result<(), String> {
@@ -393,25 +390,16 @@ impl Service {
             return Err("The Service is a Proxy".to_string());
         }
 
-        let service_request = create_service_request(&self.get_name(), &self.get_server_address().get_ip(), &self.get_server_address().get_port(), &true);
+        let request = create_service_request(&self.get_name(), &self.get_server_address(), &true);
         let service_proxy_list = Service::get_online_proxy_server();
-        let client = Client::new();
 
         for service_proxy in service_proxy_list {
-            let url = service_proxy.get_service_url().join("registerService");
-
-            log_info!("[Debug] URL -> {:?}", url.to_string());
-            log_info!("[Debug] Service add to connect to Proxy -> {:?}", &service_request);
-
-            match client.post(url.to_string())
-                .json(&service_request)
-                .send().await
-            {
-                Ok(_response) => log_info!("Antwort von {} -> Erfolgreich", service_proxy.get_name()),
-                Err(e) => log_error!("Error Antwort von {} -> {}", service_proxy.get_name(), e.to_string()),
+            println!("url -> {}", service_proxy.get_service_url().join("registerService").to_string());
+            match service_proxy.get_service_url().join("registerService").post(&request).await {
+                Ok(_) => log_info!("erfolgreich connect to ...."),
+                Err(e) => log_info!("{}", e.to_string()),
             }
         }
-        tokio::time::sleep(Duration::from_secs(1)).await;
         Ok(())
     }
 
@@ -627,11 +615,10 @@ async fn reload_start(min_service_count: u64, task: &Task) {
     }
 }
 
-fn create_service_request(name: &String, ip: &String, port: &u32, try_to_connect: &bool) -> ServiceRequest {
+fn create_service_request(name: &String, address: &Address, try_to_connect: &bool) -> ServiceRequest {
     let register_server = RegisterServer {
         name: name.clone(),
-        ip: ip.clone(),
-        port: port.clone(),
+        address: address.clone(),
         try_to_connect: try_to_connect.clone(),
     };
 
