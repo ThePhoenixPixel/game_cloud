@@ -9,6 +9,7 @@ pub mod rest_api {
 
 pub mod lib {
     pub mod url;
+    pub mod url_schema;
     pub mod address;
     pub mod bx;
     pub mod thread_manager;

@@ -19,6 +19,7 @@ use crate::{log_error, log_info};
 use crate::core::network::requests::register_server::RegisterServer;
 use crate::core::software::Software;
 use crate::lib::url::Url;
+use crate::lib::url_schema::UrlSchema;
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {
@@ -360,7 +361,7 @@ impl Service {
     }
 
     pub fn get_service_url(&self) -> Url {
-        Url::new(&format!("http://{}/cloud/service/{}", self.get_plugin_listener().to_string(), self.get_name()).to_string())
+        Url::new(UrlSchema::Http, &self.get_plugin_listener(), "cloud/service").join(&self.get_name())
     }
 
     pub async fn connect_to_proxy(&self) -> Result<(), String> {
@@ -371,7 +372,7 @@ impl Service {
         let service_proxy_list = Service::get_online_proxy_server();
 
         for service_proxy in service_proxy_list {
-            println!("url -> {}", service_proxy.get_service_url().join("registerService").to_string());
+            println!("url -> {}", service_proxy.get_service_url().join("registerService").get());
             match service_proxy.get_service_url().join("registerService").post(&RegisterServer::create_request(&self, &true)).await {
                 Ok(_) => log_info!("erfolgreich connect to ...."),
                 Err(e) => log_info!("{}", e.to_string()),
