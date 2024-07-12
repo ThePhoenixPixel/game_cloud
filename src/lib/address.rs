@@ -59,4 +59,10 @@ impl Address {
     pub fn to_string(&self) -> String {
         format!("{}:{}", self.get_ip(), self.get_port()).to_string()
     }
+    pub fn get_local() -> Address {
+        Address {
+            ip: "127.0.0.1".to_string(),
+            port: 0,
+        }
+    }
 }

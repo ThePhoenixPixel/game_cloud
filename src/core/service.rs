@@ -28,7 +28,6 @@ struct RegisterServer {
 
 #[derive(Serialize, Debug)]
 struct ServiceRequest {
-    #[serde(rename = "registerServer")]
     register_server: RegisterServer,
 }
 
@@ -52,14 +51,6 @@ impl Service {
                 &task.get_start_port(),
             )),
         );
-        let plugin_listener = Address::new(
-            &"127.0.0.1".to_string(),
-            &mut Address::find_next_port(&mut Address::new(
-                &"127.0.0.1".to_string(),
-                &mut task.get_start_port(),
-            )),
-        );
-        let cloud_listener = CloudConfig::get().get_node_host();
         let service_path = match task.prepared_to_service() {
             Ok(path) => path,
             Err(e) => {
@@ -67,15 +58,13 @@ impl Service {
             }
         };
 
-        let service_name = Bx::get_last_folder_name(&service_path);
-
         let service = Service {
-            name: service_name,
+            name: Bx::get_last_folder_name(&service_path),
             status: ServiceStatus::Stop,
             start_time: Local::now(),
             server_address,
-            plugin_listener,
-            cloud_listener,
+            plugin_listener: Address::get_local(),
+            cloud_listener: CloudConfig::get().get_node_host(),
             task: task.clone(),
         };
 
