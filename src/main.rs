@@ -10,7 +10,6 @@ pub mod rest_api {
 pub mod lib {
     pub mod url;
     pub mod url_schema;
-    pub mod address;
     pub mod bx;
     pub mod thread_manager;
     pub mod webhook;
@@ -30,6 +29,7 @@ pub mod core {
     pub mod network {
         pub mod requests {
             pub mod register_server;
+            pub mod shutdown;
         }
         pub mod node_host;
         pub mod node_get;

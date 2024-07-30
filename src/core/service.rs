@@ -8,7 +8,7 @@ use std::process::{Command, Stdio};
 use std::time::Duration;
 
 use crate::core::task::Task;
-use crate::lib::address::Address;
+use address::Address;
 use crate::lib::bx::Bx;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
@@ -16,7 +16,7 @@ use crate::utils::logger::Logger;
 use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info};
-use crate::core::network::requests::register_server::RegisterServer;
+use crate::core::network::requests::register_server::RegisterServerData;
 use crate::core::software::Software;
 use crate::lib::url::Url;
 use crate::lib::url_schema::UrlSchema;
@@ -373,7 +373,7 @@ impl Service {
 
         for service_proxy in service_proxy_list {
             println!("url -> {}", service_proxy.get_service_url().join("registerService").get());
-            match service_proxy.get_service_url().join("registerService").post(&RegisterServer::create_request(&self, &true)).await {
+            match service_proxy.get_service_url().join("registerService").post(&RegisterServerData::create_request(&self, &true)).await {
                 Ok(_) => log_info!("erfolgreich connect to ...."),
                 Err(e) => log_info!("{}", e.to_string()),
             }
@@ -540,7 +540,9 @@ impl Service {
         ports
     }
 
-    pub async fn shutdown(&self) {}
+    pub async fn shutdown(&self) {
+        //match self.get_service_url().join("shutdown").post()
+    }
 }
 
 fn start_server<'a>(

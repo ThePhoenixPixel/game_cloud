@@ -21,6 +21,7 @@ actix-web = "4.5.1"
 actix-cors = "0.7.0"
 log = "0.4.21"
 sysinfo = "0.30.7"
+address = { path = "../lib/address" }
 
 [features]
 default = ["rest-api"]

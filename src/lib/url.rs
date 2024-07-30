@@ -1,7 +1,7 @@
 use reqwest::{Client, Error, Response};
 use serde::{Deserialize, Serialize};
 
-use crate::lib::address::Address;
+use address::Address;
 use crate::lib::url_schema::UrlSchema;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

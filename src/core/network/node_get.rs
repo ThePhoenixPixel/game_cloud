@@ -1,6 +1,6 @@
 use std::time::Duration;
 use crate::core::service::Service;
-use crate::lib::address::Address;
+use address::Address;
 
 use actix_web::HttpResponse;
 use serde::{Serialize};
