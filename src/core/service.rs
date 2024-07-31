@@ -15,7 +15,6 @@ use crate::core::task::Task;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::logger::Logger;
-use crate::utils::path::Path;
 use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info};
 use crate::core::network::requests::register_server::RegisterServerData;
@@ -278,7 +277,7 @@ impl Service {
     pub fn get_starts_service_from_task(task: &Task) -> u64 {
         let service_path = task.get_service_path();
         let mut start_service: u64 = 0;
-        let files_name = Path::get_files_name_from_path(&service_path);
+        let files_name = Bx::get_files_name_from_path(&service_path);
 
         for file_name in files_name {
             let mut current_service_path = service_path.clone();
@@ -408,7 +407,7 @@ impl Service {
     pub fn get_all_service() -> Vec<Service> {
         let mut service_list: Vec<Service> = Vec::new();
         let service_path_dir = CloudConfig::get().get_cloud_path().get_service_folder().get_temp_folder_path();
-        for folder in Path::get_folders_name_from_path(&service_path_dir) {
+        for folder in Bx::get_folders_name_from_path(&service_path_dir) {
             let mut path = service_path_dir.clone();
             path.push(folder);
             if let Some(service) = Service::get_from_path(&mut path) {

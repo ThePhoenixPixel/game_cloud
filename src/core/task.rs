@@ -13,7 +13,6 @@ use crate::core::software::Software;
 use crate::core::template::Template;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
-use crate::utils::path::Path;
 use crate::{log_error, log_info};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -239,7 +238,7 @@ impl Task {
     pub fn get_task(name: String) -> Option<Task> {
         let task_path = CloudConfig::get().get_cloud_path().get_task_folder_path();
 
-        let files_name = Path::get_files_name_from_path(&task_path);
+        let files_name = Bx::get_files_name_from_path(&task_path);
 
         // iter list of files Name
         for file_name in files_name {

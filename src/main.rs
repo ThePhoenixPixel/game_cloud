@@ -10,8 +10,6 @@ pub mod rest_api {
 pub mod utils {
     pub mod log;
     pub mod logger;
-    pub mod path;
-    pub mod serde;
     pub mod service_status;
     #[macro_use]
     pub mod logger_macros;
