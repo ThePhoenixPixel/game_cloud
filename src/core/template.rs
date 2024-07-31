@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+use bx::Bx;
+
 use crate::core::task::Task;
-use crate::lib::bx::Bx;
 use crate::sys_config::cloud_config::CloudConfig;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -64,8 +65,8 @@ impl Template {
                 .get_cloud_path()
                 .get_template_folder_path(),
         )
-        .join(&self.template)
-        .join(&self.name)
+            .join(&self.template)
+            .join(&self.name)
     }
 
     pub fn create_by_task(task: &Task) {

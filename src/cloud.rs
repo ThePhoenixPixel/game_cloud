@@ -3,7 +3,8 @@ use colored::{ColoredString, Colorize};
 use std::env;
 use std::path::PathBuf;
 
-use crate::lib::bx::Bx;
+use bx::Bx;
+
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::SoftwareConfig;
 use crate::terminal::cmd::Cmd;

@@ -1,15 +1,17 @@
-use chrono::{DateTime, Local};
-use serde::{Deserialize, Serialize};
 use std::fs::{read_to_string, File};
 use std::{fs, io};
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
+use chrono::{DateTime, Local};
+use serde::{Deserialize, Serialize};
+
+use bx::Bx;
+use bx::address::Address;
+use bx::url::{Url, UrlSchema};
 
 use crate::core::task::Task;
-use address::Address;
-use crate::lib::bx::Bx;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::sys_config::software_config::{SoftwareConfig, SoftwareName};
 use crate::utils::logger::Logger;
@@ -18,8 +20,6 @@ use crate::utils::service_status::ServiceStatus;
 use crate::{log_error, log_info};
 use crate::core::network::requests::register_server::RegisterServerData;
 use crate::core::software::Software;
-use crate::lib::url::Url;
-use crate::lib::url_schema::UrlSchema;
 
 #[derive(Serialize, Deserialize)]
 pub struct Service {

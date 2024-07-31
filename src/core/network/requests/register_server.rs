@@ -1,7 +1,8 @@
 use serde::Serialize;
 
+use bx::address::Address;
+
 use crate::core::service::Service;
-use address::Address;
 
 #[derive(Serialize, Debug)]
 pub struct RegisterServerData {

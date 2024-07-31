@@ -7,14 +7,6 @@ pub mod rest_api {
     pub mod set;
 }
 
-pub mod lib {
-    pub mod url;
-    pub mod url_schema;
-    pub mod bx;
-    pub mod thread_manager;
-    pub mod webhook;
-}
-
 pub mod utils {
     pub mod log;
     pub mod logger;

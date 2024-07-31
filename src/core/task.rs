@@ -5,11 +5,12 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 use std::{fs, io};
 
+use bx::Bx;
+
 use crate::core::installer::Installer;
 use crate::core::service::Service;
 use crate::core::software::Software;
 use crate::core::template::Template;
-use crate::lib::bx::Bx;
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
 use crate::utils::path::Path;

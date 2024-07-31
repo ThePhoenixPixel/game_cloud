@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 
-use crate::lib::bx::Bx;
+use bx::Bx;
+
 use crate::sys_config::cloud_config::CloudConfig;
 use crate::utils::logger::Logger;
 use crate::{log_error, log_info, log_warning};

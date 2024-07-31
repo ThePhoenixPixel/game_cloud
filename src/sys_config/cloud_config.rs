@@ -1,11 +1,14 @@
-use crate::cloud::Cloud;
-use address::Address;
-use crate::lib::bx::Bx;
-use crate::utils::logger::Logger;
-use crate::{log_error, log_info};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+
+use bx::Bx;
+use bx::address::Address;
+
+use crate::cloud::Cloud;
+use crate::utils::logger::Logger;
+use crate::{log_error, log_info};
+
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CloudConfig {
